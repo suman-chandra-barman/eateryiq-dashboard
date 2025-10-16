@@ -102,7 +102,7 @@ export function ChatHistory() {
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="font-semibold text-foreground">Chat History</h2>
+            <h2 className="font-semibold text-xl md:text-2xl">Chat History</h2>
             <span className="text-xs text-muted-foreground">({history.length})</span>
           </div>
           {selectedChats.length > 0 && (

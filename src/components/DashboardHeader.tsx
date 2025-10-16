@@ -8,7 +8,7 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({ title }: DashboardHeaderProps) {
   return (
-    <div className="border border-border bg-card px-8 py-4 rounded-2xl">
+    <div className="border border-border bg-card px-8 py-4 rounded-2xl mb-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl md:text-3xl font-semibold text-foreground">{title}</h2>
 

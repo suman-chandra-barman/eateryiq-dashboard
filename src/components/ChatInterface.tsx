@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { BarChart3, Lightbulb, Calendar, TrendingUp, Paperclip, Mic, Send, Plus } from "lucide-react"
 import bot from "@/assets/bot.svg"
+import user from "@/assets/user.jpg"
 import Image from "next/image"
 
 interface Message {
@@ -147,7 +148,7 @@ export function ChatInterface() {
   const showWelcomeScreen = messages.length === 0
 
   return (
-    <Card className="h-full flex flex-col bg-background border-border">
+    <Card className="h-full flex flex-col bg-background border-border py-0">
       {/* Chat Messages Area */}
       <div className="flex-1 p-8 overflow-auto">
         {showWelcomeScreen ? (
@@ -186,7 +187,7 @@ export function ChatInterface() {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex gap-3 ${message.role === "user" ? "justify-end items-end" : "justify-start"}`}
               >
                 {message.role === "assistant" && (
                   <div className="flex items-end justify-center flex-shrink-0">
@@ -202,7 +203,7 @@ export function ChatInterface() {
                 </div>
                 {message.role === "user" && message.avatar && (
                   <Image
-                    src={message.avatar || "/placeholder.svg"}
+                    src={user}
                     alt="User"
                     className="w-8 h-8 rounded-full flex-shrink-0"
                   />
