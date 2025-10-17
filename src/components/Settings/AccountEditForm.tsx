@@ -118,7 +118,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Full Name */}
         <div className="flex items-center gap-6 py-4">
-          <label className="text-sm font-medium text-foreground w-44">
+          <label className="text-lg font-medium w-44">
             Full Name
           </label>
           <div className="flex-1 border-b pb-4 border-gray-200">
@@ -132,7 +132,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Email */}
         <div className="flex items-center gap-6 pb-4">
-          <label className="text-sm font-medium text-foreground w-44">
+          <label className="text-lg font-medium w-44">
             Email
           </label>
           <div className="flex-1 border-b pb-4 border-gray-200">
@@ -147,7 +147,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Phone Number */}
         <div className="flex items-center gap-6 pb-4 ">
-          <label className="text-sm font-medium text-foreground w-44">
+          <label className="text-lg font-medium w-44">
             Phone Number
           </label>
           <div className="flex-1 border-b pb-4 border-gray-200">
@@ -164,7 +164,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Country */}
         <div className="flex items-center gap-6 pb-4">
-          <label className="text-sm font-medium text-foreground w-44">
+          <label className="text-lg font-medium w-44">
             Country
           </label>
           <div className="flex-1">
