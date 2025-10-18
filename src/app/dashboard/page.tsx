@@ -1,4 +1,3 @@
-import DashboardHeader from "@/components/DashboardHeader";
 import { DeliveryChart } from "@/components/DeliveryChart";
 import StatsCard from "@/components/StatasCard";
 import { TrendingUp, Users, DollarSign } from "lucide-react";
@@ -6,8 +5,6 @@ import { TrendingUp, Users, DollarSign } from "lucide-react";
 export default function DashboardPage() {
   return (
     <div className="min-h-screen">
-      <DashboardHeader title="Operator Dashboard" />
-
       <div className="p-4 bg-white my-4 rounded-2xl">
         <h1 className="text-3xl font-bold text-foreground mb-8">Dashboard</h1>
 
