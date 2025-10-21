@@ -73,7 +73,7 @@ export function AdminDashboardSidebar() {
     <>
       <div
         className={cn(
-          "bg-white transition-all duration-300 ease-in-out flex flex-col shadow-sm",
+          "bg-white transition-all duration-300 ease-in-out flex flex-col shadow-sm border-r border-blue-500",
           isCollapsed ? "w-20" : "w-64"
         )}
       >

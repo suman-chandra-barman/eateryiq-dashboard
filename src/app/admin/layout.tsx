@@ -10,7 +10,7 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen bg-[#F2F7FF] text-[#535F72] gap-4">
       <AdminDashboardSidebar />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto py-4">
         <AdminDashboardHeader />
         {children}
       </main>

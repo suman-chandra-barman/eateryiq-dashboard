@@ -2,11 +2,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AdminDashboardHeader() {
   return (
-    <div className="bg-card px-8 py-4 rounded-2xl mb-4">
+    <div className="bg-card px-8 py-4 rounded-2xl mb-4 border border-blue-500">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl md:text-2xl font-semibold text-foreground">
-            {" Jhon Marcel"}
+            Welcome, {" Jhon Marcel"}
           </h2>
           <p>Have a nice day</p>
         </div>
