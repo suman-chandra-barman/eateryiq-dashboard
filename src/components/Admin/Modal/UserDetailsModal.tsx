@@ -64,7 +64,7 @@ interface DetailFieldProps {
 
 function DetailField({ label, value }: DetailFieldProps) {
   return (
-    <div className="border-b border-gray-200 pb-4 flex items-center justify-between text-gray-600 text-sm font-medium ">
+    <div className="border-b border-gray-200 flex items-center justify-between text-gray-600 text-sm font-medium ">
       <p className="mb-2">{label}</p>
       <p>{value}</p>
     </div>

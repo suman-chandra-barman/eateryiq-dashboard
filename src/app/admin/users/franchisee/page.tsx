@@ -1,9 +1,10 @@
 "use client";
 
-import AdminStatsCards from "@/components/Admin/Card/AdminStatsCard";
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
 import UserDetailsModal from "@/components/Admin/Modal/UserDetailsModal";
-import UsersTable from "@/components/Admin/Table/UsersTable";
+import OperatorTable from "@/components/Admin/Table/OperatorTable";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 
 interface User {
@@ -12,10 +13,11 @@ interface User {
   email: string;
   role: string;
   address: string;
+  plan: string;
   joinDate: string;
 }
 
-export default function AdminDashboardPage() {
+export default function FranchiseePage() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -25,7 +27,8 @@ export default function AdminDashboardPage() {
       id: "1",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -33,7 +36,8 @@ export default function AdminDashboardPage() {
       id: "2",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -41,7 +45,8 @@ export default function AdminDashboardPage() {
       id: "3",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -49,7 +54,8 @@ export default function AdminDashboardPage() {
       id: "4",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -57,7 +63,8 @@ export default function AdminDashboardPage() {
       id: "5",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -65,7 +72,8 @@ export default function AdminDashboardPage() {
       id: "6",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -73,32 +81,26 @@ export default function AdminDashboardPage() {
       id: "7",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
       address: "UK",
+      plan: "Professional",
       joinDate: "1 Jan, 2025",
     },
     {
       id: "8",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      plan: "Starter",
+      role: "Franchisee",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
-
     {
       id: "9",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "10",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Operator",
+      role: "Franchisee",
+      plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -120,20 +122,23 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <AdminStatsCards />
-        <div className="mb-4">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-            Recent Users
-          </h2>
-        </div>
-        <UsersTable
-          users={users}
-          onViewDetails={handleViewDetails}
-          onDelete={handleDeleteClick}
-        />
+    <div className=" bg-gray-50">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+          Franchisee List
+        </h2>
+        <InputGroup className="max-w-sm">
+          <InputGroupInput placeholder="Search..." />
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
+        </InputGroup>
       </div>
+      <OperatorTable
+        users={users}
+        onViewDetails={handleViewDetails}
+        onDelete={handleDeleteClick}
+      />
 
       {selectedUser && (
         <>

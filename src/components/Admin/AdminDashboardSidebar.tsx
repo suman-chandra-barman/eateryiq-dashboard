@@ -35,7 +35,7 @@ import settingIcon from "@/assets/Settings.svg";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: dashbaordIcon },
-  { href: "/admin/earining", label: "Earning", icon: earningsIcon },
+  { href: "/admin/earning", label: "Earning", icon: earningsIcon },
   {
     href: "",
     label: "Users Name",
@@ -175,7 +175,7 @@ export function AdminDashboardSidebar() {
                           className={cn(
                             "w-full h-10 text-[#535F72] hover:bg-[#F2F7FF] hover:text-blue-600 rounded-[12px] justify-start gap-3 pl-6",
                             pathname === subItem.href &&
-                              "bg-blue-600 text-white hover:bg-blue-700"
+                              "bg-blue-600 text-white hover:text-white hover:bg-blue-700"
                           )}
                         >
                           <Image

@@ -20,7 +20,7 @@ interface EarningTableProps {
   onDelete: (earnings: Earning) => void;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 export default function EarningTable({
   earnings,
@@ -36,11 +36,6 @@ export default function EarningTable({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900 px-6 pt-6">
-         Earning List
-        </h2>
-      </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>

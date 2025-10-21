@@ -1,8 +1,10 @@
-"use client"
+"use client";
 
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
 import EarningDetailsModal from "@/components/Admin/Modal/EarningDetailsModal";
 import EarningTable from "@/components/Admin/Table/EarningsTable";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { SearchIcon } from "lucide-react";
 import React, { useState } from "react";
 
 interface Earning {
@@ -157,8 +159,7 @@ function EarningsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Earning | null>(null);
 
-
-    const handleViewDetails = (user: Earning) => {
+  const handleViewDetails = (user: Earning) => {
     setSelectedUser(user);
     setDetailsModalOpen(true);
   };
@@ -175,28 +176,36 @@ function EarningsPage() {
 
   return (
     <div>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Earning List</h2>
+        <InputGroup className="max-w-sm">
+          <InputGroupInput placeholder="Search..." />
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
+        </InputGroup>
+      </div>
       <EarningTable
         earnings={earining}
         onViewDetails={handleViewDetails}
         onDelete={handleDeleteClick}
       />
 
-      
-            {selectedUser && (
-              <>
-                <EarningDetailsModal
-                  isOpen={detailsModalOpen}
-                  onClose={() => setDetailsModalOpen(false)}
-                  earning={selectedUser}
-                />
-                <DeleteModal
-                  isOpen={deleteModalOpen}
-                  onClose={() => setDeleteModalOpen(false)}
-                  onConfirm={handleConfirmDelete}
-                   title={"earning"}
-                />
-              </>
-            )}
+      {selectedUser && (
+        <>
+          <EarningDetailsModal
+            isOpen={detailsModalOpen}
+            onClose={() => setDetailsModalOpen(false)}
+            earning={selectedUser}
+          />
+          <DeleteModal
+            isOpen={deleteModalOpen}
+            onClose={() => setDeleteModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title={"earning"}
+          />
+        </>
+      )}
     </div>
   );
 }

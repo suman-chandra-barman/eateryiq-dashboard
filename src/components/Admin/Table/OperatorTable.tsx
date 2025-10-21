@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
+import { SearchIcon } from "lucide-react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 interface User {
   id: string;
@@ -10,6 +16,7 @@ interface User {
   email: string;
   role: string;
   address: string;
+  plan: string;
   joinDate: string;
 }
 
@@ -21,7 +28,7 @@ interface UsersTableProps {
 
 const ITEMS_PER_PAGE = 10;
 
-export default function UsersTable({
+export default function OperatorTable({
   users,
   onViewDetails,
   onDelete,
@@ -38,7 +45,7 @@ export default function UsersTable({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-blue-600 text-white">
+            <tr className="bg-blue-600 text-white w-full">
               <th className="px-6 py-4 text-left text-sm font-semibold">
                 #TR.ID
               </th>
@@ -46,13 +53,10 @@ export default function UsersTable({
                 User Name
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold">
-                User role
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
                 Email
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold">
-                Join Date
+                Plan
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold">
                 Action
@@ -68,13 +72,10 @@ export default function UsersTable({
                 <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                   {user.name}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{user.role}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">
                   {user.email}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {user.joinDate}
-                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">{user.plan}</td>
                 <td className="px-6 py-4 text-sm">
                   <div className="flex items-center gap-3">
                     <button
