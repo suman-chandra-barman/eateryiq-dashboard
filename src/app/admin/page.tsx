@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
             isOpen={deleteModalOpen}
             onClose={() => setDeleteModalOpen(false)}
             onConfirm={handleConfirmDelete}
-            userName={selectedUser.name}
+            title={"user"}
           />
         </>
       )}

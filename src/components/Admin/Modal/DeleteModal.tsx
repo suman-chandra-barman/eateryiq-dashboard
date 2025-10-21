@@ -7,14 +7,14 @@ interface DeleteUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  userName: string;
+  title: string;
 }
 
 export default function DeleteModal({
   isOpen,
   onClose,
   onConfirm,
-  userName,
+  title,
 }: DeleteUserModalProps) {
   if (!isOpen) return null;
 
@@ -27,9 +27,11 @@ export default function DeleteModal({
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">Delete User</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          Delete {title}
+        </h2>
         <p className="text-gray-600 mb-8">
-          Are you sure you want to delete this user? This action cannot be
+          Are you sure you want to delete this {title}? This action cannot be
           undone.
         </p>
 
