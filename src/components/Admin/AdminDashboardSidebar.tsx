@@ -32,6 +32,7 @@ import operatorIcon from "@/assets/Operator.svg";
 import fanchiseeIcon from "@/assets/Franchisee.svg";
 import subscriptionIcon from "@/assets/Subscribtion.svg";
 import settingIcon from "@/assets/Settings.svg";
+import supportIcon from "@/assets/ix_support.svg";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: dashbaordIcon },
@@ -50,6 +51,11 @@ const navItems = [
     href: "/admin/subscription",
     label: "Subscription",
     icon: subscriptionIcon,
+  },
+  {
+    href: "/admin/support",
+    label: "Support",
+    icon: supportIcon,
   },
   { href: "/admin/settings", label: "Settings", icon: settingIcon },
 ];

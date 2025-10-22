@@ -131,6 +131,7 @@ export default function SubscriptionPage() {
         </Button>
       </div>
       {/* Pricing Cards */}
+
       <div className="grid md:grid-cols-3 gap-6 lg:gap-12">
         {plans.map((plan, index) => (
           <Card
