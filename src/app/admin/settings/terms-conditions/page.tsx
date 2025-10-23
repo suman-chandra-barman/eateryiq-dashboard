@@ -1,6 +1,7 @@
 /** @format */
 "use client";
 
+import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftIcon, PenLine, Save, X } from "lucide-react";
@@ -33,12 +34,7 @@ const Page = () => {
     <div className="min-h-screen bg-transparent pt-2 md:pt-6">
       <div className="max-w-full mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <Link href="/admin/settings" className="flex items-center gap-0 mb-6">
-            <ArrowLeftIcon className="w-8 h-4 text-gray-600" />
-            <h2 className="text-lg md:text-xl font-medium text-gray-900">
-              Terms & Conditions
-            </h2>
-          </Link>
+          <BackButton name="Terms & Conditions" />
           {!isEditing ? (
             <Button
               onClick={handleEdit}

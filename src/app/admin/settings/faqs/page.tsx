@@ -3,9 +3,10 @@
 
 import AddFaqsModal from "@/components/Admin/settings/addFaqsModal";
 import FaqsCard from "@/components/Admin/settings/faqsCard";
+import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, Plus } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 interface FAQ {
   id: string;
@@ -13,7 +14,8 @@ interface FAQ {
   answer: string;
 }
 
-const Page = () => {
+const FAQPage = () => {
+  const rounter = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [faqs, setFaqs] = useState<FAQ[]>([
@@ -101,12 +103,7 @@ const Page = () => {
     <div className="min-h-screen bg-transparent pt-2 md:pt-6">
       <div className="max-w-full mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <Link href="/admin/settings" className="flex items-center gap-0 mb-6">
-            <ArrowLeftIcon className="w-8 h-4 text-gray-600" />
-            <h2 className="text-lg md:text-xl font-medium text-gray-900">
-              FAQ&apos;s
-            </h2>
-          </Link>
+          <BackButton name="FAQ's" />
           <Button
             onClick={handleAddNew}
             className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2"
@@ -150,4 +147,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default FAQPage;
