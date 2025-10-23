@@ -34,7 +34,7 @@ export default function UsersTable({
   const paginatedUsers = users.slice(startIndex, endIndex);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-200">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
