@@ -26,14 +26,22 @@ import logo from "@/assets/logo.png";
 import logoWithoutText from "@/assets/logo_without_text.png";
 import user from "@/assets/user.jpg";
 import { sidebarItems } from "@/config/sidebarItems";
+import { LucideIcon } from "lucide-react";
 
-// 🧩 Option 1: Get role from props or context
-export function DashboardSidebar({ role = "operator" }: { role?: string }) {
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+type Role = "operator" | "manager" | "franchisee";
+
+export function DashboardSidebar({ role = "operator" }: { role?: Role }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const pathname = usePathname();
 
-  const navItems = sidebarItems[role] || sidebarItems["operator"];
+  const navItems: NavItem[] = sidebarItems[role] || sidebarItems["operator"];
 
   const handleLogout = () => {
     console.log("Logging out...");
@@ -71,7 +79,10 @@ export function DashboardSidebar({ role = "operator" }: { role?: string }) {
             </>
           ) : (
             <div className="flex flex-col items-center gap-4">
-              <Link href="/dashboard" className="flex items-center justify-center">
+              <Link
+                href="/dashboard"
+                className="flex items-center justify-center"
+              >
                 <Image src={logoWithoutText} alt="Logo" className="w-8 h-8" />
               </Link>
               <Button
@@ -87,7 +98,12 @@ export function DashboardSidebar({ role = "operator" }: { role?: string }) {
         </div>
 
         {/* ===== Nav Items ===== */}
-        <nav className={cn("py-4 flex flex-col flex-1 space-y-2", isCollapsed ? "px-2" : "px-4")}>
+        <nav
+          className={cn(
+            "py-4 flex flex-col flex-1 space-y-2",
+            isCollapsed ? "px-2" : "px-4"
+          )}
+        >
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -98,7 +114,7 @@ export function DashboardSidebar({ role = "operator" }: { role?: string }) {
                   className={cn(
                     "w-full h-11 text-[#535F72] hover:bg-[#F2F7FF] hover:text-blue-600 rounded-[12px]",
                     isCollapsed ? "justify-center px-0" : "justify-start gap-3",
-                    isActive && "bg-blue-600 text-white hover:bg-blue-700"
+                    isActive && "bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -155,7 +171,10 @@ export function DashboardSidebar({ role = "operator" }: { role?: string }) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowLogoutDialog(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleLogout}>
