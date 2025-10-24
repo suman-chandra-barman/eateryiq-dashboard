@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EateryIO Dashboard",
+  title: "Dashboard",
   description: "Manage your EateryIO account and settings",
 };
 
