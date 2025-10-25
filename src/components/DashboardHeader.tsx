@@ -8,10 +8,9 @@ interface DashboardHeaderProps {
 
 export default function DashboardHeader({ title }: DashboardHeaderProps) {
   return (
-    <div className="bg-card px-8 py-4 rounded-2xl mb-4">
+    <div className="bg-card px-4 py-4 rounded-2xl mb-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">{title}</h2>
-
+        <h2 className="text-3xl font-medium text-[#3B3B3B] mb-4">{title}</h2>
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" className="relative hover:text-blue-600 hover:bg-[#F2F7FF]">
             <Bell className="w-5 h-5" />
@@ -25,11 +24,11 @@ export default function DashboardHeader({ title }: DashboardHeaderProps) {
               />
               <AvatarFallback>JM</AvatarFallback>
             </Avatar>
-            <div>
-              <div className="font-medium text-xl text-foreground">
+            <div className="flex flex-col tex-[#3B3B3B]">
+              <span className="font-medium text-xl">
                 Jhon Marcel
-              </div>
-              <div className="text-xs text-muted-foreground">Operator</div>
+              </span>
+              <span className="text-xs text-muted-foreground">Operator</span>
             </div>
           </div>
         </div>

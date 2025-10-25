@@ -10,7 +10,8 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
+      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Setting</h1>
       <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 gap-4 bg-white">

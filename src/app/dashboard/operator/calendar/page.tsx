@@ -60,8 +60,7 @@ export default function CalendarPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="text-3xl font-bold text-foreground mb-8">Calender</h1>
-
+      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Calendar</h1>
       <div className="flex-1">
         <Card className="p-6 bg-card border-0 shadow-none border-gray-200">
           <div className="flex items-center justify-between mb-6">
@@ -108,7 +107,6 @@ export default function CalendarPage() {
           />
         </Card>
       </div>
-
       <CreateEventDialog
         open={showEventDialog}
         onOpenChange={setShowEventDialog}

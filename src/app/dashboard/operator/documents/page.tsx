@@ -132,10 +132,8 @@ export default function DocumentsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="text-3xl font-bold text-foreground mb-4">
-        Documents
-      </h1>
-      <div className="flex-1 p-6 overflow-auto bg-white rounded-2xl border">
+      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Documents</h1>
+      <div className="flex-1 p-6 overflow-auto bg-white rounded-2xl">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header Actions */}
           <div className="flex items-center justify-between gap-4">

@@ -4,7 +4,7 @@ import { ChatInterface } from "@/components/ChatInterface";
 export default function ChatPage() {
   return (
     <div className="flex flex-col h-full">
-      <h1 className="text-3xl font-bold text-foreground mb-4">
+      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">
         EateryGPT Chat
       </h1>
       <div className="flex-1 flex overflow-hidden gap-4">
