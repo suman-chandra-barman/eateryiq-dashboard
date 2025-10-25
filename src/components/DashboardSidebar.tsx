@@ -19,7 +19,6 @@ import {
   ChevronsRight,
   ChevronsLeft,
   ChevronRight,
-  Crown,
   LogOut,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
@@ -147,17 +146,6 @@ export function DashboardSidebar({ role = "operator" }: { role?: Role }) {
               </>
             )}
           </button>
-
-          <Button
-            variant="outline"
-            className={cn(
-              "border-gray-300 hover:bg-[#E2E8F0] hover:text-blue-600 w-full",
-              isCollapsed ? "h-11 justify-center" : "justify-start gap-2"
-            )}
-          >
-            <Crown className="w-4 h-4" />
-            {!isCollapsed && <span>Upgrade Plan</span>}
-          </Button>
         </div>
       </div>
 
