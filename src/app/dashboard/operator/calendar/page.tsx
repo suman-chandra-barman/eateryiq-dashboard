@@ -70,6 +70,7 @@ export default function CalendarPage() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
+
                 size="icon"
                 onClick={handlePrevMonth}
                 className="border-gray-300 bg-transparent hover:bg-gray-100"
@@ -115,3 +116,16 @@ export default function CalendarPage() {
     </div>
   );
 }
+
+// import Calendar from "@/components/Calender/Calendar";
+// import React from "react";
+
+// function CalendarPage() {
+//   return (
+//     <div>
+//       <Calendar />
+//     </div>
+//   );
+// }
+
+// export default CalendarPage;

@@ -36,10 +36,6 @@ export function DocumentsTable({ documents, onDeleteDocuments }: DocumentsTableP
     }
   }
 
-  const handleView = (id: string) => {
-    router.push(`/dashboard/documents/${id}`)
-  }
-
   const handleDownload = (doc: Document) => {
     // Simulate download
     console.log("[v0] Downloading document:", doc.fileName)
@@ -127,9 +123,6 @@ export function DocumentsTable({ documents, onDeleteDocuments }: DocumentsTableP
               <TableCell className="text-gray-600">{doc.fileSize}</TableCell>
               <TableCell>
                 <div className="flex items-center justify-end gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleView(doc.id)} className="hover:bg-gray-100">
-                    <Eye className="w-4 h-4 text-gray-600" />
-                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => handleDownload(doc)} className="hover:bg-gray-100">
                     <Download className="w-4 h-4 text-gray-600" />
                   </Button>
