@@ -17,7 +17,7 @@ export function StatsCard({ title, value, change, icon:Icon }: StatsCardProps) {
       <div>
         <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
         <div className="flex justify-between">
-          <p className="text-xs text-gray-500">Compare with last month</p>
+          <p className="text-xs text-gray-500 font-medium">vs Last Month</p>
           <p
             className={`text-xs px-2 py-1 rounded-2xl ${
               Number(change) > 0 ? "bg-green-200" : "bg-red-200"
