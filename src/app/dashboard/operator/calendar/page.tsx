@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -18,7 +19,56 @@ export default function CalendarPage() {
       type: "event" | "schedule";
       color?: string;
     }>
-  >([]);
+  >([
+    {
+      id: "1",
+      title: "All Day Event",
+      startDate: new Date(2025, 1, 7),
+      endDate: new Date(2025, 1, 7),
+      type: "event",
+      color: "blue",
+    },
+    {
+      id: "2",
+      title: "All Day Event",
+      startDate: new Date(2025, 1, 5),
+      endDate: new Date(2025, 1, 5),
+      type: "event",
+      color: "blue",
+    },
+    {
+      id: "3",
+      title: "Annual Meeting Envatos Community with Kleon Team",
+      startDate: new Date(2025, 1, 13),
+      endDate: new Date(2025, 1, 16),
+      type: "event",
+      color: "blue",
+    },
+    {
+      id: "4",
+      title: "All Day Event",
+      startDate: new Date(2025, 1, 19),
+      endDate: new Date(2025, 1, 19),
+      type: "event",
+      color: "blue",
+    },
+    {
+      id: "5",
+      title: "All Day Event",
+      startDate: new Date(2025, 1, 1),
+      endDate: new Date(2025, 1, 1),
+      type: "event",
+      color: "blue",
+    },
+    {
+      id: "6",
+      title: "All Day Event",
+      startDate: new Date(2025, 1, 22),
+      endDate: new Date(2025, 1, 22),
+      type: "event",
+      color: "blue",
+    },
+  ]);
   const [showEventDialog, setShowEventDialog] = useState(false);
 
   const handlePrevMonth = () => {
@@ -60,9 +110,11 @@ export default function CalendarPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Calendar</h1>
-      <div className="flex-1">
-        <Card className="p-6 bg-card border-0 shadow-none border-gray-200">
+      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">
+        EateryGPT Chat
+      </h1>
+      <div className="flex-1 bg-white">
+        <Card className="p-6 bg-card border border-gray-200">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-foreground">
               {monthName}
@@ -70,7 +122,6 @@ export default function CalendarPage() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-
                 size="icon"
                 onClick={handlePrevMonth}
                 className="border-gray-300 bg-transparent hover:bg-gray-100"
@@ -108,6 +159,7 @@ export default function CalendarPage() {
           />
         </Card>
       </div>
+
       <CreateEventDialog
         open={showEventDialog}
         onOpenChange={setShowEventDialog}
@@ -116,16 +168,3 @@ export default function CalendarPage() {
     </div>
   );
 }
-
-// import Calendar from "@/components/Calender/Calendar";
-// import React from "react";
-
-// function CalendarPage() {
-//   return (
-//     <div>
-//       <Calendar />
-//     </div>
-//   );
-// }
-
-// export default CalendarPage;
