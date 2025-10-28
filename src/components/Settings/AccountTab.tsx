@@ -73,6 +73,14 @@ export function AccountTab() {
             <p className="p-2 bg-gray-200 rounded-xl">United States</p>
           </div>
         </div>
+        <div className="flex items-center justify-between">
+          <label className="text-lg font-medium  w-44">
+            Restaurant Address
+          </label>
+          <div className="flex-1 border-b pb-4 border-gray-200">
+            <p className="p-2 bg-gray-200 rounded-xl">United States</p>
+          </div>
+        </div>
 
         {/* Edit Button */}
         <div className="flex justify-end pt-4">

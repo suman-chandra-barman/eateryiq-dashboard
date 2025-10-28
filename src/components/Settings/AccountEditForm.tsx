@@ -22,6 +22,7 @@ interface FormData {
   email: string;
   phone: string;
   country: string;
+  address: string;
 }
 
 export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
@@ -34,6 +35,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
       email: "Name@gmail.com",
       phone: "+12135554927",
       country: "US",
+      address: "USA",
     },
   });
 
@@ -118,9 +120,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Full Name */}
         <div className="flex items-center gap-6 py-4">
-          <label className="text-lg font-medium w-44">
-            Full Name
-          </label>
+          <label className="text-lg font-medium w-44">Full Name</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <Input
               {...register("fullName")}
@@ -132,9 +132,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Email */}
         <div className="flex items-center gap-6 pb-4">
-          <label className="text-lg font-medium w-44">
-            Email
-          </label>
+          <label className="text-lg font-medium w-44">Email</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <Input
               {...register("email")}
@@ -147,9 +145,7 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
 
         {/* Phone Number */}
         <div className="flex items-center gap-6 pb-4 ">
-          <label className="text-lg font-medium w-44">
-            Phone Number
-          </label>
+          <label className="text-lg font-medium w-44">Phone Number</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <PhoneInput
               country={country.toLowerCase()}
@@ -157,21 +153,30 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
               onChange={(phone) => setValue("phone", phone)}
               inputClass="!w-full"
               containerClass="phone-input-container w-full"
-              
             />
           </div>
         </div>
 
         {/* Country */}
         <div className="flex items-center gap-6 pb-4">
-          <label className="text-lg font-medium w-44">
-            Country
-          </label>
+          <label className="text-lg font-medium w-44">Country</label>
           <div className="flex-1">
             <FlagSelect
               selected={country}
               onSelect={(code) => setValue("country", code)}
               className="flag-select"
+            />
+          </div>
+        </div>
+
+        {/* Restaurant Address */}
+        <div className="flex items-center gap-6 py-4">
+          <label className="text-lg font-medium w-44">Restaurant Address</label>
+          <div className="flex-1 border-b pb-4 border-gray-200">
+            <Input
+              {...register("address")}
+              className="flex-1 border-gray-200 text-foreground"
+              placeholder="Enter address"
             />
           </div>
         </div>
