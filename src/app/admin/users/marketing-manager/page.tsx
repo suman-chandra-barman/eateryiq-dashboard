@@ -17,7 +17,7 @@ interface User {
   joinDate: string;
 }
 
-export default function OperatorPage() {
+export default function MarketingManagerPage() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -27,7 +27,7 @@ export default function OperatorPage() {
       id: "1",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -36,7 +36,7 @@ export default function OperatorPage() {
       id: "2",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -45,7 +45,7 @@ export default function OperatorPage() {
       id: "3",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -54,7 +54,7 @@ export default function OperatorPage() {
       id: "4",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -63,7 +63,7 @@ export default function OperatorPage() {
       id: "5",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -72,7 +72,7 @@ export default function OperatorPage() {
       id: "6",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -81,7 +81,7 @@ export default function OperatorPage() {
       id: "7",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       address: "UK",
       plan: "Professional",
       joinDate: "1 Jan, 2025",
@@ -91,7 +91,7 @@ export default function OperatorPage() {
       name: "User",
       email: "name@gmail.com",
       plan: "Starter",
-      role: "Operator",
+      role: "Manager",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -99,7 +99,7 @@ export default function OperatorPage() {
       id: "9",
       name: "User",
       email: "name@gmail.com",
-      role: "Operator",
+      role: "Manager",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -125,7 +125,7 @@ export default function OperatorPage() {
     <div className=" bg-gray-50">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-          Operator List
+          Marketing Manager List
         </h2>
         <InputGroup className="max-w-sm">
           <InputGroupInput placeholder="Search..." />

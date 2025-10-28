@@ -17,7 +17,7 @@ export default function SettingsPage() {
           <TabsList className="grid grid-cols-2 gap-4 bg-white">
             {[
               { value: "account", label: "Account", Icon: User },
-              { value: "billing", label: "Billings", Icon: CreditCard },
+              { value: "billing", label: "Billing", Icon: CreditCard },
             ].map(({ value, label, Icon }) => {
               const isActive = activeTab === value;
               return (

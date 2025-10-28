@@ -3,7 +3,11 @@
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
 import UserDetailsModal from "@/components/Admin/Modal/UserDetailsModal";
 import OperatorTable from "@/components/Admin/Table/OperatorTable";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -17,7 +21,7 @@ interface User {
   joinDate: string;
 }
 
-export default function FranchiseePage() {
+export default function ExecutivePage() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -125,7 +129,7 @@ export default function FranchiseePage() {
     <div className=" bg-gray-50">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-          Franchisee List
+          Executive List
         </h2>
         <InputGroup className="max-w-sm">
           <InputGroupInput placeholder="Search..." />

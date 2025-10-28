@@ -42,9 +42,9 @@ const navItems = [
     label: "Users Name",
     icon: usersIcon,
     subItems: [
-      { href: "/admin/users/operator", label: "Operator", icon: operatorIcon },
-      { href: "/admin/users/manager", label: "Manager", icon: managerIcon },
-      { href: "/admin/users/franchisee", label: "Franchisee", icon: fanchiseeIcon },
+      { href: "/admin/users/operations", label: "Operations", icon: operatorIcon },
+      { href: "/admin/users/marketing-manager", label: "Marketing Manager", icon: managerIcon },
+      { href: "/admin/users/executive", label: "Executive", icon: fanchiseeIcon },
     ],
   },
   {

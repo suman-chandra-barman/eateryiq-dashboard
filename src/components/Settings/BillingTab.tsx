@@ -8,7 +8,6 @@ import { SubscriptionPaymentPage } from "./SubscriptionPayment";
 import Image from "next/image";
 import badge from "@/assets/badge.svg";
 import rocket from "@/assets/rocket.svg";
-import arrow from "@/assets/arrow.svg";
 
 const plans = [
   {

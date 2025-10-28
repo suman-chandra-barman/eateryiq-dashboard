@@ -3,7 +3,11 @@
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
 import UserDetailsModal from "@/components/Admin/Modal/UserDetailsModal";
 import OperatorTable from "@/components/Admin/Table/OperatorTable";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -17,7 +21,7 @@ interface User {
   joinDate: string;
 }
 
-export default function ManagerPage() {
+export default function OperationsPage() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -27,7 +31,7 @@ export default function ManagerPage() {
       id: "1",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -36,7 +40,7 @@ export default function ManagerPage() {
       id: "2",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -45,7 +49,7 @@ export default function ManagerPage() {
       id: "3",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -54,7 +58,7 @@ export default function ManagerPage() {
       id: "4",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -63,7 +67,7 @@ export default function ManagerPage() {
       id: "5",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Professional",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -72,7 +76,7 @@ export default function ManagerPage() {
       id: "6",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -81,7 +85,7 @@ export default function ManagerPage() {
       id: "7",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       address: "UK",
       plan: "Professional",
       joinDate: "1 Jan, 2025",
@@ -91,7 +95,7 @@ export default function ManagerPage() {
       name: "User",
       email: "name@gmail.com",
       plan: "Starter",
-      role: "Manager",
+      role: "Operator",
       address: "UK",
       joinDate: "1 Jan, 2025",
     },
@@ -99,7 +103,7 @@ export default function ManagerPage() {
       id: "9",
       name: "User",
       email: "name@gmail.com",
-      role: "Manager",
+      role: "Operator",
       plan: "Starter",
       address: "UK",
       joinDate: "1 Jan, 2025",
@@ -125,7 +129,7 @@ export default function ManagerPage() {
     <div className=" bg-gray-50">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-          Manager List
+          Operations List
         </h2>
         <InputGroup className="max-w-sm">
           <InputGroupInput placeholder="Search..." />
