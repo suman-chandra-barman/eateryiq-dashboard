@@ -13,7 +13,7 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-[#F2F7FF] text-[#535F72] p-4 gap-4">
       <DashboardSidebar role={userRole} />
       <main className="flex-1 overflow-auto">
-        <DashboardHeader title="Operator Dashboard" />
+        <DashboardHeader title="Operations Dashboard" />
         {children}
       </main>
     </div>
