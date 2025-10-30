@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { AccountEditForm } from "./AccountEditForm";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Edit } from "lucide-react";
+import Link from "next/link";
 
 export function AccountTab() {
   const [isEditing, setIsEditing] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   if (isEditing) {
     return (
@@ -22,13 +24,37 @@ export function AccountTab() {
   return (
     <Card className="p-4 bg-card border-0 shadow-none text-[#3B3B3B]">
       <div className="">
+        <div className="sticky top-0 z-30 bg-white/90 backdrop-blur">
+          <div className="py-3 flex items-center gap-4">
+            <RadialProgress value={15} size={42} stroke={8} />
+            <div className="flex-1">
+              <div className="text-sm font-medium">
+                Onboarding progress: <span className="font-bold">{15}%</span>
+              </div>
+              {!isComplete ? (
+                <div className="text-xs text-gray-600">
+                  Finish onboarding to maximize insights, benchmarking, and
+                  automations.
+                </div>
+              ) : (
+                <div className="text-xs text-blue-600">
+                  All set! You’re fully onboarded.
+                </div>
+              )}
+            </div>
+            <Button variant="outline">
+              <Link href="https://eateryiq.vercel.app/onboarding">
+                Complete & Change
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         {/* Your Photo */}
         <div className="flex items-center justify-between">
-          <label className="text-lg font-medium  w-44">
-           Your Photo
-          </label>
+          <label className="text-lg font-medium  w-44">Your Photo</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
-           <Avatar className="w-14 h-14">
+            <Avatar className="w-14 h-14">
               <AvatarImage src={"/placeholder.svg"} alt="User photo" />
               <AvatarFallback>JM</AvatarFallback>
             </Avatar>
@@ -36,9 +62,7 @@ export function AccountTab() {
         </div>
         {/* Full Name */}
         <div className="flex items-center justify-between py-4 ">
-          <label className="text-lg font-medium  w-44">
-            Full Name
-          </label>
+          <label className="text-lg font-medium  w-44">Full Name</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <p className="p-2 bg-gray-200 rounded-xl">John Marpung</p>
           </div>
@@ -46,9 +70,7 @@ export function AccountTab() {
 
         {/* Email */}
         <div className="flex items-center justify-between">
-          <label className="text-lg font-medium  w-44">
-            Email
-          </label>
+          <label className="text-lg font-medium  w-44">Email</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <p className="p-2 bg-gray-200 rounded-xl">Name@gmail.com</p>
           </div>
@@ -56,9 +78,7 @@ export function AccountTab() {
 
         {/* Phone Number */}
         <div className="flex items-center justify-between pt-4">
-          <label className="text-lg font-medium  w-44">
-            Phone Number
-          </label>
+          <label className="text-lg font-medium  w-44">Phone Number</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <p className="p-2 bg-gray-200 rounded-xl">+1 (213) 555-4927</p>
           </div>
@@ -66,9 +86,7 @@ export function AccountTab() {
 
         {/* Country */}
         <div className="flex items-center justify-between py-4">
-          <label className="text-lg font-medium  w-44">
-            Country
-          </label>
+          <label className="text-lg font-medium  w-44">Country</label>
           <div className="flex-1 ">
             <p className="p-2 bg-gray-200 rounded-xl">United States</p>
           </div>
@@ -94,5 +112,30 @@ export function AccountTab() {
         </div>
       </div>
     </Card>
+  );
+}
+
+function RadialProgress({
+  value,
+  size = 40,
+  stroke = 6,
+}: {
+  value: number;
+  size?: number;
+  stroke?: number;
+}) {
+  const clamped = Math.max(0, Math.min(100, value));
+  const angle = (clamped / 100) * 360;
+  const bg = `conic-gradient(#2563eb ${angle}deg, #e5e7eb ${angle}deg)`; // blue → gray
+  return (
+    <div
+      className="rounded-full grid place-items-center"
+      style={{ width: size, height: size, background: bg }}
+    >
+      <div
+        className="bg-white rounded-full"
+        style={{ width: size - stroke * 2, height: size - stroke * 2 }}
+      />
+    </div>
   );
 }

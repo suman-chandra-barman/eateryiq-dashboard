@@ -33,14 +33,14 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-type Role = "operator" | "manager" | "franchisee";
+type Role = "operations" | "marketingManager" | "executive";
 
-export function DashboardSidebar({ role = "operator" }: { role?: Role }) {
+export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const pathname = usePathname();
 
-  const navItems: NavItem[] = sidebarItems[role] || sidebarItems["operator"];
+  const navItems: NavItem[] = sidebarItems[role] || sidebarItems["operations"];
 
   const handleLogout = () => {
     console.log("Logging out...");
