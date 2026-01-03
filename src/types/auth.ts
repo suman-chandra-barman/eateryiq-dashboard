@@ -1,0 +1,1 @@
+export type UserRole = "operations" | "marketing_manager" | "executive"; 
