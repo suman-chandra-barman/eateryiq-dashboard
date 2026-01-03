@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/select";
 import signup from "@/assets/auth/signup.png";
 import { UserRole } from "@/types/auth";
-
-
+import { useSignupMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 type SignUpFormData = {
   full_name: string;
@@ -34,6 +34,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [signupMutation, { isLoading }] = useSignupMutation();
 
   const {
     register,
@@ -45,10 +46,19 @@ export default function SignUpPage() {
 
   const password = watch("password");
 
-  const onSubmit = (data: SignUpFormData) => {
-    console.log("[v0] Sign up data:", data);
-    // Handle sign up logic here
-    router.push("/verify-otp");
+  const onSubmit = async (data: SignUpFormData) => {
+    try {
+      const response = await signupMutation(data).unwrap();
+      if (response.success) {
+        toast.success(response.message);
+        // Store email for OTP verification
+        sessionStorage.setItem("verifyEmail", data.email);
+        router.push("/verify-otp");
+      }
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } };
+      toast.error(err?.data?.message || "Signup failed. Please try again.");
+    }
   };
 
   const handleGoogleSignIn = () => {
@@ -107,7 +117,7 @@ export default function SignUpPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="operations">Operations</SelectItem>
-                  <SelectItem value="marketing manager">Marketing Manager</SelectItem>
+                  <SelectItem value="marketing_manager">Marketing Manager</SelectItem>
                   <SelectItem value="executive">Executive</SelectItem>
                 </SelectContent>
               </Select>
@@ -215,8 +225,9 @@ export default function SignUpPage() {
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 h-12"
+              disabled={isLoading}
             >
-              Signup
+              {isLoading ? "Signing up..." : "Signup"}
             </Button>
 
             {/* Login Link */}

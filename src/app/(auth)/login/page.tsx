@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import login from "@/assets/auth/login.png";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
+import type { UserRole } from "@/types/auth";
 
 type LoginFormData = {
   email: string;
@@ -18,9 +21,27 @@ type LoginFormData = {
   remember: boolean;
 };
 
+const getRoleDashboardPath = (role: UserRole, isAdmin: boolean): string => {
+  if (isAdmin) {
+    return "/admin";
+  }
+
+  switch (role) {
+    case "operations":
+      return "/dashboard/operations";
+    case "marketing_manager":
+      return "/dashboard/marketing-manager";
+    case "executive":
+      return "/dashboard/executive";
+    default:
+      return "/dashboard";
+  }
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginMutation, { isLoading }] = useLoginMutation();
 
   const {
     register,
@@ -28,10 +49,28 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("[v0] Login data:", data);
-    // Handle login logic here
-    router.push("/");
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await loginMutation({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+
+      if (response.success && response.data) {
+        toast.success(response.message);
+
+        // Redirect based on user role
+        const dashboardPath = getRoleDashboardPath(
+          response.data.user.role,
+          response.data.user.is_admin
+        );
+
+        router.push(dashboardPath);
+      }
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } };
+      toast.error(err?.data?.message || "Login failed. Please try again.");
+    }
   };
 
   const handleGoogleSignIn = () => {
@@ -124,8 +163,9 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 h-12"
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
 
             {/* Sign Up Link */}
