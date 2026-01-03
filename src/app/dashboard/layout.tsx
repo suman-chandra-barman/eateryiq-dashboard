@@ -7,11 +7,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const userRole = "operations";
 
   return (
     <div className="flex h-screen bg-[#F2F7FF] text-[#535F72] p-4 gap-4">
-      <DashboardSidebar role={userRole} />
+      <DashboardSidebar/>
       <main className="flex-1 overflow-auto">
         <DashboardHeader title="Operations Dashboard" />
         {children}

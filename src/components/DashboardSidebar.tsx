@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -14,9 +14,8 @@ import logoWithoutText from "@/assets/logo_without_text.png";
 import user from "@/assets/user.jpg";
 import { sidebarItems } from "@/config/sidebarItems";
 import { LucideIcon } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logout } from "@/redux/features/auth/authSlice";
-import { toast } from "sonner";
+import { useAppSelector } from "@/redux/hooks";
+
 
 interface NavItem {
   href: string;
@@ -24,24 +23,18 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-type Role = "operations" | "marketingManager" | "executive";
-
-export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
+export function DashboardSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-  const dispatch = useAppDispatch();
+
   const { user: currentUser } = useAppSelector((state) => state.auth);
+  const pathname = usePathname();
 
-  const navItems: NavItem[] = sidebarItems[role] || sidebarItems["operations"];
+  if (!currentUser) {
+    return null; // or a loading state
+  }
 
-  const handleLogout = () => {
-    dispatch(logout());
-    toast.success("Logged out successfully");
-    setShowLogoutDialog(false);
-    router.push("/login");
-  };
+  const navItems: NavItem[] = sidebarItems[currentUser.role];
 
   return (
     <>
@@ -60,7 +53,10 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
         >
           {!isCollapsed ? (
             <>
-              <Link href="/dashboard" className="flex items-center gap-4 h-12">
+              <Link
+                href={`/dashboard/${currentUser.role}`}
+                className="flex items-center gap-4 h-12"
+              >
                 <Image src={logo} alt="Logo" className="w-28" />
               </Link>
               <Button
@@ -75,7 +71,7 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
           ) : (
             <div className="flex flex-col items-center gap-4">
               <Link
-                href="/dashboard"
+                href={`/dashboard/${currentUser.role}`}
                 className="flex items-center justify-center"
               >
                 <Image src={logoWithoutText} alt="Logo" className="w-8 h-8" />
@@ -140,7 +136,7 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
                     {currentUser?.full_name || "Jhon Marcel"}
                   </div>
                   <div className="text-xs text-gray-400 capitalize">
-                    {currentUser?.role?.replace("_", " ") || role}
+                    {currentUser?.role?.replace("_", " ") || currentUser?.role}
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
@@ -154,7 +150,7 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
       <LogoutDialog
         open={showLogoutDialog}
         onOpenChange={setShowLogoutDialog}
-        onConfirm={handleLogout}
+        setShowLogoutDialog={setShowLogoutDialog}
       />
     </>
   );

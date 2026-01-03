@@ -9,19 +9,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { logout } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hooks";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface LogoutDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  setShowLogoutDialog: (open: boolean) => void;
 }
 
 export function LogoutDialog({
   open,
   onOpenChange,
-  onConfirm,
+  setShowLogoutDialog
 }: LogoutDialogProps) {
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+
+    const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Logged out successfully");
+    setShowLogoutDialog(false);
+    router.push("/login");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -35,7 +49,7 @@ export function LogoutDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button variant="destructive" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>

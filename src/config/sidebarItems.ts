@@ -25,11 +25,11 @@ export const sidebarItems = {
     { href: "/dashboard/executive/support", label: "Support", icon: HelpCircle },
     { href: "/dashboard/executive/settings", label: "Settings", icon: Settings },
   ],
-  marketingManager: [
-    { href: "/dashboard/Marketing-manager", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/Marketing-manager/reports", label: "Reports", icon: BarChart3 },
-    { href: "/dashboard/Marketing-manager/calendar", label: "Calendar", icon: Calendar },
-    { href: "/dashboard/Marketing-manager/staff", label: "Staff", icon: Users },
-    { href: "/dashboard/Marketing-manager/settings", label: "Settings", icon: Settings },
+  marketing_manager: [
+    { href: "/dashboard/marketing-manager", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/marketing-manager/reports", label: "Reports", icon: BarChart3 },
+    { href: "/dashboard/marketing-manager/calendar", label: "Calendar", icon: Calendar },
+    { href: "/dashboard/marketing-manager/staff", label: "Staff", icon: Users },
+    { href: "/dashboard/marketing-manager/settings", label: "Settings", icon: Settings },
   ],
 };
