@@ -3,29 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  ChevronsRight,
-  ChevronsLeft,
-  ChevronRight,
-  LogOut,
-} from "lucide-react";
+import { ChevronsRight, ChevronsLeft, ChevronRight } from "lucide-react";
+import { LogoutDialog } from "@/components/Dailog/LogoutDialog";
 import logo from "@/assets/logo.png";
 import logoWithoutText from "@/assets/logo_without_text.png";
 import user from "@/assets/user.jpg";
 import { sidebarItems } from "@/config/sidebarItems";
 import { LucideIcon } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { logout } from "@/redux/features/auth/authSlice";
+import { toast } from "sonner";
 
 interface NavItem {
   href: string;
@@ -39,12 +30,17 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { user: currentUser } = useAppSelector((state) => state.auth);
 
   const navItems: NavItem[] = sidebarItems[role] || sidebarItems["operations"];
 
   const handleLogout = () => {
-    console.log("Logging out...");
+    dispatch(logout());
+    toast.success("Logged out successfully");
     setShowLogoutDialog(false);
+    router.push("/login");
   };
 
   return (
@@ -113,7 +109,8 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
                   className={cn(
                     "w-full h-11 text-[#535F72] hover:bg-[#F2F7FF] hover:text-blue-600 rounded-[12px]",
                     isCollapsed ? "justify-center px-0" : "justify-start gap-3",
-                    isActive && "bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
+                    isActive &&
+                      "bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -129,7 +126,7 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
           <button
             onClick={() => setShowLogoutDialog(true)}
             className={cn(
-              "w-full flex items-center bg-[#F2F7FF] transition-colors rounded-2xl",
+              "w-full flex items-center bg-[#F2F7FF] transition-colors rounded-2xl cursor-pointer",
               isCollapsed ? "justify-center p-2" : "gap-3 p-4"
             )}
           >
@@ -139,8 +136,12 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
             {!isCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <div className="font-medium text-sm">Jhon Marcel</div>
-                  <div className="text-xs text-gray-400 capitalize">{role}</div>
+                  <div className="font-medium text-sm">
+                    {currentUser?.full_name || "Jhon Marcel"}
+                  </div>
+                  <div className="text-xs text-gray-400 capitalize">
+                    {currentUser?.role?.replace("_", " ") || role}
+                  </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
               </>
@@ -150,28 +151,11 @@ export function DashboardSidebar({ role = "operations" }: { role?: Role }) {
       </div>
 
       {/* ===== Logout Dialog ===== */}
-      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Logout</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to log out from your account?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowLogoutDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <LogoutDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        onConfirm={handleLogout}
+      />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
@@ -40,6 +40,8 @@ const getRoleDashboardPath = (role: UserRole, isAdmin: boolean): string => {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [showPassword, setShowPassword] = useState(false);
   const [loginMutation, { isLoading }] = useLoginMutation();
 
@@ -59,13 +61,16 @@ export default function LoginPage() {
       if (response.success && response.data) {
         toast.success(response.message);
 
-        // Redirect based on user role
-        const dashboardPath = getRoleDashboardPath(
-          response.data.user.role,
-          response.data.user.is_admin
-        );
-
-        router.push(dashboardPath);
+        // Redirect to callback URL or role-based dashboard
+        if (callbackUrl) {
+          router.push(callbackUrl);
+        } else {
+          const dashboardPath = getRoleDashboardPath(
+            response.data.user.role,
+            response.data.user.is_admin
+          );
+          router.push(dashboardPath);
+        }
       }
     } catch (error: unknown) {
       const err = error as { data?: { message?: string } };
