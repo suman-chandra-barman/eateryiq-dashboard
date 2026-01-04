@@ -4,9 +4,14 @@ import { DailyOperationsChart } from "@/components/Reports/DailyOperationsChart"
 import { OperationsTable } from "@/components/Reports/OperationsTable";
 import { StatsCard } from "@/components/Reports/StatsCard";
 import { WeeklySalesChart } from "@/components/Reports/WeeklySalesCart";
+import { useGetOperationReportsQuery } from "@/redux/features/reports/reportsApi";
 import { TrendingUp, CheckCircle, Truck, Users } from "lucide-react";
 
 export default function ReportsPage() {
+  const { data: operationReportsData, isLoading: isOperationReportsLoading } =
+    useGetOperationReportsQuery({});
+
+  console.log("Operation Reports Data:", operationReportsData);
   const statsData = [
     {
       title: "Today Sales",

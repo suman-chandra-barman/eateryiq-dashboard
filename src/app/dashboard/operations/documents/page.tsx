@@ -7,6 +7,7 @@ import { Search, Plus } from "lucide-react";
 import { DocumentsTable } from "@/components/DocumentsTable";
 import { AddDocumentDialog } from "@/components/Dailog/AddDocumentDailog";
 import { FilterDocumentsDialog } from "@/components/Dailog/FilterDocumentDailog";
+import { useGetOperatorDocumentsQuery } from "@/redux/features/documents/documentsApi";
 
 export type Document = {
   id: string;
@@ -19,6 +20,9 @@ export type Document = {
 };
 
 export default function DocumentsPage() {
+  const { data: documentsData, isLoading: isDocumentsLoading } = useGetOperatorDocumentsQuery({});
+  console.log("Operator Documents Data:", documentsData);
+
   const [documents, setDocuments] = useState<Document[]>([
     {
       id: "1",

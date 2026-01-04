@@ -1,8 +1,16 @@
+"use client";
+
 import { DeliveryChart } from "@/components/DeliveryChart";
 import StatsCard from "@/components/StatasCard";
+import { useGetOperationStatsQuery } from "@/redux/features/stats/statsApi";
 import { TrendingUp, Users, DollarSign } from "lucide-react";
 
 export default function OperatorDashboardPage() {
+  const { data: operationStatsData, isLoading: isOperationStatsLoading } = useGetOperationStatsQuery({});
+
+
+  console.log("Operation Stats Data:", operationStatsData);
+
   return (
     <div>
       <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Dashboard</h1>
