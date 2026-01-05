@@ -1,7 +1,7 @@
 /** @format */
 "use client";
 
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/Shared/BackButton";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftIcon, PenLine, Save, X } from "lucide-react";

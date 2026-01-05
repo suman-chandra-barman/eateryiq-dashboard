@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import CustomLoader from "@/components/CustomLoader";
-import { DeliveryChart } from "@/components/DeliveryChart";
-import StatsCard from "@/components/StatasCard";
+import CustomLoader from "@/components/Shared/CustomLoader";
+import { DeliveryChart } from "@/components/Charts/DeliveryChart";
+import StatsCard from "@/components/Shared/StatasCard";
 import { useGetOperationStatsQuery } from "@/redux/features/stats/statsApi";
 import { TrendingUp, Users, DollarSign } from "lucide-react";
 

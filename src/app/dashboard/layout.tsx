@@ -1,5 +1,5 @@
-import DashboardHeader from "@/components/DashboardHeader";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
+import DashboardHeader from "@/components/Shared/DashboardHeader";
+import { DashboardSidebar } from "@/components/Shared/DashboardSidebar";
 import type React from "react";
 
 export default function DashboardLayout({

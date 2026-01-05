@@ -3,7 +3,7 @@
 
 import AddFaqsModal from "@/components/Admin/settings/addFaqsModal";
 import FaqsCard from "@/components/Admin/settings/faqsCard";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/Shared/BackButton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
-import { DocumentsTable } from "@/components/DocumentsTable";
 import { AddDocumentDialog } from "@/components/Dailog/AddDocumentDailog";
 import { FilterDocumentsDialog } from "@/components/Dailog/FilterDocumentDailog";
 import {
@@ -14,6 +13,7 @@ import {
   type OperatorDocument,
 } from "@/redux/features/documents/documentsApi";
 import { toast } from "sonner";
+import { DocumentsTable } from "@/components/Tables/DocumentsTable";
 
 export type Document = {
   id: string;

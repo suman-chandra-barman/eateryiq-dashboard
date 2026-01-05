@@ -3,7 +3,7 @@
 "use client";
 
 import ProfileEditModal from "@/components/Admin/settings/profileEditModal";
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/Shared/BackButton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, PenLine } from "lucide-react";
 import Image from "next/image";
@@ -25,7 +25,7 @@ const Page = () => {
     <div className="bg-transparent pt-2">
       <div className="max-w-full mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <BackButton name="Personal Information"/>
+          <BackButton name="Personal Information" />
           <Button
             onClick={() => setIsModalOpen(true)}
             className="w-40 flex bg-blue-600 hover:bg-blue-700 text-white"

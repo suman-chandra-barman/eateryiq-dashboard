@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChatHistory } from "@/components/ChatHistory";
-import { ChatInterface } from "@/components/ChatInterface";
+import { ChatHistory } from "@/components/Chat/ChatHistory";
+import { ChatInterface } from "@/components/Chat/ChatInterface";
 
 export default function ChatPage() {
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
