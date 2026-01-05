@@ -128,8 +128,8 @@ export const chatApi = baseApi.injectEndpoints({
     >({
       query: (sessionIds) => ({
         url: "/api/dashboards/operations/chat/sessions/bulk-delete/",
-        method: "POST",
-        body: { session_ids: sessionIds },
+        method: "DELETE",
+        body: { ids: sessionIds },
       }),
       invalidatesTags: ["Chats"],
     }),

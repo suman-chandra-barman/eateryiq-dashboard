@@ -213,7 +213,7 @@ export function ChatInterface({
           </div>
         ) : (
           // Chat Messages
-          <div className="space-y-6 max-w-4xl">
+          <div className="space-y-6">
             {messages.map((message) => (
               <div
                 key={message.id}

@@ -6,16 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Plus, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteChatDialog } from "@/components/Dailog/DeleteChatDialog";
 import {
   useGetChatsQuery,
   useDeleteChatsMutation,
@@ -71,7 +62,7 @@ export function ChatHistory({
     }
   };
 
-  const handleNewPage = () => {
+  const handleNewPage = async () => {
     setSelectedChats([]);
     if (onNewChat) {
       onNewChat();
@@ -86,14 +77,11 @@ export function ChatHistory({
 
   return (
     <>
-      <Card className="w-80 border-l border-border bg-background flex flex-col h-full">
+      <Card className="w-80 border-l border-border bg-background flex flex-col h-full py-4">
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="font-semibold text-xl md:text-2xl">Chat History</h2>
-            <span className="text-xs text-muted-foreground">
-              ({history.length})
-            </span>
           </div>
           {selectedChats.length > 0 && (
             <Button
@@ -185,29 +173,13 @@ export function ChatHistory({
       </Card>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Chat History</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete {selectedChats.length} selected
-              chat
-              {selectedChats.length > 1 ? "s" : ""}? This action cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleBulkDelete}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={isDeleting}
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteChatDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        selectedCount={selectedChats.length}
+        onConfirm={handleBulkDelete}
+        isDeleting={isDeleting}
+      />
     </>
   );
 }
