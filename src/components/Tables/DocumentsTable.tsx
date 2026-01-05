@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Document } from "@/app/dashboard/operations/documents/page";
-import { DeleteDocumentDialog } from "./Dailog/DeleteDocumentDailog";
+import { DeleteDocumentDialog } from "../Dailog/DeleteDocumentDailog";
 
 interface DocumentsTableProps {
   documents: Document[];
