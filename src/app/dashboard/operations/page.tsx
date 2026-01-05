@@ -1,48 +1,47 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import CustomLoader from "@/components/CustomLoader";
 import { DeliveryChart } from "@/components/DeliveryChart";
 import StatsCard from "@/components/StatasCard";
 import { useGetOperationStatsQuery } from "@/redux/features/stats/statsApi";
 import { TrendingUp, Users, DollarSign } from "lucide-react";
 
+const iconMap: Record<string, any> = {
+  today_sales: DollarSign,
+  staff_attendance: Users,
+  labor_cost_vs_budget: DollarSign,
+};
+
 export default function OperatorDashboardPage() {
-  const { data: operationStatsData, isLoading: isOperationStatsLoading } = useGetOperationStatsQuery({});
+  const { data: operationStatsData, isLoading: isOperationStatsLoading } =
+    useGetOperationStatsQuery({});
 
+  if (isOperationStatsLoading) {
+    return <CustomLoader />;
+  }
 
-  console.log("Operation Stats Data:", operationStatsData);
+  const kpiCards = operationStatsData?.data?.ui?.kpi_cards || [];
+  const chartData = operationStatsData?.data?.ui?.charts?.delivery_performance;
 
   return (
     <div>
       <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Dashboard</h1>
       <div className="p-4 bg-white my-4 rounded-2xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <StatsCard
-            title="Today Sales"
-            value="$135,20,0"
-            change="+11.01%"
-            trend="up"
-            icon={TrendingUp}
-            chartData={[45, 52, 48, 55, 60, 58, 65, 70, 68, 72, 75, 70]}
-          />
-          <StatsCard
-            title="Staff Attendance"
-            value="58%"
-            change="-0.03%"
-            trend="down"
-            icon={Users}
-            chartData={[60, 58, 62, 59, 61, 58, 60, 62, 59, 58, 60, 58]}
-          />
-          <StatsCard
-            title="Labor Cost vs Budget"
-            value="$135,20,0"
-            change="+11.01%"
-            trend="up"
-            icon={DollarSign}
-            chartData={[50, 55, 52, 58, 62, 60, 65, 68, 70, 72, 75, 73]}
-          />
+          {kpiCards.map((card: any) => (
+            <StatsCard
+              key={card.key}
+              title={card.title}
+              value={card.value}
+              change={card.compare.display}
+              trend={card.compare.direction}
+              icon={iconMap[card.key] || TrendingUp}
+            />
+          ))}
         </div>
 
-        <DeliveryChart />
+        {chartData && <DeliveryChart chartData={chartData} />}
       </div>
     </div>
   );

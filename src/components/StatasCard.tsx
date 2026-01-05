@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import chartsImage from "@/assets/charts.svg"
 
 interface StatsCardProps {
   title: string;
@@ -8,7 +10,6 @@ interface StatsCardProps {
   change: string;
   trend: "up" | "down";
   icon: LucideIcon;
-  chartData: number[];
 }
 
 export default function StatsCard({
@@ -17,10 +18,7 @@ export default function StatsCard({
   change,
   trend,
   icon: Icon,
-  chartData,
 }: StatsCardProps) {
-  const max = Math.max(...chartData);
-  const min = Math.min(...chartData);
 
   return (
     <Card className="bg-[#F2F7FF] rounded-2xl border-0 shadow-none">
@@ -45,16 +43,12 @@ export default function StatsCard({
           </div>
 
           <div className="flex items-end gap-0.5 h-12">
-            {chartData.map((value, index) => {
-              const height = ((value - min) / (max - min)) * 100;
-              return (
-                <div
-                  key={index}
-                  className="w-1.5 bg-blue-600 rounded-sm"
-                  style={{ height: `${height}%` }}
-                />
-              );
-            })}
+            <Image
+              src={chartsImage}
+              alt="Sales Chart Icon"
+              width={60}
+              height={30}
+            />
           </div>
         </div>
       </CardContent>
