@@ -341,7 +341,7 @@ export function ChatInterface({
                   type="file"
                   className="hidden"
                   onChange={handleFileChange}
-                  accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+                  accept="image/*,video/*,.pdf,.doc,.docx,.txt,.xlsx"
                 />
               </div>
               <span className="text-sm text-muted-foreground">
