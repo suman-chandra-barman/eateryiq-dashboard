@@ -1,8 +1,7 @@
 "use client";
 
 import type React from "react";
-
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -12,16 +11,21 @@ import {
   Calendar,
   TrendingUp,
   Paperclip,
-  Mic,
   Send,
   Plus,
 } from "lucide-react";
 import bot from "@/assets/bot.svg";
 import user from "@/assets/user.jpg";
 import Image from "next/image";
+import {
+  useStartConversationMutation,
+  useGetChatSessionQuery,
+  type Message as ApiMessage,
+} from "@/redux/features/chats/chatApi";
+import Markdown from 'react-markdown'
 
 interface Message {
-  id: string;
+  id: number;
   role: "user" | "assistant";
   content: string;
   avatar?: string;
@@ -64,47 +68,80 @@ const quickActions = [
   "Need more staff for tonight's shift?",
 ];
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  chatId?: number | null;
+  onChatCreated?: (chatId: number) => void;
+}
+
+export function ChatInterface({
+  chatId,
+  onChatCreated,
+}: ChatInterfaceProps = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  // API hooks
+  const [startConversation, { isLoading: isStartingConversation }] =
+    useStartConversationMutation();
+
+  // Fetch messages if chatId exists
+  const { data: chatSession } = useGetChatSessionQuery(chatId as number, {
+    skip: !chatId,
+  });
+
+  const isLoading = isStartingConversation;
+
+  // Load messages from API when available
+  useEffect(() => {
+    if (chatSession?.data?.messages) {
+      const formattedMessages: Message[] = chatSession.data.messages.map(
+        (msg: ApiMessage) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+        })
+      );
+      setMessages(formattedMessages);
+    }
+  }, [chatSession]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content,
-      avatar: "/abstract-geometric-shapes.png",
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
-    setIsLoading(true);
+    const fileToSend = selectedFile;
+    setSelectedFile(null);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: generateResponse(content),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsLoading(false);
-    }, 1000);
-  };
+    try {
+      // Start a new conversation or continue existing one with FormData
+      const response = await startConversation({
+        message: content,
+        file: fileToSend,
+        sessionId: chatId || undefined,
+      }).unwrap();
 
-  const generateResponse = (prompt: string) => {
-    // Simulate different responses based on prompt
-    if (prompt.toLowerCase().includes("sales")) {
-      return "Here's the results of 5 attention-grabbing headlines:\n\n• Revolutionize Customer Engagement with AI Chat Copywriter*\n• unleash the Power of AI Chat Copywriters for Transformative Customer Experiences*\n• Chatbots on Steroids: Meet the AI Copywriter Transforming Conversations*\n• From Bland to Brilliant: How AI Chat Copywriters Make Brands Conversational Rockstars*\n• say Goodbye to Boring Chats: AI Copywriters Elevate Conversational Marketing*";
+      // Update messages from response
+      if (response.data.messages) {
+        const formattedMessages: Message[] = response.data.messages.map(
+          (msg: ApiMessage) => ({
+            id: msg.id,
+            role: msg.role,
+            content: msg.content,
+          })
+        );
+        setMessages(formattedMessages);
+      }
+
+      // Notify parent component about new chat
+      if (!chatId && response.data.session.id && onChatCreated) {
+        onChatCreated(response.data.session.id);
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      // Optionally show error toast
     }
-    return "I'm analyzing your request and will provide insights based on your restaurant's data. How else can I assist you today?";
   };
 
   const handleActionButton = (prompt: string) => {
@@ -120,43 +157,16 @@ export function ChatInterface() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setAttachedFiles((prev) => [...prev, ...files]);
-    // You can process files here or display them
-    console.log("[v0] Files attached:", files);
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
   };
 
-  const handleVoiceMessage = async () => {
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        const mediaRecorder = new MediaRecorder(stream);
-        const audioChunks: Blob[] = [];
-
-        mediaRecorder.ondataavailable = (event) => {
-          audioChunks.push(event.data);
-        };
-
-        mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-          console.log("[v0] Voice recording completed:", audioBlob);
-          // You can process the audio blob here (e.g., send to backend for transcription)
-          stream.getTracks().forEach((track) => track.stop());
-        };
-
-        mediaRecorder.start();
-        mediaRecorderRef.current = mediaRecorder;
-        setIsRecording(true);
-      } catch (error) {
-        console.error("[v0] Error accessing microphone:", error);
-        alert("Unable to access microphone. Please check permissions.");
-      }
-    } else {
-      // Stop recording
-      mediaRecorderRef.current?.stop();
-      setIsRecording(false);
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -226,7 +236,7 @@ export function ChatInterface() {
                   }`}
                 >
                   <p className="text-sm whitespace-pre-line">
-                    {message.content}
+                    <Markdown>{message.content}</Markdown>
                   </p>
                 </div>
                 {message.role === "user" && message.avatar && (
@@ -275,6 +285,24 @@ export function ChatInterface() {
 
         <div className="relative rounded-2xl bg-gradient-to-r from-blue-500 via-[#F319DD] to-green-500 p-[2px]">
           <div className="bg-background rounded-2xl">
+            {selectedFile && (
+              <div className="px-4 pt-3 pb-2">
+                <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                  <Paperclip className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm flex-1 truncate">
+                    {selectedFile.name}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleRemoveFile}
+                    className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                  >
+                    ×
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-2 px-4 pt-3 pb-2">
               <Input
                 value={inputValue}
@@ -311,24 +339,10 @@ export function ChatInterface() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  multiple
                   className="hidden"
                   onChange={handleFileChange}
                   accept="image/*,video/*,.pdf,.doc,.docx,.txt"
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleVoiceMessage}
-                  className={`h-auto p-0 hover:bg-transparent font-normal ${
-                    isRecording
-                      ? "text-red-500 hover:text-red-600"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Mic className="w-4 h-4 mr-2" />
-                  {isRecording ? "Stop Recording" : "Voice Message"}
-                </Button>
               </div>
               <span className="text-sm text-muted-foreground">
                 {inputValue.length}/3,000
