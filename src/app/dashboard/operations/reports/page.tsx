@@ -4,6 +4,7 @@ import { DailyOperationsChart } from "@/components/Reports/DailyOperationsChart"
 import { OperationsTable } from "@/components/Reports/OperationsTable";
 import { StatsCard } from "@/components/Reports/StatsCard";
 import { WeeklySalesChart } from "@/components/Reports/WeeklySalesCart";
+import PageLoader from "@/components/Shared/PageLoader";
 import { useGetOperationReportsQuery } from "@/redux/features/reports/reportsApi";
 import {
   TrendingUp,
@@ -66,11 +67,7 @@ export default function ReportsPage() {
 
   // Show loader while data is loading
   if (isOperationReportsLoading) {
-    return (
-      <div className="flex items-center justify-center h-[80vh] w-full">
-        <p className="text-gray-500">Loading reports...</p>
-      </div>
-    );
+    return <PageLoader level="Loading reports..." />;
   }
 
   return (

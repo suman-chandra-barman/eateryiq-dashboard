@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import CustomLoader from "@/components/Shared/CustomLoader";
 import { DeliveryChart } from "@/components/Charts/DeliveryChart";
+import PageLoader from "@/components/Shared/PageLoader";
 import StatsCard from "@/components/Shared/StatasCard";
 import { useGetOperationStatsQuery } from "@/redux/features/stats/statsApi";
 import { TrendingUp, Users, DollarSign } from "lucide-react";
@@ -17,8 +17,9 @@ export default function OperatorDashboardPage() {
   const { data: operationStatsData, isLoading: isOperationStatsLoading } =
     useGetOperationStatsQuery({});
 
+  // Show loader while data is loading
   if (isOperationStatsLoading) {
-    return <CustomLoader />;
+    return <PageLoader level="Loading dashboard..." />;
   }
 
   const kpiCards = operationStatsData?.data?.ui?.kpi_cards || [];
