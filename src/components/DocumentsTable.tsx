@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Eye, Download, Trash2 } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -25,7 +25,6 @@ export function DocumentsTable({
   documents,
   onDeleteDocuments,
 }: DocumentsTableProps) {
-  const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
@@ -47,9 +46,31 @@ export function DocumentsTable({
   };
 
   const handleDownload = (doc: Document) => {
-    // Simulate download
-    console.log("[v0] Downloading document:", doc.fileName);
-    alert(`Downloading ${doc.fileName}`);
+    if (!doc.fileUrl) {
+      toast.error("File URL not available");
+      return;
+    }
+
+    try {
+      // Get base URL from environment or use default
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const fullUrl = doc.fileUrl.startsWith("http")
+        ? doc.fileUrl
+        : `${baseUrl}${doc.fileUrl}`;
+
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement("a");
+      link.href = fullUrl;
+      link.download = doc.fileName;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`Downloading ${doc.fileName}`);
+    } catch (error) {
+      console.error("Download failed:", error);
+      toast.error("Failed to download file");
+    }
   };
 
   const handleDeleteClick = (id: string) => {

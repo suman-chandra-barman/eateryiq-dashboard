@@ -7,7 +7,13 @@ import { Search, Plus } from "lucide-react";
 import { DocumentsTable } from "@/components/DocumentsTable";
 import { AddDocumentDialog } from "@/components/Dailog/AddDocumentDailog";
 import { FilterDocumentsDialog } from "@/components/Dailog/FilterDocumentDailog";
-import { useGetOperatorDocumentsQuery } from "@/redux/features/documents/documentsApi";
+import {
+  useGetOperatorDocumentsQuery,
+  useDeleteOperatorDocumentMutation,
+  useBulkDeleteOperatorDocumentsMutation,
+  type OperatorDocument,
+} from "@/redux/features/documents/documentsApi";
+import { toast } from "sonner";
 
 export type Document = {
   id: string;
@@ -20,118 +26,81 @@ export type Document = {
 };
 
 export default function DocumentsPage() {
-  const { data: documentsData, isLoading: isDocumentsLoading } = useGetOperatorDocumentsQuery({});
-  console.log("Operator Documents Data:", documentsData);
-
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: "1",
-      fileName: "PR Sales 6.19412",
-      type: "Compliance",
-      fileFormat: "Excel",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "2",
-      fileName: "PR Sales 6.19412",
-      type: "Compliance",
-      fileFormat: "Word",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "3",
-      fileName: "PR Sales 6.19412",
-      type: "Finance",
-      fileFormat: "Excel",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "4",
-      fileName: "PR Sales 6.19412",
-      type: "Compliance",
-      fileFormat: "PDF",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "5",
-      fileName: "PR Sales 6.19412",
-      type: "Legal",
-      fileFormat: "Excel",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "6",
-      fileName: "PR Sales 6.19412",
-      type: "Staff",
-      fileFormat: "Word",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "7",
-      fileName: "PR Sales 6.19412",
-      type: "Compliance",
-      fileFormat: "Excel",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "8",
-      fileName: "PR Sales 6.19412",
-      type: "Compliance",
-      fileFormat: "Word",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "9",
-      fileName: "PR Sales 6.19412",
-      type: "Compliance",
-      fileFormat: "Excel",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-    {
-      id: "10",
-      fileName: "PR Sales 6.19412",
-      type: "Custom",
-      fileFormat: "PDF",
-      uploadDate: "20 Jan, 2025",
-      fileSize: "5 MB",
-    },
-  ]);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showFilterDialog, setShowFilterDialog] = useState(false);
   const [filters, setFilters] = useState({ type: "All", format: "All" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
 
-  const filteredDocuments = documents.filter((doc) => {
-    const matchesSearch = doc.fileName
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesType = filters.type === "All" || doc.type === filters.type;
-    const matchesFormat =
-      filters.format === "All" || doc.fileFormat === filters.format;
-    return matchesSearch && matchesType && matchesFormat;
+  const {
+    data: documentsData,
+    isLoading: isDocumentsLoading,
+    refetch,
+  } = useGetOperatorDocumentsQuery({
+    page: currentPage,
+    limit: limit,
+    search: searchQuery,
+    file_format: filters.format !== "All" ? filters.format : undefined,
   });
 
-  const handleAddDocument = (newDoc: Omit<Document, "id">) => {
-    const doc: Document = {
-      ...newDoc,
-      id: Date.now().toString(),
-    };
-    setDocuments([doc, ...documents]);
+  const [deleteDocument] = useDeleteOperatorDocumentMutation();
+  const [bulkDeleteDocuments] = useBulkDeleteOperatorDocumentsMutation();
+
+  // Transform API data to local format
+  const transformedDocuments: Document[] =
+    documentsData?.data?.map((doc: OperatorDocument) => ({
+      id: doc.id.toString(),
+      fileName: doc.title,
+      type: doc.document_type,
+      fileFormat: doc.file_format,
+      uploadDate: new Date(doc.created_at).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      fileSize: `${doc.file_size_mb.toFixed(1)} MB`,
+      fileUrl: doc.file,
+    })) || [];
+
+  const filteredDocuments = transformedDocuments.filter((doc) => {
+    const matchesType = filters.type === "All" || doc.type === filters.type;
+    return matchesType;
+  });
+
+  const handleAddDocument = () => {
+    // This will be handled by the dialog itself now
     setShowAddDialog(false);
+    refetch();
   };
 
-  const handleDeleteDocuments = (ids: string[]) => {
-    setDocuments(documents.filter((doc) => !ids.includes(doc.id)));
+  const handleDeleteDocuments = async (ids: string[]) => {
+    try {
+      const numericIds = ids.map((id) => Number(id));
+
+      if (numericIds.length === 1) {
+        // Single delete
+        const response = await deleteDocument(numericIds[0]).unwrap();
+        toast.success(response.message || "Document deleted successfully");
+      } else {
+        // Bulk delete
+        const response = await bulkDeleteDocuments({
+          ids: numericIds,
+        }).unwrap();
+        toast.success(
+          response.message ||
+            `${numericIds.length} documents deleted successfully`
+        );
+      }
+
+      refetch();
+    } catch (error: unknown) {
+      console.error("Failed to delete documents:", error);
+      const errorMessage =
+        (error as { data?: { message?: string } })?.data?.message ||
+        "Failed to delete documents";
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -181,11 +150,49 @@ export default function DocumentsPage() {
             </div>
           </div>
 
-          {/* Documents Table */}
-          <DocumentsTable
-            documents={filteredDocuments}
-            onDeleteDocuments={handleDeleteDocuments}
-          />
+          {/* Loading State */}
+          {isDocumentsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-gray-500">Loading documents...</p>
+            </div>
+          ) : (
+            <>
+              {/* Documents Table */}
+              <DocumentsTable
+                documents={filteredDocuments}
+                onDeleteDocuments={handleDeleteDocuments}
+              />
+
+              {/* Pagination Info */}
+              {documentsData?.meta && (
+                <div className="flex items-center justify-between pt-4">
+                  <p className="text-sm text-gray-600">
+                    Showing {(currentPage - 1) * limit + 1} to{" "}
+                    {Math.min(currentPage * limit, documentsData.meta.total)} of{" "}
+                    {documentsData.meta.total} documents
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      disabled={currentPage >= documentsData.meta.totalPage}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 

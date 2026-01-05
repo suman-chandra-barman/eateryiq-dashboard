@@ -45,13 +45,11 @@ export function FilterDocumentsDialog({ open, onOpenChange, filters, onApplyFilt
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
-                <SelectItem value="Operations">Operations</SelectItem>
-                <SelectItem value="Compliance">Compliance</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Legal">Legal</SelectItem>
-                <SelectItem value="HR/Staff">HR/Staff</SelectItem>
-                <SelectItem value="Staff">Staff</SelectItem>
-                <SelectItem value="Custom">Custom</SelectItem>
+                <SelectItem value="OPERATIONS">Operations</SelectItem>
+                <SelectItem value="COMPLIANCE">Compliance</SelectItem>
+                <SelectItem value="FINANCE">Finance</SelectItem>
+                <SelectItem value="LEGAL">Legal</SelectItem>
+                <SelectItem value="HR">HR/Staff</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -67,8 +65,9 @@ export function FilterDocumentsDialog({ open, onOpenChange, filters, onApplyFilt
               <SelectContent>
                 <SelectItem value="All">All</SelectItem>
                 <SelectItem value="PDF">PDF</SelectItem>
-                <SelectItem value="Excel">Excel</SelectItem>
-                <SelectItem value="Word">Word</SelectItem>
+                <SelectItem value="EXCEL">Excel</SelectItem>
+                <SelectItem value="WORD">Word</SelectItem>
+                <SelectItem value="IMAGE">Image</SelectItem>
               </SelectContent>
             </Select>
           </div>

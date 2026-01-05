@@ -19,6 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Document } from "@/app/dashboard/operations/documents/page";
+import { useAddOperatorDocumentMutation } from "@/redux/features/documents/documentsApi";
+import { toast } from "sonner";
 
 interface AddDocumentDialogProps {
   open: boolean;
@@ -36,6 +38,9 @@ export function AddDocumentDialog({
   const [fileFormat, setFileFormat] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const [addDocument] = useAddOperatorDocumentMutation();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -68,31 +73,53 @@ export function AddDocumentDialog({
     }
   };
 
-  const handleSubmit = () => {
-    if (!fileName || !documentType || !fileFormat) {
-      alert("Please fill in all fields");
+  const handleSubmit = async () => {
+    if (!fileName || !documentType || !fileFormat || !selectedFile) {
+      toast.error("Please fill in all fields and select a file");
       return;
     }
 
-    onAdd({
-      fileName,
-      type: documentType,
-      fileFormat,
-      uploadDate: new Date().toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      fileSize: selectedFile
-        ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`
-        : "0 MB",
-    });
+    setIsUploading(true);
 
-    // Reset form
-    setFileName("");
-    setDocumentType("");
-    setFileFormat("");
-    setSelectedFile(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("title", fileName);
+      formData.append("document_type", documentType);
+      formData.append("file_format", fileFormat);
+
+      const response = await addDocument(formData).unwrap();
+
+      toast.success(response.message || "Document uploaded successfully");
+
+      // Reset form
+      setFileName("");
+      setDocumentType("");
+      setFileFormat("");
+      setSelectedFile(null);
+      onOpenChange(false);
+
+      // Call the onAdd callback to trigger refetch
+      onAdd({
+        fileName,
+        type: documentType,
+        fileFormat,
+        uploadDate: new Date().toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        fileSize: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`,
+      });
+    } catch (error: unknown) {
+      console.error("Failed to upload document:", error);
+      const errorMessage =
+        (error as { data?: { message?: string } })?.data?.message ||
+        "Failed to upload document. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -127,11 +154,11 @@ export function AddDocumentDialog({
                   <SelectValue placeholder="Select document type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Operations">Operations</SelectItem>
-                  <SelectItem value="Compliance">Compliance</SelectItem>
-                  <SelectItem value="Finance">Finance</SelectItem>
-                  <SelectItem value="Legal">Legal</SelectItem>
-                  <SelectItem value="HR/Staff">HR/Staff</SelectItem>
+                  <SelectItem value="OPERATIONS">Operations</SelectItem>
+                  <SelectItem value="COMPLIANCE">Compliance</SelectItem>
+                  <SelectItem value="FINANCE">Finance</SelectItem>
+                  <SelectItem value="LEGAL">Legal</SelectItem>
+                  <SelectItem value="HR">HR/Staff</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={fileFormat} onValueChange={setFileFormat}>
@@ -140,8 +167,9 @@ export function AddDocumentDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="PDF">PDF</SelectItem>
-                  <SelectItem value="Excel">Excel</SelectItem>
-                  <SelectItem value="Word">Word</SelectItem>
+                  <SelectItem value="EXCEL">Excel</SelectItem>
+                  <SelectItem value="WORD">Word</SelectItem>
+                  <SelectItem value="IMAGE">Image</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -162,6 +190,7 @@ export function AddDocumentDialog({
                 id="file-upload"
                 className="hidden"
                 onChange={handleFileSelect}
+                accept="image/*,.pdf,.xls,.xlsx,.doc,.docx"
               />
               <label htmlFor="file-upload" className="cursor-pointer">
                 <div className="space-y-2">
@@ -186,14 +215,16 @@ export function AddDocumentDialog({
                 variant="outline"
                 onClick={handleCancel}
                 className="px-8 bg-transparent"
+                disabled={isUploading}
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSubmit}
                 className="px-8 bg-blue-600 hover:bg-blue-700"
+                disabled={isUploading}
               >
-                Submit
+                {isUploading ? "Uploading..." : "Submit"}
               </Button>
             </div>
           </div>
