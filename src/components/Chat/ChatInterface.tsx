@@ -22,7 +22,7 @@ import {
   useGetChatSessionQuery,
   type Message as ApiMessage,
 } from "@/redux/features/chats/chatApi";
-import Markdown from 'react-markdown'
+import Markdown from "react-markdown";
 
 interface Message {
   id: number;
@@ -95,7 +95,10 @@ export function ChatInterface({
 
   // Load messages from API when available
   useEffect(() => {
-    if (chatSession?.data?.messages) {
+    if (!chatId) {
+      // Clear messages when there's no chatId (new chat)
+      setMessages([]);
+    } else if (chatSession?.data?.messages) {
       const formattedMessages: Message[] = chatSession.data.messages.map(
         (msg: ApiMessage) => ({
           id: msg.id,
@@ -105,7 +108,7 @@ export function ChatInterface({
       );
       setMessages(formattedMessages);
     }
-  }, [chatSession]);
+  }, [chatSession, chatId]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -179,37 +182,62 @@ export function ChatInterface({
         {showWelcomeScreen ? (
           // Welcome Screen
           <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <div className="text-center space-y-3">
-              <h1 className="text-4xl font-bold text-foreground">
-                Welcome To EateryGPT
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Always-on insights and alerts for growth, compliance, and
-                performance.
-              </p>
-            </div>
-
-            {/* Action Buttons Grid */}
-            <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
-              {actionButtons.map((action) => (
-                <Button
-                  key={action.id}
-                  variant="outline"
-                  className="h-auto py-4 px-6 justify-between hover:bg-accent bg-transparent"
-                  onClick={() => handleActionButton(action.prompt)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`${action.color} p-2 rounded-lg`}>
-                      <action.icon className="w-5 h-5 text-white" />
+            {isLoading ? (
+              // AI Thinking Indicator
+              <div className="flex flex-col items-center space-y-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 via-[#F319DD] to-green-500 p-[3px] animate-pulse">
+                    <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
+                      <Image src={bot} alt="AI" className="w-12 h-12" />
                     </div>
-                    <span className="text-base font-medium">
-                      {action.label}
-                    </span>
                   </div>
-                  <Plus className="w-5 h-5 text-muted-foreground" />
-                </Button>
-              ))}
-            </div>
+                </div>
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-semibold text-foreground">
+                    AI is thinking...
+                  </h2>
+                  <div className="flex gap-1 justify-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-[#F319DD] rounded-full animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="text-center space-y-3">
+                  <h1 className="text-4xl font-bold text-foreground">
+                    Welcome To EateryGPT
+                  </h1>
+                  <p className="text-muted-foreground text-lg">
+                    Always-on insights and alerts for growth, compliance, and
+                    performance.
+                  </p>
+                </div>
+
+                {/* Action Buttons Grid */}
+                <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+                  {actionButtons.map((action) => (
+                    <Button
+                      key={action.id}
+                      variant="outline"
+                      className="h-auto py-4 px-6 justify-between hover:bg-accent bg-transparent"
+                      onClick={() => handleActionButton(action.prompt)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`${action.color} p-2 rounded-lg`}>
+                          <action.icon className="w-5 h-5 text-white" />
+                        </div>
+                        <span className="text-base font-medium">
+                          {action.label}
+                        </span>
+                      </div>
+                      <Plus className="w-5 h-5 text-muted-foreground" />
+                    </Button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           // Chat Messages
@@ -225,14 +253,17 @@ export function ChatInterface({
               >
                 {message.role === "assistant" && (
                   <div className="flex items-end justify-center flex-shrink-0">
-                    <Image src={bot} alt="AI" className="w-8 h-8" />
+                    <figure className="p-0.5 rounded-full bg-blue-50">
+                      <Image src={bot} alt="AI" className="w-8 h-8" />
+                    </figure>
                   </div>
                 )}
+                {/* User Message  */}
                 <div
-                  className={`rounded-lg p-4 max-w-[80%] ${
+                  className={`p-4 max-w-[80%] ${
                     message.role === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-muted text-foreground"
+                      ? "bg-blue-600 text-white rounded-2xl rounded-br-none"
+                      : "bg-blue-50 rounded-2xl rounded-bl-none"
                   }`}
                 >
                   <p className="text-sm whitespace-pre-line">
@@ -250,14 +281,19 @@ export function ChatInterface({
             ))}
             {isLoading && (
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-semibold">AI</span>
+                <div className="flex items-end justify-center flex-shrink-0">
+                  <Image src={bot} alt="AI" className="w-8 h-8" />
                 </div>
                 <div className="bg-muted rounded-lg p-4">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0.2s]" />
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:0.4s]" />
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      AI is thinking
+                    </span>
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-[#F319DD] rounded-full animate-bounce [animation-delay:0.2s]" />
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -265,7 +301,6 @@ export function ChatInterface({
           </div>
         )}
       </div>
-
       {/* Message Input */}
       <div className="p-6">
         {showWelcomeScreen && (
@@ -315,12 +350,14 @@ export function ChatInterface({
                 }}
                 placeholder="Ask Anything..."
                 className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base px-0 shadow-none"
+                disabled={isLoading}
               />
               <Button
                 onClick={() => handleSendMessage(inputValue)}
                 size="icon"
                 variant="ghost"
                 className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent"
+                disabled={isLoading}
               >
                 <Send className="w-5 h-5" />
               </Button>
@@ -330,6 +367,7 @@ export function ChatInterface({
                 <Button
                   variant="ghost"
                   size="sm"
+                  disabled={isLoading}
                   onClick={handleFileAttach}
                   className="h-auto p-0 text-muted-foreground hover:text-foreground hover:bg-transparent font-normal"
                 >

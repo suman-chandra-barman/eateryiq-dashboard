@@ -1,22 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChatHistory } from "@/components/Chat/ChatHistory";
 import { ChatInterface } from "@/components/Chat/ChatInterface";
 
 export default function ChatPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+
+  // Load chat ID from URL on mount
+  useEffect(() => {
+    const chatIdParam = searchParams.get("chatId");
+    if (chatIdParam) {
+      setCurrentChatId(Number(chatIdParam));
+    }
+  }, [searchParams]);
 
   const handleChatSelect = (chatId: number) => {
     setCurrentChatId(chatId);
+    router.push(`?chatId=${chatId}`, { scroll: false });
   };
 
   const handleNewChat = () => {
     setCurrentChatId(null);
+    router.push("?", { scroll: false });
   };
 
   const handleChatCreated = (chatId: number) => {
     setCurrentChatId(chatId);
+    router.push(`?chatId=${chatId}`, { scroll: false });
   };
 
   return (

@@ -15,7 +15,7 @@ export default function DashboardHeader({ title }: DashboardHeaderProps) {
   return (
     <div className="bg-card px-4 py-4 rounded-2xl mb-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-medium text-[#3B3B3B] mb-4">{title}</h2>
+        <h2 className="text-3xl font-medium text-[#3B3B3B]">{title}</h2>
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
