@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChevronsRight, ChevronsLeft, ChevronRight } from "lucide-react";
 import { LogoutDialog } from "@/components/Dailog/LogoutDialog";
 import logo from "@/assets/logo.png";
@@ -192,13 +192,19 @@ export function DashboardSidebar() {
             )}
           >
             <Avatar className="w-10 h-10">
-              <AvatarImage src={user.src} alt="User Avatar" />
+              <AvatarImage
+                src="/placeholder.svg?height=40&width=40"
+                alt={currentUser?.full_name}
+              />
+              <AvatarFallback className="font-bold uppercase">
+                {currentUser?.full_name?.slice(0, 1)}
+              </AvatarFallback>
             </Avatar>
             {!isCollapsed && (
               <>
                 <div className="flex-1 text-left">
                   <div className="font-medium text-sm">
-                    {currentUser?.full_name || "Jhon Marcel"}
+                    {currentUser?.full_name}
                   </div>
                   <div className="text-xs text-gray-400 capitalize">
                     {currentUser?.role?.replace("_", " ") || currentUser?.role}
