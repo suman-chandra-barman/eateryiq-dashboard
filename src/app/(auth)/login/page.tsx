@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import login from "@/assets/auth/login.png";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
 import { toast } from "sonner";
 import type { UserRole } from "@/types/auth";
 
@@ -43,13 +44,39 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
   const [showPassword, setShowPassword] = useState(false);
+  const [shouldCheckOnboarding, setShouldCheckOnboarding] = useState(false);
+  const [userRole, setUserRole] = useState<{ role: UserRole; isAdmin: boolean } | null>(null);
   const [loginMutation, { isLoading }] = useLoginMutation();
+
+  // Only fetch onboarding progress after successful login
+  const { data: onboardingData, isLoading: isCheckingOnboarding } = useGetOnboardingProgressQuery(undefined, {
+    skip: !shouldCheckOnboarding,
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>();
+
+  // Check onboarding status and redirect after login
+  useEffect(() => {
+    if (shouldCheckOnboarding && onboardingData?.data && !isCheckingOnboarding) {
+      const { business_location, franchise_brand } = onboardingData.data.steps;
+
+      // If required steps are pending, redirect to onboarding
+      if (
+        business_location.status === "pending" ||
+        franchise_brand.status === "pending"
+      ) {
+        router.push("/onboarding");
+      } else if (userRole) {
+        // Onboarding is complete, redirect to dashboard
+        const dashboardPath = getRoleDashboardPath(userRole.role, userRole.isAdmin);
+        router.push(dashboardPath);
+      }
+    }
+  }, [shouldCheckOnboarding, onboardingData, isCheckingOnboarding, router, userRole]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -61,15 +88,16 @@ export default function LoginPage() {
       if (response.success && response.data) {
         toast.success(response.message);
 
-        // Redirect to callback URL or role-based dashboard
+        // If there's a callback URL, use it directly
         if (callbackUrl) {
           router.push(callbackUrl);
         } else {
-          const dashboardPath = getRoleDashboardPath(
-            response.data.user.role,
-            response.data.user.is_admin
-          );
-          router.push(dashboardPath);
+          // Store user role and trigger onboarding check
+          setUserRole({
+            role: response.data.user.role,
+            isAdmin: response.data.user.is_admin,
+          });
+          setShouldCheckOnboarding(true);
         }
       }
     } catch (error: unknown) {

@@ -1,108 +1,92 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-
-// Demo Prototype: EateryIQ Post‑Signup Onboarding (interactive)
-// Added in this version:
-// - CSV template download (Sales)
-// - POS OAuth mock screen for connectors
-// - Persists progress to localStorage (key: EIQ_ONBOARDING_STATE)
-
-const STORAGE_KEY = "EIQ_ONBOARDING_STATE";
-
-const WEIGHTS = {
-  account: 10,
-  location: 15,
-  franchise: 15,
-  menu: 15,
-  sales: 15,
-  labor: 10,
-  documents: 10,
-  marketingPolicies: 10,
-};
-
-const initialState = {
-  account: { ownerName: "", brandName: "", email: "" },
-  location: { name: "", address: "", timezone: "", serviceModel: "" },
-  franchise: { isFranchise: "", brand: "", locationsOwned: "", region: "" },
-  menu: { url: "", files: [] as string[] },
-  sales: { inStoreMonth: "", inStoreYear: "", onlineMonth: "", onlineYear: "" },
-  labor: { employeesFOH: "", employeesBOH: "", payCadence: "" },
-  documents: { files: [] as string[] },
-  marketingPolicies: { budget: "", policies: "" },
-  currentStep: 0,
-};
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useGetOnboardingProgressQuery,
+  useSubmitAccountSetupMutation,
+  useSkipAccountSetupMutation,
+  useSubmitBusinessLocationMutation,
+  useSubmitFranchiseBrandMutation,
+  useSubmitMenuUploadMutation,
+  useSkipMenuUploadMutation,
+  useSubmitSalesBaselineMutation,
+  useSkipSalesBaselineMutation,
+  useSubmitLaborStaffMutation,
+  useSkipLaborStaffMutation,
+  useSubmitDocumentsMutation,
+  useSkipDocumentsMutation,
+  useSubmitMarketingPoliciesMutation,
+  useSkipMarketingPoliciesMutation,
+} from "@/redux/features/onboarding/onboardingApi";
 
 const steps = [
-  { key: "account", label: "Account Setup", required: false },
-  { key: "location", label: "Business Location", required: true },
-  { key: "franchise", label: "Franchise & Brand", required: true },
-  { key: "menu", label: "Menu Upload", required: false },
-  { key: "sales", label: "Sales Baseline", required: false },
-  { key: "labor", label: "Labor & Staff", required: false },
+  { key: "account_setup", label: "Account Setup", required: false },
+  { key: "business_location", label: "Business Location", required: true },
+  { key: "franchise_brand", label: "Franchise & Brand", required: true },
+  { key: "menu_upload", label: "Menu Upload", required: false },
+  { key: "sales_baseline", label: "Sales Baseline", required: false },
+  { key: "labor_staff", label: "Labor & Staff", required: false },
   { key: "documents", label: "Documents", required: false },
-  { key: "marketingPolicies", label: "Marketing & Policies", required: false },
-  { key: "complete", label: "Completion", required: false },
+  { key: "marketing_policies", label: "Marketing & Policies", required: false },
+  { key: "completion", label: "Completion", required: false },
 ] as const;
 
-type State = typeof initialState;
-
-type StepKey = keyof Pick<
-  State,
-  | "account"
-  | "location"
-  | "franchise"
-  | "menu"
-  | "sales"
-  | "labor"
-  | "documents"
-  | "marketingPolicies"
->;
+type StepKey = (typeof steps)[number]["key"];
 
 export default function OnboardingPage() {
-  const [state, setState] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : initialState;
-    }
-    return initialState; // return default if server-side
-  });
+  const router = useRouter();
+  const { data: progressData, isLoading } = useGetOnboardingProgressQuery();
+  const [currentStep, setCurrentStep] = useState(0);
 
+  // Check if onboarding is complete
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    if (progressData?.data) {
+      const progress = progressData.data.progress;
 
-  const percent = useMemo(() => calculatePercent(state), [state]);
-  const canUsePlatformNow = state.location.name && state.location.address; // Name+Location unlocks
-  const requiredGateSatisfied =
-    isLocationComplete(state) && isFranchiseComplete(state);
-  const current = steps[state.currentStep];
+      // If both required steps are completed, redirect to dashboard
+      if (progress === 100) {
+        router.push("/dashboard");
+      }
+    }
+  }, [progressData, router]);
+
+  // Set initial step based on progress
+  useEffect(() => {
+    if (progressData?.data) {
+      const stepsArray = Object.keys(progressData.data.steps);
+      const firstIncompleteIndex = stepsArray.findIndex((key) => {
+        const step = progressData.data.steps[key as StepKey];
+        return step.status === "pending";
+      });
+
+      if (firstIncompleteIndex !== -1) {
+        setCurrentStep(firstIncompleteIndex);
+      }
+    }
+  }, [progressData]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading onboarding...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const progress = progressData?.data?.progress || 0;
+  const current = steps[currentStep];
 
   function gotoStep(i: number) {
-    setState((s: any) => ({
-      ...s,
-      currentStep: Math.max(0, Math.min(i, steps.length - 1)),
-    }));
+    setCurrentStep(Math.max(0, Math.min(i, steps.length - 1)));
   }
 
   function next() {
-    if (
-      !requiredGateSatisfied &&
-      (current.key === "location" || current.key === "franchise")
-    )
-      return;
-    gotoStep(state.currentStep + 1);
-  }
-
-  function skip() {
-    if (current.required) return; // cannot skip required
-    gotoStep(state.currentStep + 1);
-  }
-
-  function resetAll() {
-    localStorage.removeItem(STORAGE_KEY);
-    setState(initialState);
+    gotoStep(currentStep + 1);
   }
 
   return (
@@ -110,29 +94,23 @@ export default function OnboardingPage() {
       {/* Sticky Banner */}
       <div className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur">
         <div className="container mx-auto px-12 py-3 flex items-center gap-4">
-          <RadialProgress value={percent} size={42} stroke={8} />
+          <RadialProgress value={progress} size={42} stroke={8} />
           <div className="flex-1">
             <div className="text-sm font-medium">
-              Onboarding progress: <span className="font-bold">{percent}%</span>
+              Onboarding progress:{" "}
+              <span className="font-bold">{progress}%</span>
             </div>
-            {!isComplete(percent) ? (
+            {progress < 100 ? (
               <div className="text-xs text-gray-600">
-                Finish onboarding to maximize insights, benchmarking, and
-                automations.
+                Complete required steps (Business Location & Franchise Brand) to
+                access the platform.
               </div>
             ) : (
               <div className="text-xs text-blue-600">
-                All set! You’re fully onboarded.
+                All set! You&apos;re fully onboarded.
               </div>
             )}
           </div>
-          <button
-            onClick={resetAll}
-            className="text-xs rounded-full border px-3 py-1 hover:bg-gray-100"
-            title="Reset demo"
-          >
-            Reset
-          </button>
         </div>
       </div>
 
@@ -141,46 +119,46 @@ export default function OnboardingPage() {
         <aside className="bg-white rounded-2xl shadow-sm border p-4 h-fit">
           <h2 className="font-semibold mb-3">Setup Checklist</h2>
           <ol className="space-y-2">
-            {steps.map((s, i) => (
-              <li key={s.key}>
-                <button
-                  onClick={() => gotoStep(i)}
-                  className={`w-full text-left px-3 py-2 rounded-xl border flex items-center justify-between ${
-                    i === state.currentStep
-                      ? "bg-gray-100 border-gray-300"
-                      : "bg-white border-gray-200 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>
-                    {s.label}{" "}
-                    {s.required && (
-                      <span className="text-[10px] text-red-500 ml-1">
-                        Required
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-xs">
-                    {isStepComplete(state, s.key as StepKey) ? "✅" : "⏳"}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {steps.map((s, i) => {
+              const stepStatus = progressData?.data?.steps[s.key as StepKey];
+              return (
+                <li key={s.key}>
+                  <button
+                    onClick={() => gotoStep(i)}
+                    className={`w-full text-left px-3 py-2 rounded-xl border flex items-center justify-between ${
+                      i === currentStep
+                        ? "bg-gray-100 border-gray-300"
+                        : "bg-white border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>
+                      {s.label}{" "}
+                      {s.required && (
+                        <span className="text-[10px] text-red-500 ml-1">
+                          Required
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-xs">
+                      {stepStatus?.status === "completed"
+                        ? "✅"
+                        : stepStatus?.status === "skipped"
+                        ? "⏭️"
+                        : "⏳"}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ol>
 
           {/* Platform Access Notice */}
           <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm">
             <div className="font-semibold mb-1">Platform Access</div>
-            {canUsePlatformNow ? (
-              <p>
-                Core features are unlocked. You’ll see reminders until
-                onboarding is complete.
-              </p>
-            ) : (
-              <p>
-                Enter your <b>Business Name</b> and <b>Location</b> to unlock
-                the platform.
-              </p>
-            )}
+            <p>
+              Complete <b>Business Location</b> and <b>Franchise & Brand</b> to
+              unlock the platform.
+            </p>
           </div>
         </aside>
 
@@ -190,109 +168,28 @@ export default function OnboardingPage() {
             <header className="p-5 border-b">
               <h1 className="text-xl font-bold">{current.label}</h1>
               <p className="text-sm text-gray-600">
-                Complete the fields below. You can skip non‑required steps.
+                {current.required
+                  ? "This step is required to proceed."
+                  : "Complete the fields below or skip to continue."}
               </p>
             </header>
-            <section className="p-5 space-y-4">
-              {current.key === "account" && (
-                <AccountStep state={state} setState={setState} />
+            <section className="p-5">
+              {current.key === "account_setup" && <AccountStep onNext={next} />}
+              {current.key === "business_location" && (
+                <LocationStep onNext={next} />
               )}
-              {current.key === "location" && (
-                <LocationStep state={state} setState={setState} />
+              {current.key === "franchise_brand" && (
+                <FranchiseStep onNext={next} />
               )}
-              {current.key === "franchise" && (
-                <FranchiseStep state={state} setState={setState} />
+              {current.key === "menu_upload" && <MenuStep onNext={next} />}
+              {current.key === "sales_baseline" && <SalesStep onNext={next} />}
+              {current.key === "labor_staff" && <LaborStep onNext={next} />}
+              {current.key === "documents" && <DocumentsStep onNext={next} />}
+              {current.key === "marketing_policies" && (
+                <MarketingPoliciesStep onNext={next} />
               )}
-              {current.key === "menu" && (
-                <MenuStep state={state} setState={setState} />
-              )}
-              {current.key === "sales" && (
-                <SalesStep state={state} setState={setState} />
-              )}
-              {current.key === "labor" && (
-                <LaborStep state={state} setState={setState} />
-              )}
-              {current.key === "documents" && (
-                <DocumentsStep state={state} setState={setState} />
-              )}
-              {current.key === "marketingPolicies" && (
-                <MarketingPoliciesStep state={state} setState={setState} />
-              )}
-              {current.key === "complete" && (
-                <Completion state={state} percent={percent} />
-              )}
-            </section>
-            <footer className="p-5 border-t flex items-center gap-3">
-              {!current.required && current.key !== "complete" && (
-                <button
-                  onClick={skip}
-                  className="px-4 py-2 rounded-full border hover:bg-gray-50"
-                >
-                  Skip
-                </button>
-              )}
-              {current.key !== "complete" && (
-                <button
-                  onClick={next}
-                  className={`px-5 py-2 rounded-full text-white ${
-                    (current.key === "location" &&
-                      !isLocationComplete(state)) ||
-                    (current.key === "franchise" && !isFranchiseComplete(state))
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                >
-                  Continue
-                </button>
-              )}
-              {current.key !== "complete" && (
-                <div className="ml-auto text-xs text-gray-500">
-                  You’re {percent}% complete
-                </div>
-              )}
-            </footer>
-          </Card>
-
-          {/* Demo: Platform Surface with Reminder Banner */}
-          <Card>
-            <header className="p-5 border-b flex items-center justify-between">
-              <h2 className="font-semibold">Platform Home (Demo)</h2>
-              <span className="text-xs text-gray-500">
-                Accessible after Name + Location
-              </span>
-            </header>
-            <section className="p-5 space-y-4">
-              {canUsePlatformNow ? (
-                <div>
-                  {!isComplete(percent) && (
-                    <div className="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-200 text-sm">
-                      <b>{percent}% Complete</b> — Finish onboarding (menu,
-                      sales, docs) to unlock benchmarked insights & automations.
-                    </div>
-                  )}
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <MetricCard
-                      title="Est. In‑Store Sales"
-                      value={state.sales.inStoreMonth || "—"}
-                      sub="Last Month (est)"
-                    />
-                    <MetricCard
-                      title="Est. Online/3P Sales"
-                      value={state.sales.onlineMonth || "—"}
-                      sub="Last Month (est)"
-                    />
-                    <MetricCard
-                      title="Menu Items Parsed"
-                      value={state.menu.files.length + (state.menu.url ? 1 : 0)}
-                      sub="Uploads + URL"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="text-sm text-gray-600">
-                  Please complete <b>Business Location</b> to access the
-                  platform.
-                </div>
+              {current.key === "completion" && (
+                <Completion progress={progress} />
               )}
             </section>
           </Card>
@@ -310,24 +207,6 @@ function Card({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MetricCard({
-  title,
-  value,
-  sub,
-}: {
-  title: string;
-  value: React.ReactNode;
-  sub?: string;
-}) {
-  return (
-    <div className="p-4 rounded-xl border bg-white">
-      <div className="text-xs text-gray-500">{sub}</div>
-      <div className="text-sm font-semibold">{title}</div>
-      <div className="text-2xl mt-1">{value}</div>
-    </div>
-  );
-}
-
 function RadialProgress({
   value,
   size = 40,
@@ -339,7 +218,7 @@ function RadialProgress({
 }) {
   const clamped = Math.max(0, Math.min(100, value));
   const angle = (clamped / 100) * 360;
-  const bg = `conic-gradient(#2563eb ${angle}deg, #e5e7eb ${angle}deg)`; // blue → gray
+  const bg = `conic-gradient(#2563eb ${angle}deg, #e5e7eb ${angle}deg)`;
   return (
     <div
       className="rounded-full grid place-items-center"
@@ -353,12 +232,19 @@ function RadialProgress({
   );
 }
 
-// ===== Step Components =====
-function Input({ label, value, onChange, placeholder = "" }: any) {
+// ===== Helper Components =====
+function Input({
+  label,
+  value,
+  onChange,
+  placeholder = "",
+  type = "text",
+}: any) {
   return (
     <label className="block">
       <div className="text-xs text-gray-600 mb-1">{label}</div>
       <input
+        type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -379,8 +265,8 @@ function Select({ label, value, onChange, options }: any) {
       >
         <option value="">Select…</option>
         {options.map((o: any) => (
-          <option key={o} value={o}>
-            {o}
+          <option key={o.value} value={o.value}>
+            {o.label}
           </option>
         ))}
       </select>
@@ -388,393 +274,668 @@ function Select({ label, value, onChange, options }: any) {
   );
 }
 
-function FileDrop({
-  label,
-  onFiles,
-}: {
-  label: string;
-  onFiles: (names: string[]) => void;
-}) {
+// ===== Step Components =====
+function AccountStep({ onNext }: { onNext: () => void }) {
+  const [submitAccountSetup, { isLoading }] = useSubmitAccountSetupMutation();
+  const [skipAccountSetup, { isLoading: isSkipping }] =
+    useSkipAccountSetupMutation();
+  const [formData, setFormData] = useState({
+    owner_name: "",
+    brand_name: "",
+    email: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await submitAccountSetup(formData).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit account setup:", error);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await skipAccountSetup().unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to skip account setup:", error);
+    }
+  };
+
   return (
-    <div className="border-2 border-dashed rounded-xl p-5 text-center">
-      <div className="text-sm mb-2">{label}</div>
-      <input
-        type="file"
-        multiple
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []).map(
-            (f: any) => f.name
-          );
-          onFiles(files);
-        }}
-      />
-      <div className="text-xs text-gray-500 mt-1">
-        PDF, CSV, DOCX, PNG/JPG supported (demo)
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <Input
+          label="Owner Name"
+          value={formData.owner_name}
+          onChange={(v: string) => setFormData({ ...formData, owner_name: v })}
+        />
+        <Input
+          label="Brand Name / DBA"
+          value={formData.brand_name}
+          onChange={(v: string) => setFormData({ ...formData, brand_name: v })}
+        />
+        <Input
+          label="Email"
+          type="email"
+          value={formData.email}
+          onChange={(v: string) => setFormData({ ...formData, email: v })}
+        />
       </div>
-    </div>
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={isSkipping}
+          className="px-4 py-2 rounded-full border hover:bg-gray-50 disabled:opacity-50"
+        >
+          {isSkipping ? "Skipping..." : "Skip"}
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function AccountStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function LocationStep({ onNext }: { onNext: () => void }) {
+  const [submitBusinessLocation, { isLoading }] =
+    useSubmitBusinessLocationMutation();
+  const [formData, setFormData] = useState({
+    business_name: "",
+    address: "",
+    timezone: "",
+    service_model: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (
+      !formData.business_name ||
+      !formData.address ||
+      !formData.timezone ||
+      !formData.service_model
+    ) {
+      alert("All fields are required for Business Location");
+      return;
+    }
+    try {
+      await submitBusinessLocation(formData).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit business location:", error);
+    }
+  };
+
   return (
-    <div className="grid md:grid-cols-2 gap-4">
-      <Input
-        label="Owner Name"
-        value={state.account.ownerName}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, account: { ...s.account, ownerName: v } }))
-        }
-      />
-      <Input
-        label="Brand Name / DBA"
-        value={state.account.brandName}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, account: { ...s.account, brandName: v } }))
-        }
-      />
-      <Input
-        label="Email"
-        value={state.account.email}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, account: { ...s.account, email: v } }))
-        }
-      />
-    </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <Input
+          label="Business Name *"
+          value={formData.business_name}
+          onChange={(v: string) =>
+            setFormData({ ...formData, business_name: v })
+          }
+        />
+        <Input
+          label="Address *"
+          value={formData.address}
+          onChange={(v: string) => setFormData({ ...formData, address: v })}
+        />
+        <Select
+          label="Timezone *"
+          value={formData.timezone}
+          onChange={(v: string) => setFormData({ ...formData, timezone: v })}
+          options={[
+            { value: "America/Los_Angeles", label: "America/Los_Angeles" },
+            { value: "America/Denver", label: "America/Denver" },
+            { value: "America/Chicago", label: "America/Chicago" },
+            { value: "America/New_York", label: "America/New_York" },
+          ]}
+        />
+        <Select
+          label="Service Model *"
+          value={formData.service_model}
+          onChange={(v: string) =>
+            setFormData({ ...formData, service_model: v })
+          }
+          options={[
+            { value: "qsr", label: "QSR" },
+            { value: "fast_casual", label: "Fast Casual" },
+            { value: "full_service", label: "Full Service" },
+            { value: "cafe", label: "Cafe" },
+            { value: "bar", label: "Bar" },
+            { value: "catering", label: "Catering" },
+            { value: "ghost_kitchen", label: "Ghost Kitchen" },
+          ]}
+        />
+      </div>
+      <div className="flex gap-3 pt-4">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function LocationStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function FranchiseStep({ onNext }: { onNext: () => void }) {
+  const [submitFranchiseBrand, { isLoading }] =
+    useSubmitFranchiseBrandMutation();
+  const [formData, setFormData] = useState({
+    is_franchise: false,
+    franchise_name: "",
+    locations_owned: "",
+    region_market: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        is_franchise: formData.is_franchise,
+        franchise_name: formData.is_franchise ? formData.franchise_name : null,
+        locations_owned:
+          formData.is_franchise && formData.locations_owned
+            ? Number(formData.locations_owned)
+            : null,
+        region_market: formData.is_franchise ? formData.region_market : null,
+      };
+      await submitFranchiseBrand(payload).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit franchise brand:", error);
+    }
+  };
+
   return (
-    <div className="grid md:grid-cols-2 gap-4">
-      <Input
-        label="Business Name"
-        value={state.location.name}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, location: { ...s.location, name: v } }))
-        }
-      />
-      <Input
-        label="Address"
-        value={state.location.address}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, location: { ...s.location, address: v } }))
-        }
-      />
+    <form onSubmit={handleSubmit} className="space-y-4">
       <Select
-        label="Timezone"
-        value={state.location.timezone}
+        label="Is this restaurant part of a franchise? *"
+        value={formData.is_franchise ? "yes" : "no"}
         onChange={(v: string) =>
-          setState((s) => ({ ...s, location: { ...s.location, timezone: v } }))
+          setFormData({ ...formData, is_franchise: v === "yes" })
         }
         options={[
-          "America/Los_Angeles",
-          "America/Denver",
-          "America/Chicago",
-          "America/New_York",
+          { value: "yes", label: "Yes" },
+          { value: "no", label: "No" },
         ]}
       />
-      <Select
-        label="Service Model"
-        value={state.location.serviceModel}
-        onChange={(v: string) =>
-          setState((s) => ({
-            ...s,
-            location: { ...s.location, serviceModel: v },
-          }))
-        }
-        options={[
-          "QSR",
-          "Fast Casual",
-          "Full Service",
-          "Cafe",
-          "Bar",
-          "Catering",
-          "Ghost Kitchen",
-        ]}
-      />
-    </div>
-  );
-}
-
-function FranchiseStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
-  const isYes = state.franchise.isFranchise === "Yes";
-  return (
-    <div className="space-y-4">
-      <Select
-        label="Is this restaurant part of a franchise?"
-        value={state.franchise.isFranchise}
-        onChange={(v: string) =>
-          setState((s) => ({
-            ...s,
-            franchise: { ...s.franchise, isFranchise: v },
-          }))
-        }
-        options={["Yes", "No"]}
-      />
-      {isYes ? (
+      {formData.is_franchise && (
         <div className="grid md:grid-cols-2 gap-4">
           <Input
             label="Franchise / Brand Name"
-            value={state.franchise.brand}
+            value={formData.franchise_name}
             onChange={(v: string) =>
-              setState((s) => ({
-                ...s,
-                franchise: { ...s.franchise, brand: v },
-              }))
+              setFormData({ ...formData, franchise_name: v })
             }
             placeholder="e.g., Chipotle, Subway, Local Brand"
           />
           <Input
             label="Locations Owned / Operated"
-            value={state.franchise.locationsOwned}
+            type="number"
+            value={formData.locations_owned}
             onChange={(v: string) =>
-              setState((s) => ({
-                ...s,
-                franchise: { ...s.franchise, locationsOwned: v },
-              }))
+              setFormData({ ...formData, locations_owned: v })
             }
           />
           <Input
             label="Region / Market"
-            value={state.franchise.region}
+            value={formData.region_market}
             onChange={(v: string) =>
-              setState((s) => ({
-                ...s,
-                franchise: { ...s.franchise, region: v },
-              }))
+              setFormData({ ...formData, region_market: v })
             }
           />
         </div>
-      ) : state.franchise.isFranchise === "No" ? (
+      )}
+      {!formData.is_franchise && (
         <div className="text-sm text-gray-600">
           Marked as <b>Independent Operator</b>. Brand benchmarks will use
           cuisine & local peers.
         </div>
-      ) : null}
-    </div>
+      )}
+      <div className="flex gap-3 pt-4">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function MenuStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function MenuStep({ onNext }: { onNext: () => void }) {
+  const [submitMenuUpload, { isLoading }] = useSubmitMenuUploadMutation();
+  const [skipMenuUpload, { isLoading: isSkipping }] =
+    useSkipMenuUploadMutation();
+  const [menuUrl, setMenuUrl] = useState("");
+  const [menuFile, setMenuFile] = useState<File | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      if (menuUrl) formData.append("menu_url", menuUrl);
+      if (menuFile) formData.append("menu_file", menuFile);
+
+      await submitMenuUpload(formData).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit menu upload:", error);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await skipMenuUpload().unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to skip menu upload:", error);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <Input
         label="Menu URL (optional)"
-        value={state.menu.url}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, menu: { ...s.menu, url: v } }))
-        }
+        value={menuUrl}
+        onChange={(v: string) => setMenuUrl(v)}
         placeholder="https://yourmenu.com"
       />
-      <FileDrop
-        label="Upload menu files (PDF, CSV, images)"
-        onFiles={(names) =>
-          setState((s) => ({
-            ...s,
-            menu: { ...s.menu, files: [...s.menu.files, ...names] },
-          }))
-        }
-      />
-      {state.menu.files.length > 0 && (
-        <div className="text-xs text-gray-600">
-          Uploaded: {state.menu.files.join(", ")}
-        </div>
-      )}
-    </div>
+      <div className="border-2 border-dashed rounded-xl p-5 text-center">
+        <div className="text-sm mb-2">Upload menu file (PDF, CSV, images)</div>
+        <input
+          type="file"
+          accept=".pdf,.csv,.png,.jpg,.jpeg"
+          onChange={(e) => setMenuFile(e.target.files?.[0] || null)}
+        />
+        {menuFile && (
+          <div className="text-xs text-gray-600 mt-2">
+            Selected: {menuFile.name}
+          </div>
+        )}
+      </div>
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={isSkipping}
+          className="px-4 py-2 rounded-full border hover:bg-gray-50 disabled:opacity-50"
+        >
+          {isSkipping ? "Skipping..." : "Skip"}
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function SalesStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function SalesStep({ onNext }: { onNext: () => void }) {
+  const [submitSalesBaseline, { isLoading }] = useSubmitSalesBaselineMutation();
+  const [skipSalesBaseline, { isLoading: isSkipping }] =
+    useSkipSalesBaselineMutation();
+  const [formData, setFormData] = useState({
+    in_store_last_month: "",
+    online_last_month: "",
+    in_store_last_12_month: "",
+    online_last_12_month: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        in_store_last_month: Number(formData.in_store_last_month),
+        online_last_month: Number(formData.online_last_month),
+        in_store_last_12_month: Number(formData.in_store_last_12_month),
+        online_last_12_month: Number(formData.online_last_12_month),
+      };
+      await submitSalesBaseline(payload).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit sales baseline:", error);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await skipSalesBaseline().unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to skip sales baseline:", error);
+    }
+  };
+
   return (
-    <div className="grid gap-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid md:grid-cols-2 gap-4">
         <Input
           label="Estimated In‑Store Sales — Last Month ($)"
-          value={state.sales.inStoreMonth}
+          type="number"
+          value={formData.in_store_last_month}
           onChange={(v: string) =>
-            setState((s) => ({ ...s, sales: { ...s.sales, inStoreMonth: v } }))
+            setFormData({ ...formData, in_store_last_month: v })
           }
         />
         <Input
           label="Estimated Online/3P Sales — Last Month ($)"
-          value={state.sales.onlineMonth}
+          type="number"
+          value={formData.online_last_month}
           onChange={(v: string) =>
-            setState((s) => ({ ...s, sales: { ...s.sales, onlineMonth: v } }))
+            setFormData({ ...formData, online_last_month: v })
           }
         />
         <Input
           label="Estimated In‑Store Sales — Last 12 Months ($)"
-          value={state.sales.inStoreYear}
+          type="number"
+          value={formData.in_store_last_12_month}
           onChange={(v: string) =>
-            setState((s) => ({ ...s, sales: { ...s.sales, inStoreYear: v } }))
+            setFormData({ ...formData, in_store_last_12_month: v })
           }
         />
         <Input
           label="Estimated Online/3P Sales — Last 12 Months ($)"
-          value={state.sales.onlineYear}
+          type="number"
+          value={formData.online_last_12_month}
           onChange={(v: string) =>
-            setState((s) => ({ ...s, sales: { ...s.sales, onlineYear: v } }))
+            setFormData({ ...formData, online_last_12_month: v })
           }
         />
       </div>
-
-      <div className="flex items-center gap-3">
+      <div className="flex gap-3 pt-4">
         <button
-          onClick={() => downloadSalesCSVTemplate()}
-          className="px-4 py-2 rounded-full border bg-white hover:bg-gray-50 text-sm"
+          type="button"
+          onClick={handleSkip}
+          disabled={isSkipping}
+          className="px-4 py-2 rounded-full border hover:bg-gray-50 disabled:opacity-50"
         >
-          Download Sales CSV Template
+          {isSkipping ? "Skipping..." : "Skip"}
         </button>
-        <span className="text-xs text-gray-500">
-          CSV includes headers for month/year by channel.
-        </span>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }
 
-function LaborStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function LaborStep({ onNext }: { onNext: () => void }) {
+  const [submitLaborStaff, { isLoading }] = useSubmitLaborStaffMutation();
+  const [skipLaborStaff, { isLoading: isSkipping }] =
+    useSkipLaborStaffMutation();
+  const [formData, setFormData] = useState({
+    foh_employees: "",
+    boh_employees: "",
+    pay_cadence: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        foh_employees: Number(formData.foh_employees),
+        boh_employees: Number(formData.boh_employees),
+        pay_cadence: formData.pay_cadence,
+      };
+      await submitLaborStaff(payload).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit labor staff:", error);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await skipLaborStaff().unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to skip labor staff:", error);
+    }
+  };
+
   return (
-    <div className="grid md:grid-cols-3 gap-4">
-      <Input
-        label="FOH Employees"
-        value={state.labor.employeesFOH}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, labor: { ...s.labor, employeesFOH: v } }))
-        }
-      />
-      <Input
-        label="BOH Employees"
-        value={state.labor.employeesBOH}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, labor: { ...s.labor, employeesBOH: v } }))
-        }
-      />
-      <Select
-        label="Pay Cadence"
-        value={state.labor.payCadence}
-        onChange={(v: string) =>
-          setState((s) => ({ ...s, labor: { ...s.labor, payCadence: v } }))
-        }
-        options={["Weekly", "Bi‑Weekly", "Semi‑Monthly", "Monthly"]}
-      />
-    </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid md:grid-cols-3 gap-4">
+        <Input
+          label="FOH Employees"
+          type="number"
+          value={formData.foh_employees}
+          onChange={(v: string) =>
+            setFormData({ ...formData, foh_employees: v })
+          }
+        />
+        <Input
+          label="BOH Employees"
+          type="number"
+          value={formData.boh_employees}
+          onChange={(v: string) =>
+            setFormData({ ...formData, boh_employees: v })
+          }
+        />
+        <Select
+          label="Pay Cadence"
+          value={formData.pay_cadence}
+          onChange={(v: string) => setFormData({ ...formData, pay_cadence: v })}
+          options={[
+            { value: "weekly", label: "Weekly" },
+            { value: "bi-weekly", label: "Bi‑Weekly" },
+            { value: "semi-monthly", label: "Semi‑Monthly" },
+            { value: "monthly", label: "Monthly" },
+          ]}
+        />
+      </div>
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={isSkipping}
+          className="px-4 py-2 rounded-full border hover:bg-gray-50 disabled:opacity-50"
+        >
+          {isSkipping ? "Skipping..." : "Skip"}
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function DocumentsStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function DocumentsStep({ onNext }: { onNext: () => void }) {
+  const [submitDocuments, { isLoading }] = useSubmitDocumentsMutation();
+  const [skipDocuments, { isLoading: isSkipping }] = useSkipDocumentsMutation();
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) {
+      alert("Please select a file");
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      await submitDocuments(formData).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit documents:", error);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await skipDocuments().unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to skip documents:", error);
+    }
+  };
+
   return (
-    <div className="space-y-3">
-      <FileDrop
-        label="Upload leases, vendor & employment contracts, P&L, etc."
-        onFiles={(names) =>
-          setState((s) => ({
-            ...s,
-            documents: { files: [...s.documents.files, ...names] },
-          }))
-        }
-      />
-      {state.documents.files.length > 0 && (
-        <div className="text-xs text-gray-600">
-          Uploaded: {state.documents.files.join(", ")}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="border-2 border-dashed rounded-xl p-5 text-center">
+        <div className="text-sm mb-2">
+          Upload leases, vendor & employment contracts, P&L, etc.
         </div>
-      )}
-    </div>
+        <input
+          type="file"
+          accept=".pdf,.csv,.docx,.png,.jpg,.jpeg,.xlsx"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+        {file && (
+          <div className="text-xs text-gray-600 mt-2">
+            Selected: {file.name}
+          </div>
+        )}
+      </div>
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={isSkipping}
+          className="px-4 py-2 rounded-full border hover:bg-gray-50 disabled:opacity-50"
+        >
+          {isSkipping ? "Skipping..." : "Skip"}
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function MarketingPoliciesStep({
-  state,
-  setState,
-}: {
-  state: State;
-  setState: React.Dispatch<React.SetStateAction<State>>;
-}) {
+function MarketingPoliciesStep({ onNext }: { onNext: () => void }) {
+  const [submitMarketingPolicies, { isLoading }] =
+    useSubmitMarketingPoliciesMutation();
+  const [skipMarketingPolicies, { isLoading: isSkipping }] =
+    useSkipMarketingPoliciesMutation();
+  const [formData, setFormData] = useState({
+    monthly_marketing_budget: "",
+    key_policies: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        monthly_marketing_budget: Number(formData.monthly_marketing_budget),
+        key_policies: formData.key_policies,
+      };
+      await submitMarketingPolicies(payload).unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to submit marketing policies:", error);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      await skipMarketingPolicies().unwrap();
+      onNext();
+    } catch (error) {
+      console.error("Failed to skip marketing policies:", error);
+    }
+  };
+
   return (
-    <div className="grid md:grid-cols-2 gap-4">
-      <Input
-        label="Monthly Marketing Budget ($)"
-        value={state.marketingPolicies.budget}
-        onChange={(v: string) =>
-          setState((s) => ({
-            ...s,
-            marketingPolicies: { ...s.marketingPolicies, budget: v },
-          }))
-        }
-      />
-      <Input
-        label="Key Policies (tips, comps, waste)"
-        value={state.marketingPolicies.policies}
-        onChange={(v: string) =>
-          setState((s) => ({
-            ...s,
-            marketingPolicies: { ...s.marketingPolicies, policies: v },
-          }))
-        }
-        placeholder="Tip pooling, discounts approval, waste logging cadence…"
-      />
-    </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <Input
+          label="Monthly Marketing Budget ($)"
+          type="number"
+          value={formData.monthly_marketing_budget}
+          onChange={(v: string) =>
+            setFormData({ ...formData, monthly_marketing_budget: v })
+          }
+        />
+        <Input
+          label="Key Policies (tips, comps, waste)"
+          value={formData.key_policies}
+          onChange={(v: string) =>
+            setFormData({ ...formData, key_policies: v })
+          }
+          placeholder="Tip pooling, discounts approval, waste logging cadence…"
+        />
+      </div>
+      <div className="flex gap-3 pt-4">
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={isSkipping}
+          className="px-4 py-2 rounded-full border hover:bg-gray-50 disabled:opacity-50"
+        >
+          {isSkipping ? "Skipping..." : "Skip"}
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="px-5 py-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue"}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function Completion({ state, percent }: { state: State; percent: number }) {
+function Completion({ progress }: { progress: number }) {
+  const router = useRouter();
+
   return (
     <div className="text-center py-10">
-      {isComplete(percent) ? (
+      {progress >= 100 ? (
         <>
           <div className="text-3xl font-bold text-blue-600 mb-2">
             🎉 Onboarding Complete!
           </div>
-          <p className="text-gray-700">
-            You’re ready to unlock full EateryGPT insights and automations.
+          <p className="text-gray-700 mb-6">
+            You&apos;re ready to unlock full EateryIQ insights and automations.
           </p>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="px-6 py-3 rounded-full text-white bg-blue-600 hover:bg-blue-700"
+          >
+            Go to Dashboard
+          </button>
         </>
       ) : (
         <>
           <div className="text-2xl font-semibold mb-2">
-            You’re {percent}% complete
+            You&apos;re {progress}% complete
           </div>
           <p className="text-gray-700 max-w-xl mx-auto">
             Finish remaining steps (menu, sales, integrations, documents) to
@@ -784,106 +945,4 @@ function Completion({ state, percent }: { state: State; percent: number }) {
       )}
     </div>
   );
-}
-
-// ===== Helpers =====
-function isLocationComplete(state: State) {
-  return Boolean(
-    state.location.name &&
-      state.location.address &&
-      state.location.timezone &&
-      state.location.serviceModel
-  );
-}
-
-function isFranchiseComplete(state: State) {
-  if (state.franchise.isFranchise === "Yes") {
-    return Boolean(state.franchise.brand && state.franchise.locationsOwned);
-  }
-  return state.franchise.isFranchise === "No"; // must choose Yes/No
-}
-
-function isStepComplete(state: State, key: StepKey) {
-  switch (key) {
-    case "location":
-      return isLocationComplete(state);
-    case "franchise":
-      return isFranchiseComplete(state);
-    case "menu":
-      return Boolean(state.menu.url || state.menu.files.length > 0);
-    case "sales":
-      return Boolean(
-        state.sales.inStoreMonth ||
-          state.sales.onlineMonth ||
-          state.sales.inStoreYear ||
-          state.sales.onlineYear
-      );
-    case "labor":
-      return Boolean(
-        state.labor.employeesFOH ||
-          state.labor.employeesBOH ||
-          state.labor.payCadence
-      );
-    case "documents":
-      return state.documents.files.length > 0;
-    case "marketingPolicies":
-      return Boolean(
-        state.marketingPolicies.budget || state.marketingPolicies.policies
-      );
-    case "account":
-      return Boolean(
-        state.account.ownerName ||
-          state.account.brandName ||
-          state.account.email
-      );
-    default:
-      return false;
-  }
-}
-
-function calculatePercent(state: State) {
-  const parts: Array<[StepKey, number]> = [
-    ["account", WEIGHTS.account],
-    ["location", WEIGHTS.location],
-    ["franchise", WEIGHTS.franchise],
-    ["menu", WEIGHTS.menu],
-    ["sales", WEIGHTS.sales],
-    ["labor", WEIGHTS.labor],
-    ["documents", WEIGHTS.documents],
-    ["marketingPolicies", WEIGHTS.marketingPolicies],
-  ];
-  const achieved = parts.reduce(
-    (sum, [k, w]) => sum + (isStepComplete(state, k) ? w : 0),
-    0
-  );
-  return Math.min(100, Math.round(achieved));
-}
-
-function isComplete(p: number) {
-  return p >= 100;
-}
-
-// ===== CSV Template Utility =====
-function downloadSalesCSVTemplate() {
-  const headers = [
-    "period_type", // month|year
-    "period_label", // e.g., 2025-09 or 2024
-    "channel", // in_store|online_3p
-    "sales_amount",
-    "orders",
-  ];
-  const rows = [
-    ["month", "2025-09", "in_store", "45000", "1800"],
-    ["month", "2025-09", "online_3p", "12000", "400"],
-    ["year", "2024", "in_store", "520000", "20000"],
-    ["year", "2024", "online_3p", "140000", "4800"],
-  ];
-  const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "eateryiq_sales_template.csv";
-  a.click();
-  URL.revokeObjectURL(url);
 }

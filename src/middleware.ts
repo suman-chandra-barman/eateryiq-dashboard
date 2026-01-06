@@ -8,6 +8,7 @@ const publicRoutes = [
   "/verify-otp",
   "/forgot-password",
   "/reset-password",
+  "/onboarding",
 ];
 
 // Define auth routes that should redirect to dashboard if already logged in
@@ -17,7 +18,6 @@ const authRoutes = [
   "/verify-otp",
   "/forgot-password",
   "/reset-password",
-  "/onboarding",
 ];
 
 export function middleware(request: NextRequest) {
@@ -46,6 +46,9 @@ export function middleware(request: NextRequest) {
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
+
+  // Note: Onboarding status is checked client-side in the onboarding page
+  // If business_location and franchise_brand are completed, user is redirected to dashboard
 
   return NextResponse.next();
 }
