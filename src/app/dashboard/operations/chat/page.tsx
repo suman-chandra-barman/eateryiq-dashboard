@@ -34,7 +34,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh-125px)]">
       <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">
         EateryGPT Chat
       </h1>

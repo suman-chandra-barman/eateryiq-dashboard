@@ -14,6 +14,7 @@ import {
 } from "@/redux/features/documents/documentsApi";
 import { toast } from "sonner";
 import { DocumentsTable } from "@/components/Tables/DocumentsTable";
+import PageLoader from "@/components/Shared/PageLoader";
 
 export type Document = {
   id: string;
@@ -104,7 +105,7 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col min-h-[calc(100vh-125px)]">
       <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Documents</h1>
       <div className="flex-1 p-6 overflow-auto bg-white rounded-2xl">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -152,9 +153,7 @@ export default function DocumentsPage() {
 
           {/* Loading State */}
           {isDocumentsLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <p className="text-gray-500">Loading documents...</p>
-            </div>
+            <PageLoader level="Loading documents..." />
           ) : (
             <>
               {/* Documents Table */}
