@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Event {
   id: string;
   title: string;
+  description?: string;
   startDate: Date;
   endDate: Date;
   type: "event" | "schedule";
@@ -16,13 +15,13 @@ interface Event {
 interface CalendarGridProps {
   currentDate: Date;
   events: Event[];
-  onDeleteEvent: (eventId: string) => void;
+  onEventClick: (event: Event) => void;
 }
 
 export function CalendarGrid({
   currentDate,
   events,
-  onDeleteEvent,
+  onEventClick,
 }: CalendarGridProps) {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const today = new Date();
@@ -67,19 +66,61 @@ export function CalendarGrid({
     });
   };
 
-  const getEventSpanInfo = (event: Event, date: Date) => {
+  const getEventPosition = (event: Event, week: Date[], weekIndex: number) => {
     const eventStart = new Date(event.startDate);
     const eventEnd = new Date(event.endDate);
     eventStart.setHours(0, 0, 0, 0);
     eventEnd.setHours(0, 0, 0, 0);
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
 
-    const isStart = checkDate.getTime() === eventStart.getTime();
-    const isEnd = checkDate.getTime() === eventEnd.getTime();
-    const isSpanning = checkDate > eventStart && checkDate < eventEnd;
+    const weekStart = new Date(week[0]);
+    const weekEnd = new Date(week[6]);
+    weekStart.setHours(0, 0, 0, 0);
+    weekEnd.setHours(23, 59, 59, 999);
 
-    return { isStart, isEnd, isSpanning };
+    // Check if event intersects with this week
+    if (eventEnd < weekStart || eventStart > weekEnd) {
+      return null;
+    }
+
+    // Find start and end positions within the week
+    let startCol = 0;
+    let endCol = 6;
+
+    for (let i = 0; i < week.length; i++) {
+      const day = new Date(week[i]);
+      day.setHours(0, 0, 0, 0);
+
+      if (day.getTime() === eventStart.getTime()) {
+        startCol = i;
+      }
+      if (day.getTime() === eventEnd.getTime()) {
+        endCol = i;
+        break;
+      }
+      if (day > eventEnd) {
+        endCol = i - 1;
+        break;
+      }
+    }
+
+    // If event starts before this week
+    if (eventStart < weekStart) {
+      startCol = 0;
+    }
+
+    // If event ends after this week
+    if (eventEnd > weekEnd) {
+      endCol = 6;
+    }
+
+    const span = endCol - startCol + 1;
+
+    return {
+      startCol,
+      span,
+      shouldShow:
+        startCol === 0 || week[startCol].getTime() === eventStart.getTime(),
+    };
   };
 
   const isToday = (date: Date) => {
@@ -111,70 +152,58 @@ export function CalendarGrid({
       {/* Calendar Grid */}
       <div className="divide-y divide-gray-200">
         {weeks.map((week, weekIndex) => (
-          <div
-            key={weekIndex}
-            className="grid grid-cols-7 divide-x divide-gray-200"
-          >
-            {week.map((date, dayIndex) => {
-              const dayEvents = getEventsForDate(date);
-              const isTodayDate = isToday(date);
-              const isCurrentMonthDate = isCurrentMonth(date);
+          <div key={weekIndex} className="relative">
+            {/* Day cells */}
+            <div className="grid grid-cols-7 divide-x divide-gray-200">
+              {week.map((date, dayIndex) => {
+                const isTodayDate = isToday(date);
+                const isCurrentMonthDate = isCurrentMonth(date);
 
-              return (
-                <div
-                  key={`${weekIndex}-${dayIndex}`}
-                  className={`min-h-32 p-2 ${
-                    isTodayDate ? "bg-blue-50" : "bg-white"
-                  } ${!isCurrentMonthDate ? "bg-gray-50" : ""}`}
-                >
-                  <div className="text-sm font-medium text-gray-700 mb-2">
-                    {date.getDate()}
+                return (
+                  <div
+                    key={`${weekIndex}-${dayIndex}`}
+                    className={`min-h-32 p-2 ${
+                      isTodayDate ? "bg-blue-50" : "bg-white"
+                    } ${!isCurrentMonthDate ? "bg-gray-50" : ""}`}
+                  >
+                    <div className="text-sm font-medium text-gray-700 mb-2">
+                      {date.getDate()}
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    {dayEvents.map((event) => {
-                      const spanInfo = getEventSpanInfo(event, date);
-                      const eventStart = new Date(event.startDate);
-                      const eventEnd = new Date(event.endDate);
-                      const startDateNum = eventStart.getDate();
-                      const endDateNum = eventEnd.getDate();
+                );
+              })}
+            </div>
 
-                      const displayTitle =
-                        startDateNum === endDateNum
-                          ? event.title
-                          : spanInfo.isStart
-                          ? `${startDateNum} to ${endDateNum}`
-                          : spanInfo.isEnd
-                          ? `${startDateNum} to ${endDateNum}`
-                          : `${startDateNum} to ${endDateNum}`;
+            {/* Event bars */}
+            <div className="absolute top-8 left-0 right-0 grid grid-cols-7 pointer-events-none px-2">
+              {events.map((event) => {
+                const position = getEventPosition(event, week, weekIndex);
+                if (!position || !position.shouldShow) return null;
 
-                      return (
-                        <div
-                          key={event.id}
-                          className="group relative text-xs bg-blue-500 text-white px-2 py-1 rounded truncate hover:bg-blue-600 cursor-pointer flex items-center justify-between"
-                          title={event.title}
-                        >
-                          <span className="flex-1 truncate">
-                            {displayTitle}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 h-4 w-4 p-0 ml-1 hover:bg-blue-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteEvent(event.id);
-                            }}
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      );
-                    })}
+                const eventColor =
+                  event.color === "blue"
+                    ? "bg-blue-500 hover:bg-blue-600"
+                    : "bg-pink-500 hover:bg-pink-600";
+
+                return (
+                  <div
+                    key={`${event.id}-${weekIndex}`}
+                    className={`text-xs ${eventColor} text-white px-2 py-1 rounded cursor-pointer transition-colors pointer-events-auto mb-1`}
+                    style={{
+                      gridColumn: `${position.startCol + 1} / span ${
+                        position.span
+                      }`,
+                    }}
+                    onClick={() => onEventClick(event)}
+                    title={event.title}
+                  >
+                    <span className="font-medium truncate block">
+                      {event.title}
+                    </span>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         ))}
       </div>

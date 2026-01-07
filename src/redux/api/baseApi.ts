@@ -27,6 +27,7 @@ export const baseApi = createApi({
     "ChatMessages",
     "OperatorDocuments",
     "OnboardingProgress",
+    "Calendar",
   ],
   endpoints: () => ({}),
 });

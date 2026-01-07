@@ -1,75 +1,57 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { CalendarGrid } from "@/components/Calender/CalenderGrid";
 import { CreateEventDialog } from "@/components/Calender/CreateEventDialog";
+import { EventDetailsDialog } from "@/components/Calender/EventDetailsDialog";
+import {
+  useGetCalendarEventsQuery,
+  useDeleteCalendarEventMutation,
+} from "@/redux/features/calendar/calendarApi";
+import { toast } from "sonner";
+import PageLoader from "@/components/Shared/PageLoader";
+
+interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  startDate: Date;
+  endDate: Date;
+  type: "event" | "schedule";
+  color?: string;
+}
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState<
-    Array<{
-      id: string;
-      title: string;
-      startDate: Date;
-      endDate: Date;
-      type: "event" | "schedule";
-      color?: string;
-    }>
-  >([
-    {
-      id: "1",
-      title: "All Day Event",
-      startDate: new Date(2025, 1, 7),
-      endDate: new Date(2025, 1, 7),
-      type: "event",
-      color: "blue",
-    },
-    {
-      id: "2",
-      title: "All Day Event",
-      startDate: new Date(2025, 1, 5),
-      endDate: new Date(2025, 1, 5),
-      type: "event",
-      color: "blue",
-    },
-    {
-      id: "3",
-      title: "Annual Meeting Envatos Community with Kleon Team",
-      startDate: new Date(2025, 1, 13),
-      endDate: new Date(2025, 1, 16),
-      type: "event",
-      color: "blue",
-    },
-    {
-      id: "4",
-      title: "All Day Event",
-      startDate: new Date(2025, 1, 19),
-      endDate: new Date(2025, 1, 19),
-      type: "event",
-      color: "blue",
-    },
-    {
-      id: "5",
-      title: "All Day Event",
-      startDate: new Date(2025, 1, 1),
-      endDate: new Date(2025, 1, 1),
-      type: "event",
-      color: "blue",
-    },
-    {
-      id: "6",
-      title: "All Day Event",
-      startDate: new Date(2025, 1, 22),
-      endDate: new Date(2025, 1, 22),
-      type: "event",
-      color: "blue",
-    },
-  ]);
   const [showEventDialog, setShowEventDialog] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+
+  const { data: eventsData, isLoading, error } = useGetCalendarEventsQuery();
+  const [deleteEvent, { isLoading: isDeleting }] =
+    useDeleteCalendarEventMutation();
+
+  const events = useMemo(() => {
+    if (!eventsData?.data) return [];
+
+    return eventsData.data.map((event) => ({
+      id: event.id.toString(),
+      title: event.title,
+      startDate: new Date(event.start_date),
+      endDate: new Date(event.end_date),
+      type: "event" as const,
+      color: "blue",
+      description: event.description,
+    }));
+  }, [eventsData]);
+
+  // Show error toast if fetch fails
+  if (error) {
+    toast.error("Failed to load calendar events");
+  }
 
   const handlePrevMonth = () => {
     setCurrentDate(
@@ -87,20 +69,21 @@ export default function CalendarPage() {
     setCurrentDate(new Date());
   };
 
-  const handleAddEvent = (eventData: any) => {
-    const newEvent = {
-      id: Date.now().toString(),
-      ...eventData,
-      startDate: new Date(eventData.startDate),
-      endDate: new Date(eventData.endDate),
-      type: "event",
-    };
-    setEvents([...events, newEvent]);
-    setShowEventDialog(false);
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await deleteEvent(Number(eventId)).unwrap();
+      toast.success("Event deleted successfully!");
+      setShowDetailsDialog(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error("Failed to delete event:", error);
+      toast.error("Failed to delete event. Please try again.");
+    }
   };
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents(events.filter((event) => event.id !== eventId));
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setShowDetailsDialog(true);
   };
 
   const monthName = currentDate.toLocaleString("default", {
@@ -109,9 +92,9 @@ export default function CalendarPage() {
   });
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">
-        EateryGPT Chat
+        Calendar
       </h1>
       <div className="flex-1 bg-white">
         <Card className="p-6 bg-card border border-gray-200">
@@ -152,18 +135,29 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <CalendarGrid
-            currentDate={currentDate}
-            events={events}
-            onDeleteEvent={handleDeleteEvent}
-          />
+          {isLoading ? (
+            <PageLoader className="h-[65vh]"/>
+          ) : (
+            <CalendarGrid
+              currentDate={currentDate}
+              events={events}
+              onEventClick={handleEventClick}
+            />
+          )}
         </Card>
       </div>
 
       <CreateEventDialog
         open={showEventDialog}
         onOpenChange={setShowEventDialog}
-        onAddEvent={handleAddEvent}
+      />
+
+      <EventDetailsDialog
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+        event={selectedEvent}
+        onDelete={handleDeleteEvent}
+        isDeleting={isDeleting}
       />
     </div>
   );
