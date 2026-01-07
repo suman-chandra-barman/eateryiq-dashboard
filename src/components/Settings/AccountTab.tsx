@@ -36,7 +36,7 @@ export function AccountTab() {
 
   return (
     <Card className="p-4 bg-card border-0 shadow-none text-[#3B3B3B]">
-      <div className="">
+      <div className="space-y-4">
         <div className="sticky top-0 z-30 bg-white/90 backdrop-blur">
           <div className="py-3 flex items-center gap-4">
             <RadialProgress value={15} size={42} stroke={8} />
@@ -62,9 +62,9 @@ export function AccountTab() {
         </div>
 
         {/* Your Photo */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Your Photo</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
+          <div className="flex-1">
             <Avatar className="w-14 h-14">
               <AvatarImage
                 src={
@@ -81,48 +81,48 @@ export function AccountTab() {
           </div>
         </div>
         {/* Full Name */}
-        <div className="flex items-center justify-between py-4 ">
+        <div className="flex items-center justify-between gap-4 ">
           <label className="text-lg font-medium  w-44">Full Name</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">
+          <div className="flex-1">
+            <p className="px-6 py-2 bg-gray-100 rounded-sm">
               {user?.full_name || "N/A"}
             </p>
           </div>
         </div>
 
         {/* Email */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Email</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">{user?.email || "N/A"}</p>
+          <div className="flex-1">
+            <p className="p-2 bg-gray-100 rounded-sm">{user?.email || "N/A"}</p>
           </div>
         </div>
 
         {/* Phone Number */}
-        <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Phone Number</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">
+          <div className="flex-1">
+            <p className="p-2 bg-gray-100 rounded-sm">
               {user?.phone_number || "N/A"}
             </p>
           </div>
         </div>
 
         {/* Country */}
-        <div className="flex items-center justify-between py-4">
+        <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Country</label>
           <div className="flex-1 ">
-            <p className="p-2 bg-gray-200 rounded-xl">
+            <p className="px-6 py-2 bg-gray-100 rounded-sm">
               {user?.country || "N/A"}
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">
             Restaurant Address
           </label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">
+          <div className="flex-1">
+            <p className="px-6 py-2 bg-gray-100 rounded-sm">
               {user?.restaurant_address || "N/A"}
             </p>
           </div>

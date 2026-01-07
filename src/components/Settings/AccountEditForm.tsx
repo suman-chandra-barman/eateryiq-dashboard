@@ -93,7 +93,7 @@ export function AccountEditForm({
 
   const handleSave = async (data: FormData) => {
     try {
-      const profileData: any = {};
+      const profileData: Record<string, string | File> = {};
 
       if (data.phone) {
         profileData.phone_number = data.phone;
@@ -111,10 +111,11 @@ export function AccountEditForm({
       const result = await updateProfile(profileData).unwrap();
       toast.success(result.message || "Profile updated successfully!");
       onSave();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating profile:", error);
       toast.error(
-        error?.data?.message || "Failed to update profile. Please try again."
+        (error as { data?: { message?: string } })?.data?.message ||
+          "Failed to update profile. Please try again."
       );
     }
   };
@@ -122,134 +123,138 @@ export function AccountEditForm({
   return (
     <Card className="p-4 bg-card border-0 shadow-none text-[#3B3B3B]">
       <form onSubmit={handleSubmit(handleSave)}>
-        {/* Your Photo */}
-        <div className="flex items-center justify-between gap-6">
-          <label className="text-lg font-medium  w-44">Your Photo</label>
-          <div className="flex-1 flex gap-6 border-b pb-4 border-gray-200">
-            <Avatar className="w-14 h-14">
-              <AvatarImage
-                src={
-                  photoPreview ||
-                  userData?.profile_image_url ||
-                  userData?.profile_image ||
-                  "/placeholder.svg"
-                }
-                alt="User photo"
-              />
-              <AvatarFallback>
-                {userData?.full_name?.charAt(0) || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col gap-2 justify-center">
-              <label htmlFor="photo-upload">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-fit bg-transparent cursor-pointer"
-                  onClick={() =>
-                    document.getElementById("photo-upload")?.click()
+        <div className="space-y-4">
+          {/* Your Photo */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-lg font-medium w-44">Your Photo</label>
+            <div className="flex-1 flex gap-6">
+              <Avatar className="w-14 h-14">
+                <AvatarImage
+                  src={
+                    photoPreview ||
+                    userData?.profile_image_url ||
+                    userData?.profile_image ||
+                    "/placeholder.svg"
                   }
-                >
-                  Upload Photo
-                </Button>
-              </label>
-              <input
-                id="photo-upload"
-                type="file"
-                accept="image/jpeg,image/png"
-                onChange={handlePhotoChange}
-                className="hidden"
-              />
-              <p className="text-xs text-muted-foreground">
-                JPG or PNG, 1MB Max
-              </p>
+                  alt="User photo"
+                />
+                <AvatarFallback>
+                  {userData?.full_name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col gap-2 justify-center">
+                <label htmlFor="photo-upload">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-fit bg-transparent cursor-pointer"
+                    onClick={() =>
+                      document.getElementById("photo-upload")?.click()
+                    }
+                  >
+                    Upload Photo
+                  </Button>
+                </label>
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
+                <p className="text-xs text-muted-foreground">
+                  JPG or PNG, 1MB Max
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Full Name */}
-        <div className="flex items-center gap-6 py-4">
-          <label className="text-lg font-medium w-44">Full Name</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <Input
-              {...register("fullName")}
-              className="flex-1 border-gray-200 text-foreground"
-              placeholder="Enter full name"
-            />
+          {/* Full Name */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-lg font-medium w-44">Full Name</label>
+            <div className="flex-1">
+              <Input
+                {...register("fullName")}
+                className="border-gray-200 text-foreground"
+                placeholder="Enter full name"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Email */}
-        <div className="flex items-center gap-6 pb-4">
-          <label className="text-lg font-medium w-44">Email</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <Input
-              {...register("email")}
-              type="email"
-              className="flex-1 border-gray-200 text-foreground"
-              placeholder="Enter email"
-            />
+          {/* Email */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-lg font-medium w-44">Email</label>
+            <div className="flex-1">
+              <Input
+                {...register("email")}
+                type="email"
+                className="border-gray-200 text-foreground"
+                placeholder="Enter email"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Phone Number */}
-        <div className="flex items-center gap-6 pb-4 ">
-          <label className="text-lg font-medium w-44">Phone Number</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <PhoneInput
-              country={country ? country.toLowerCase() : undefined}
-              value={phone}
-              onChange={(phone) => setValue("phone", phone)}
-              inputClass="!w-full"
-              containerClass="phone-input-container w-full"
-              placeholder="Enter phone number"
-            />
+          {/* Phone Number */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-lg font-medium w-44">Phone Number</label>
+            <div className="flex-1">
+              <PhoneInput
+                country={country ? country.toLowerCase() : undefined}
+                value={phone}
+                onChange={(phone) => setValue("phone", phone)}
+                inputClass="!w-full"
+                containerClass="phone-input-container w-full"
+                placeholder="Enter phone number"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Country */}
-        <div className="flex items-center gap-6 pb-4">
-          <label className="text-lg font-medium w-44">Country</label>
-          <div className="flex-1">
-            <FlagSelect
-              selected={country}
-              onSelect={(code) => setValue("country", code)}
-              className="flag-select"
-              placeholder="Select country"
-              searchable
-            />
+          {/* Country */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-lg font-medium w-44">Country</label>
+            <div className="flex-1">
+              <FlagSelect
+                selected={country}
+                onSelect={(code) => setValue("country", code)}
+                className="flag-select"
+                placeholder="Select country"
+                searchable
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Restaurant Address */}
-        <div className="flex items-center gap-6 py-4">
-          <label className="text-lg font-medium w-44">Restaurant Address</label>
-          <div className="flex-1 border-b pb-4 border-gray-200">
-            <Input
-              {...register("address")}
-              className="flex-1 border-gray-200 text-foreground"
-              placeholder="Enter address"
-            />
+          {/* Restaurant Address */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="text-lg font-medium w-44">
+              Restaurant Address
+            </label>
+            <div className="flex-1">
+              <Input
+                {...register("address")}
+                className="border-gray-200 text-foreground"
+                placeholder="Enter address"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            onClick={onCancel}
-            variant="outline"
-            className="border-gray-200 text-foreground bg-transparent"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isLoading ? "Saving..." : "Save Changes"}
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              onClick={onCancel}
+              variant="outline"
+              className="border-gray-200 text-foreground bg-transparent"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
         </div>
       </form>
     </Card>
