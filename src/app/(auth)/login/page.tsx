@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import login from "@/assets/auth/login.png";
-import { useLoginMutation } from "@/redux/features/auth/authApi";
+import {  useLoginMutation } from "@/redux/features/auth/authApi";
 import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
 import { toast } from "sonner";
 import type { UserRole } from "@/types/auth";
@@ -40,18 +40,24 @@ const getRoleDashboardPath = (role: UserRole, isAdmin: boolean): string => {
 };
 
 export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [shouldCheckOnboarding, setShouldCheckOnboarding] = useState(false);
+  const [userRole, setUserRole] = useState<{
+    role: UserRole;
+    isAdmin: boolean;
+  } | null>(null);
+
+  const [loginMutation, { isLoading }] = useLoginMutation();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const [showPassword, setShowPassword] = useState(false);
-  const [shouldCheckOnboarding, setShouldCheckOnboarding] = useState(false);
-  const [userRole, setUserRole] = useState<{ role: UserRole; isAdmin: boolean } | null>(null);
-  const [loginMutation, { isLoading }] = useLoginMutation();
 
   // Only fetch onboarding progress after successful login
-  const { data: onboardingData, isLoading: isCheckingOnboarding } = useGetOnboardingProgressQuery(undefined, {
-    skip: !shouldCheckOnboarding,
-  });
+  const { data: onboardingData, isLoading: isCheckingOnboarding } =
+    useGetOnboardingProgressQuery(undefined, {
+      skip: !shouldCheckOnboarding,
+    });
 
   const {
     register,
@@ -61,7 +67,11 @@ export default function LoginPage() {
 
   // Check onboarding status and redirect after login
   useEffect(() => {
-    if (shouldCheckOnboarding && onboardingData?.data && !isCheckingOnboarding) {
+    if (
+      shouldCheckOnboarding &&
+      onboardingData?.data &&
+      !isCheckingOnboarding
+    ) {
       const { business_location, franchise_brand } = onboardingData.data.steps;
 
       // If required steps are pending, redirect to onboarding
@@ -72,11 +82,20 @@ export default function LoginPage() {
         router.push("/onboarding");
       } else if (userRole) {
         // Onboarding is complete, redirect to dashboard
-        const dashboardPath = getRoleDashboardPath(userRole.role, userRole.isAdmin);
+        const dashboardPath = getRoleDashboardPath(
+          userRole.role,
+          userRole.isAdmin
+        );
         router.push(dashboardPath);
       }
     }
-  }, [shouldCheckOnboarding, onboardingData, isCheckingOnboarding, router, userRole]);
+  }, [
+    shouldCheckOnboarding,
+    onboardingData,
+    isCheckingOnboarding,
+    router,
+    userRole,
+  ]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {

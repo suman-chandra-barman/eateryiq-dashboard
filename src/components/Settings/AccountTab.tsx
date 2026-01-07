@@ -7,18 +7,31 @@ import { AccountEditForm } from "./AccountEditForm";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Edit } from "lucide-react";
 import Link from "next/link";
+import { useGetMeQuery } from "@/redux/features/auth/authApi";
+import PageLoader from "../Shared/PageLoader";
+import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
 
 export function AccountTab() {
   const [isEditing, setIsEditing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+
+
+  const { data: userData, isLoading } = useGetMeQuery({});
+  const {data: onboardingData, isLoading: isOnboardingLoading} = useGetOnboardingProgressQuery();
+  const user = userData?.data;
 
   if (isEditing) {
     return (
       <AccountEditForm
         onCancel={() => setIsEditing(false)}
         onSave={() => setIsEditing(false)}
+        userData={user}
       />
     );
+  }
+
+  if (isLoading) {
+    return <PageLoader className="h-[60vh]" />;
   }
 
   return (
@@ -29,7 +42,7 @@ export function AccountTab() {
             <RadialProgress value={15} size={42} stroke={8} />
             <div className="flex-1">
               <div className="text-sm font-medium">
-                Onboarding progress: <span className="font-bold">{15}%</span>
+                Onboarding progress: <span className="font-bold">{onboardingData?.data?.progress || 0}%</span>
               </div>
               {!isComplete ? (
                 <div className="text-xs text-gray-600">
@@ -43,9 +56,7 @@ export function AccountTab() {
               )}
             </div>
             <Button variant="outline">
-              <Link href="https://eateryiq.vercel.app/onboarding">
-                Complete & Change
-              </Link>
+              <Link href="/onboarding">Complete & Change</Link>
             </Button>
           </div>
         </div>
@@ -55,8 +66,17 @@ export function AccountTab() {
           <label className="text-lg font-medium  w-44">Your Photo</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <Avatar className="w-14 h-14">
-              <AvatarImage src={"/placeholder.svg"} alt="User photo" />
-              <AvatarFallback>JM</AvatarFallback>
+              <AvatarImage
+                src={
+                  user?.profile_image_url ||
+                  user?.profile_image ||
+                  "/placeholder.svg"
+                }
+                alt="User photo"
+              />
+              <AvatarFallback>
+                {user?.full_name?.charAt(0) || "U"}
+              </AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -64,7 +84,9 @@ export function AccountTab() {
         <div className="flex items-center justify-between py-4 ">
           <label className="text-lg font-medium  w-44">Full Name</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">John Marpung</p>
+            <p className="p-2 bg-gray-200 rounded-xl">
+              {user?.full_name || "N/A"}
+            </p>
           </div>
         </div>
 
@@ -72,7 +94,7 @@ export function AccountTab() {
         <div className="flex items-center justify-between">
           <label className="text-lg font-medium  w-44">Email</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">Name@gmail.com</p>
+            <p className="p-2 bg-gray-200 rounded-xl">{user?.email || "N/A"}</p>
           </div>
         </div>
 
@@ -80,7 +102,9 @@ export function AccountTab() {
         <div className="flex items-center justify-between pt-4">
           <label className="text-lg font-medium  w-44">Phone Number</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">+1 (213) 555-4927</p>
+            <p className="p-2 bg-gray-200 rounded-xl">
+              {user?.phone_number || "N/A"}
+            </p>
           </div>
         </div>
 
@@ -88,7 +112,9 @@ export function AccountTab() {
         <div className="flex items-center justify-between py-4">
           <label className="text-lg font-medium  w-44">Country</label>
           <div className="flex-1 ">
-            <p className="p-2 bg-gray-200 rounded-xl">United States</p>
+            <p className="p-2 bg-gray-200 rounded-xl">
+              {user?.country || "N/A"}
+            </p>
           </div>
         </div>
         <div className="flex items-center justify-between">
@@ -96,7 +122,9 @@ export function AccountTab() {
             Restaurant Address
           </label>
           <div className="flex-1 border-b pb-4 border-gray-200">
-            <p className="p-2 bg-gray-200 rounded-xl">United States</p>
+            <p className="p-2 bg-gray-200 rounded-xl">
+              {user?.restaurant_address || "N/A"}
+            </p>
           </div>
         </div>
 

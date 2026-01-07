@@ -5,7 +5,12 @@ export type TUser = {
   email: string;
   full_name: string;
   role: UserRole;
-  is_admin: boolean;
+  is_admin?: boolean;
+  phone_number?: string;
+  country?: string;
+  restaurant_address?: string;
+  profile_image?: string;
+  profile_image_url?: string;
 };
 
 export type SignupRequest = {
@@ -45,4 +50,17 @@ export type LoginResponse = {
     refreshToken: string;
     user: TUser;
   };
+};
+
+export type UpdateProfileRequest = {
+  profile_image?: File;
+  phone_number?: string;
+  country?: string;
+  restaurant_address?: string;
+};
+
+export type UpdateProfileResponse = {
+  success: boolean;
+  message: string;
+  data: TUser;
 };

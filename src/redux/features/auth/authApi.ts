@@ -1,6 +1,5 @@
 import { baseApi } from "@/redux/api/baseApi";
-import { 
-  setToken, setUser } from "./authSlice";
+import { setToken, setUser } from "./authSlice";
 import type {
   SignupRequest,
   SignupResponse,
@@ -8,6 +7,8 @@ import type {
   EmailVerifyResponse,
   LoginRequest,
   LoginResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
 } from "@/types/auth";
 
 const authApi = baseApi.injectEndpoints({
@@ -94,7 +95,7 @@ const authApi = baseApi.injectEndpoints({
     //  GET CURRENT USER
     getMe: builder.query({
       query: () => ({
-        url: "/user/me",
+        url: "/auth/profile/",
         method: "GET",
       }),
 
@@ -108,6 +109,46 @@ const authApi = baseApi.injectEndpoints({
       },
       providesTags: ["User"],
     }),
+
+    // UPDATE PROFILE
+    updateProfile: builder.mutation<
+      UpdateProfileResponse,
+      UpdateProfileRequest
+    >({
+      query: (data) => {
+        const formData = new FormData();
+
+        if (data.profile_image) {
+          formData.append("profile_image", data.profile_image);
+        }
+        if (data.phone_number) {
+          formData.append("phone_number", data.phone_number);
+        }
+        if (data.country) {
+          formData.append("country", data.country);
+        }
+        if (data.restaurant_address) {
+          formData.append("restaurant_address", data.restaurant_address);
+        }
+
+        return {
+          url: "/auth/profile/",
+          method: "PATCH",
+          body: formData,
+        };
+      },
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.data) {
+            dispatch(setUser(data.data));
+          }
+        } catch (error) {
+          console.error("Update profile failed:", error);
+        }
+      },
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -120,4 +161,5 @@ export const {
   useResetPasswordMutation,
   useChangePasswordMutation,
   useGetMeQuery,
+  useUpdateProfileMutation,
 } = authApi;

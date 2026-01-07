@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import FlagSelect from "react-flags-select";
+import { useUpdateProfileMutation } from "@/redux/features/auth/authApi";
+import type { TUser } from "@/types/auth";
+import { toast } from "sonner";
 
 interface AccountEditFormProps {
   onCancel: () => void;
   onSave: () => void;
+  userData?: TUser;
 }
 
 interface FormData {
@@ -25,19 +29,37 @@ interface FormData {
   address: string;
 }
 
-export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
-  const [photoPreview, setPhotoPreview] = useState("/user-avatar.jpg");
-  const [isLoading, setIsLoading] = useState(false);
+export function AccountEditForm({
+  onCancel,
+  onSave,
+  userData,
+}: AccountEditFormProps) {
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   const { register, handleSubmit, watch, setValue } = useForm<FormData>({
     defaultValues: {
-      fullName: "John Marpung",
-      email: "Name@gmail.com",
-      phone: "+12135554927",
-      country: "US",
-      address: "USA",
+      fullName: userData?.full_name || "",
+      email: userData?.email || "",
+      phone: userData?.phone_number || "",
+      country: userData?.country || "",
+      address: userData?.restaurant_address || "",
     },
   });
+
+  useEffect(() => {
+    if (userData) {
+      setValue("fullName", userData.full_name || "");
+      setValue("email", userData.email || "");
+      setValue("phone", userData.phone_number || "");
+      setValue("country", userData.country || "");
+      setValue("address", userData.restaurant_address || "");
+      setPhotoPreview(
+        userData.profile_image_url || userData.profile_image || null
+      );
+    }
+  }, [userData, setValue]);
 
   const phone = watch("phone");
   const country = watch("country");
@@ -47,15 +69,18 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
     if (file) {
       // Validate file size (1MB max)
       if (file.size > 1024 * 1024) {
-        alert("File size must be less than 1MB");
+        toast.error("File size must be less than 1MB");
         return;
       }
 
       // Validate file type
       if (!["image/jpeg", "image/png"].includes(file.type)) {
-        alert("Only JPG or PNG files are allowed");
+        toast.error("Only JPG or PNG files are allowed");
         return;
       }
+
+      // Store file for upload
+      setSelectedFile(file);
 
       // Create preview
       const reader = new FileReader();
@@ -67,16 +92,30 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
   };
 
   const handleSave = async (data: FormData) => {
-    setIsLoading(true);
     try {
-      console.log("[v0] Saving form data:", { ...data, photo: photoPreview });
-      // Here you would typically send the data to your backend
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const profileData: any = {};
+
+      if (data.phone) {
+        profileData.phone_number = data.phone;
+      }
+      if (data.country) {
+        profileData.country = data.country;
+      }
+      if (data.address) {
+        profileData.restaurant_address = data.address;
+      }
+      if (selectedFile) {
+        profileData.profile_image = selectedFile;
+      }
+
+      const result = await updateProfile(profileData).unwrap();
+      toast.success(result.message || "Profile updated successfully!");
       onSave();
-    } catch (error) {
-      console.error("[v0] Error saving form:", error);
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      toast.error(
+        error?.data?.message || "Failed to update profile. Please try again."
+      );
     }
   };
 
@@ -88,8 +127,18 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
           <label className="text-lg font-medium  w-44">Your Photo</label>
           <div className="flex-1 flex gap-6 border-b pb-4 border-gray-200">
             <Avatar className="w-14 h-14">
-              <AvatarImage src={"/placeholder.svg"} alt="User photo" />
-              <AvatarFallback>JM</AvatarFallback>
+              <AvatarImage
+                src={
+                  photoPreview ||
+                  userData?.profile_image_url ||
+                  userData?.profile_image ||
+                  "/placeholder.svg"
+                }
+                alt="User photo"
+              />
+              <AvatarFallback>
+                {userData?.full_name?.charAt(0) || "U"}
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-2 justify-center">
               <label htmlFor="photo-upload">
@@ -148,11 +197,12 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
           <label className="text-lg font-medium w-44">Phone Number</label>
           <div className="flex-1 border-b pb-4 border-gray-200">
             <PhoneInput
-              country={country.toLowerCase()}
+              country={country ? country.toLowerCase() : undefined}
               value={phone}
               onChange={(phone) => setValue("phone", phone)}
               inputClass="!w-full"
               containerClass="phone-input-container w-full"
+              placeholder="Enter phone number"
             />
           </div>
         </div>
@@ -165,6 +215,8 @@ export function AccountEditForm({ onCancel, onSave }: AccountEditFormProps) {
               selected={country}
               onSelect={(code) => setValue("country", code)}
               className="flag-select"
+              placeholder="Select country"
+              searchable
             />
           </div>
         </div>
