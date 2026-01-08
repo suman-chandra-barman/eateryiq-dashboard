@@ -9,6 +9,7 @@ const publicRoutes = [
   "/forgot-password",
   "/reset-password",
   "/onboarding",
+  "/forgot-verify-otp",
 ];
 
 // Define auth routes that should redirect to dashboard if already logged in

@@ -9,6 +9,14 @@ import type {
   LoginResponse,
   UpdateProfileRequest,
   UpdateProfileResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResendEmailVerifyOtpRequest,
+  ResendEmailVerifyOtpResponse,
+  VerifyResetOtpRequest,
+  VerifyResetOtpResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "@/types/auth";
 
 const authApi = baseApi.injectEndpoints({
@@ -64,24 +72,73 @@ const authApi = baseApi.injectEndpoints({
     }),
 
     // FORGOT PASSWORD
-    forgotPassword: builder.mutation({
+    forgotPassword: builder.mutation<
+      ForgotPasswordResponse,
+      ForgotPasswordRequest
+    >({
       query: (data) => ({
-        url: "/auth/forgot-password",
+        url: "/auth/forgot-password/",
         method: "POST",
         body: data,
       }),
     }),
 
-    // RESET PASSWORD
-    resetPassword: builder.mutation({
-      query: ({ newPassword, token }) => ({
-        url: "/auth/reset-password",
+    // RESEND EMAIL VERIFY OTP (for forgot password flow)
+    resendForgetPasswordOtp: builder.mutation<
+      ResendEmailVerifyOtpResponse,
+      ResendEmailVerifyOtpRequest
+    >({
+      query: (data) => ({
+        url: "/auth/resend-email-verify-otp/",
         method: "POST",
-        body: { newPassword },
-        headers: {
-          Authorization: token,
-        },
+        body: data,
       }),
+    }),
+
+    // VERIFY RESET OTP (for forgot password flow)
+    verifyResetOtp: builder.mutation<
+      VerifyResetOtpResponse,
+      VerifyResetOtpRequest
+    >({
+      query: (data) => ({
+        url: "/auth/verify-reset-otp/",
+        method: "POST",
+        body: data,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.accessToken) {
+            dispatch(setToken(data.accessToken));
+            dispatch(setUser(data.user));
+          }
+        } catch (error) {
+          console.error("Verify reset OTP failed:", error);
+        }
+      },
+    }),
+
+    // RESET PASSWORD
+    resetPassword: builder.mutation<
+      ResetPasswordResponse,
+      ResetPasswordRequest
+    >({
+      query: (data) => ({
+        url: "/auth/reset-password/",
+        method: "POST",
+        body: data,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.tokens?.access) {
+            dispatch(setToken(data.tokens.access));
+            dispatch(setUser(data.user));
+          }
+        } catch (error) {
+          console.error("Reset password failed:", error);
+        }
+      },
     }),
 
     // CHANGE PASSWORD (for logged-in user)
@@ -158,6 +215,7 @@ export const {
   useEmailVerifyMutation,
   useResendOtpMutation,
   useForgotPasswordMutation,
+  useVerifyResetOtpMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
   useGetMeQuery,

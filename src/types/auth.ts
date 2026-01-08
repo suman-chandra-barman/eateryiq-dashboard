@@ -64,3 +64,49 @@ export type UpdateProfileResponse = {
   message: string;
   data: TUser;
 };
+
+export type ForgotPasswordRequest = {
+  email: string;
+};
+
+export type ForgotPasswordResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type ResendEmailVerifyOtpRequest = {
+  email: string;
+};
+
+export type ResendEmailVerifyOtpResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type VerifyResetOtpRequest = {
+  email: string;
+  otp: string;
+};
+
+export type VerifyResetOtpResponse = {
+  success: boolean;
+  message: string;
+  accessToken: string;
+  refreshToken: string;
+  user: TUser;
+};
+
+export type ResetPasswordRequest = {
+  newPassword: string;
+  reenterPassword: string;
+};
+
+export type ResetPasswordResponse = {
+  success: boolean;
+  message: string;
+  user: TUser;
+  tokens: {
+    access: string;
+    refresh: string;
+  };
+};

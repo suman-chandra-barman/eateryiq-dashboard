@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import forgotPassword from "@/assets/auth/forgot password.png";
+import { useForgotPasswordMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 type ForgotPasswordFormData = {
   email: string;
@@ -14,6 +16,7 @@ type ForgotPasswordFormData = {
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const [forgotPasswordMutation, { isLoading }] = useForgotPasswordMutation();
 
   const {
     register,
@@ -21,10 +24,23 @@ export default function ForgotPasswordPage() {
     formState: { errors },
   } = useForm<ForgotPasswordFormData>();
 
-  const onSubmit = (data: ForgotPasswordFormData) => {
-    console.log("[v0] Forgot password data:", data);
-    // Handle forgot password logic here
-    router.push("/verify-otp");
+  const onSubmit = async (data: ForgotPasswordFormData) => {
+    try {
+      const response = await forgotPasswordMutation({
+        email: data.email,
+      }).unwrap();
+      if (response.success) {
+        toast.success(response.message);
+        // Store email in session storage for OTP verification
+        sessionStorage.setItem("forgotPasswordEmail", data.email);
+        router.push("/forgot-verify-otp");
+      }
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } };
+      toast.error(
+        err?.data?.message || "Failed to send OTP. Please try again."
+      );
+    }
   };
 
   return (
@@ -70,8 +86,9 @@ export default function ForgotPasswordPage() {
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 h-12"
+              disabled={isLoading}
             >
-              Send OTP
+              {isLoading ? "Sending..." : "Send OTP"}
             </Button>
           </form>
         </div>

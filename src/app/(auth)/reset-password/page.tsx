@@ -1,46 +1,89 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import resetPassword from "@/assets/auth/reset password.png"
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import resetPassword from "@/assets/auth/reset password.png";
+import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 type ResetPasswordFormData = {
-  newPassword: string
-  confirmPassword: string
-}
+  newPassword: string;
+  confirmPassword: string;
+};
 
 export default function ResetPasswordPage() {
-  const router = useRouter()
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const router = useRouter();
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [resetPasswordMutation, { isLoading }] = useResetPasswordMutation();
+
+  useEffect(() => {
+    // Get email from session storage
+    const storedEmail = sessionStorage.getItem("forgotPasswordEmail");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    } else {
+      toast.error(
+        "Session expired. Please start the forgot password process again."
+      );
+      router.push("/forgot-password");
+    }
+  }, [router]);
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<ResetPasswordFormData>()
+  } = useForm<ResetPasswordFormData>();
 
-  const newPassword = watch("newPassword")
+  const newPassword = watch("newPassword");
 
-  const onSubmit = (data: ResetPasswordFormData) => {
-    console.log("[v0] Reset password data:", data)
-    // Handle reset password logic here
-    router.push("/login")
-  }
+  const onSubmit = async (data: ResetPasswordFormData) => {
+    if (!email) {
+      toast.error(
+        "Session expired. Please start the forgot password process again."
+      );
+      router.push("/forgot-password");
+      return;
+    }
+
+    try {
+      const response = await resetPasswordMutation({
+        newPassword: data.newPassword,
+        reenterPassword: data.confirmPassword,
+      }).unwrap();
+
+      if (response.success) {
+        toast.success(response.message);
+        // Clear session storage
+        sessionStorage.removeItem("forgotPasswordEmail");
+        // Navigate to login page
+        router.push("/login");
+      }
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } };
+      toast.error(
+        err?.data?.message || "Failed to reset password. Please try again."
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen flex container mx-auto">
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 relative">
         <div className="w-full max-w-lg bg-white rounded-2xl shadow-[0_0_10px_rgba(0,0,0,0.1)] p-8">
-          <h1 className="text-3xl font-bold text-center mb-8">Reset Password</h1>
+          <h1 className="text-3xl font-bold text-center mb-8">
+            Reset Password
+          </h1>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* New Password */}
@@ -69,7 +112,11 @@ export default function ResetPasswordPage() {
                   {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              {errors.newPassword && <p className="text-red-500 text-xs mt-1">{errors.newPassword.message}</p>}
+              {errors.newPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.newPassword.message}
+                </p>
+              )}
             </div>
 
             {/* Re-enter New Password */}
@@ -84,7 +131,8 @@ export default function ResetPasswordPage() {
                   placeholder="Re-enter new password..."
                   {...register("confirmPassword", {
                     required: "Please confirm your password",
-                    validate: (value) => value === newPassword || "Passwords do not match",
+                    validate: (value) =>
+                      value === newPassword || "Passwords do not match",
                   })}
                 />
                 <button
@@ -92,15 +140,27 @@ export default function ResetPasswordPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-12">
-              Reset Password
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 h-12"
+              disabled={isLoading}
+            >
+              {isLoading ? "Resetting..." : "Reset Password"}
             </Button>
           </form>
         </div>
@@ -119,5 +179,5 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
