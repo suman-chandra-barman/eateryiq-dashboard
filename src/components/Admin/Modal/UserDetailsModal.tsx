@@ -2,28 +2,26 @@
 
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  address: string;
-  joinDate: string;
-}
+import { useGetSingleUserQuery } from "@/redux/features/users/userApi";
 
 interface UserDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  userId: number;
 }
 
 export default function UserDetailsModal({
   isOpen,
   onClose,
-  user,
+  userId,
 }: UserDetailsModalProps) {
+  const { data, isLoading, isError } = useGetSingleUserQuery(userId, {
+    skip: !isOpen,
+  });
+
   if (!isOpen) return null;
+
+  const user = data?.data;
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
@@ -38,20 +36,39 @@ export default function UserDetailsModal({
           </button>
         </div>
 
-        <div className="space-y-6">
-          <DetailField label="User Name :" value={user.name} />
-          <DetailField label="Email :" value={user.email} />
-          <DetailField label="User Role :" value={user.role} />
-          <DetailField label="Address :" value={user.address} />
-          <DetailField label="Date :" value={user.joinDate} />
-        </div>
+        {isLoading && (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        )}
 
-        <Button
-          onClick={onClose}
-          className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
-        >
-          Okay
-        </Button>
+        {isError && (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-red-600">Failed to load user details.</p>
+          </div>
+        )}
+
+        {user && (
+          <>
+            <div className="space-y-6">
+              <DetailField label="User Name :" value={user.user_name} />
+              <DetailField label="Email :" value={user.email} />
+              <DetailField label="User Role :" value={user.user_role} />
+              <DetailField label="Address :" value={user.address || "N/A"} />
+              <DetailField
+                label="Join Date :"
+                value={user.join_date || user.date}
+              />
+            </div>
+
+            <Button
+              onClick={onClose}
+              className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
+            >
+              Okay
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import AdminStatsCards from "@/components/Admin/Card/AdminStatsCard";
@@ -29,13 +30,13 @@ export default function AdminDashboardPage() {
   const totalPages = usersData?.meta?.totalPage || 1;
   const totalItems = usersData?.meta?.total || 0;
 
-  const handleViewDetails = (userId: number) => {
-    setSelectedUserId(userId);
+  const handleViewDetails = (user: any) => {
+    setSelectedUserId(user.id);
     setDetailsModalOpen(true);
   };
 
-  const handleDeleteClick = (userId: number) => {
-    setSelectedUserId(userId);
+  const handleDeleteClick = (user: any) => {
+    setSelectedUserId(user.id);
     setDeleteModalOpen(true);
   };
 

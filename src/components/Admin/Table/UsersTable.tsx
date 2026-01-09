@@ -4,25 +4,25 @@ import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
 
 interface User {
-  id: number;
-  sl: number;
-  tr_id: string;
+  id: string;
   user_name: string;
-  user_role: string;
+  tr_id: string;
   email: string;
+  user_role: string;
+  address: string;
   join_date: string;
 }
 
 interface UsersTableProps {
   users: User[];
-  onViewDetails: (userId: number) => void;
-  onDelete: (userId: number) => void;
+  onViewDetails: (user: User) => void;
+  onDelete: (user: User) => void;
   currentPage: number;
   totalPages: number;
   totalItems: number;
   itemsPerPage: number;
   onPageChange: (page: number) => void;
-  isLoading?: boolean;
+  isLoading: boolean;
 }
 
 export default function UsersTable({
@@ -34,20 +34,8 @@ export default function UsersTable({
   totalItems,
   itemsPerPage,
   onPageChange,
-  isLoading = false,
+  isLoading,
 }: UsersTableProps) {
-  if (isLoading) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-8">
-        <div className="animate-pulse space-y-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-12 bg-gray-200 rounded"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-2xl border border-gray-200">
       <div className="overflow-x-auto">
@@ -75,10 +63,18 @@ export default function UsersTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users.length === 0 ? (
+            {isLoading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                  No users found
+                <td colSpan={6} className="px-6 py-20 text-center">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  </div>
+                </td>
+              </tr>
+            ) : users.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-20 text-center">
+                  <p className="text-gray-500">No users found</p>
                 </td>
               </tr>
             ) : (
@@ -91,10 +87,10 @@ export default function UsersTable({
                     {user.tr_id}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    {user.user_name || "N/A"}
+                    {user.user_name}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {user.user_role || "N/A"}
+                    {user.user_role}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {user.email}
@@ -105,14 +101,14 @@ export default function UsersTable({
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() => onViewDetails(user.id)}
+                        onClick={() => onViewDetails(user)}
                         className="p-2 hover:bg-blue-50 rounded-lg transition-colors text-blue-600"
                         aria-label="View details"
                       >
                         <Eye size={18} />
                       </button>
                       <button
-                        onClick={() => onDelete(user.id)}
+                        onClick={() => onDelete(user)}
                         className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
                         aria-label="Delete user"
                       >

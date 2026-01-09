@@ -2,6 +2,7 @@
 
 import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
+import PageLoader from "@/components/Shared/PageLoader";
 
 interface Earning {
   id: number;
@@ -41,11 +42,7 @@ export default function EarningTable({
 }: EarningTableProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
+      <PageLoader className="h-[70vh]"/>
     );
   }
 
