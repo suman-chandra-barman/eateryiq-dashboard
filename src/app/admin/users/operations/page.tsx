@@ -2,7 +2,7 @@
 "use client";
 
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
-import UserDetailsModal from "@/components/Admin/Modal/UserDetailsModal";
+import OperationsUserDetailsModal from "@/components/Admin/Modal/OperationsUserDetailsModal";
 import OperatorTable from "@/components/Admin/Table/OperatorTable";
 import PageLoader from "@/components/Shared/PageLoader";
 import {
@@ -22,7 +22,6 @@ interface User {
   name: string;
   email: string;
   role: string;
-  address: string;
   plan: string;
   joinDate: string;
 }
@@ -100,7 +99,7 @@ export default function OperationsPage() {
       </div>
 
       {isLoading ? (
-        <PageLoader className="h-[70vh]"/>
+        <PageLoader className="h-[70vh]" />
       ) : error ? (
         <div className="flex justify-center items-center py-20">
           <div className="text-red-500">Error loading operations users</div>
@@ -119,11 +118,10 @@ export default function OperationsPage() {
 
       {selectedUser && (
         <>
-          <UserDetailsModal
+          <OperationsUserDetailsModal
             isOpen={detailsModalOpen}
             onClose={() => setDetailsModalOpen(false)}
             userId={Number(selectedUser.id)}
-            isOperator={true}
           />
           <DeleteModal
             isOpen={deleteModalOpen}
