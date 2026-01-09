@@ -24,6 +24,66 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Users"],
     }),
+    getAllOperationUsers: builder.query({
+      query: ({
+        page = 1,
+        limit = 10,
+        search = "",
+      }: {
+        page?: number;
+        limit?: number;
+        search?: string;
+      }) => ({
+        url: "/api/dashboards/admin/operators/",
+        method: "GET",
+        params: { page, limit, search },
+      }),
+      providesTags: ["Users"],
+    }),
+    getSingleOperationUser: builder.query({
+      query: (userId: number) => ({
+        url: `/api/dashboards/admin/operators/${userId}/`,
+        method: "GET",
+      }),
+      providesTags: ["Users"],
+    }),
+    deleteOperationUser: builder.mutation({
+      query: (userId: number) => ({
+        url: `/api/dashboards/admin/operators/${userId}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
+    getAllExecutiveUsers: builder.query({
+      query: ({
+        page = 1,
+        limit = 10,
+        search = "",
+      }: {
+        page?: number;
+        limit?: number;
+        search?: string;
+      }) => ({
+        url: "/api/dashboards/admin/executives/",
+        method: "GET",
+        params: { page, limit, search },
+      }),
+      providesTags: ["Users"],
+    }),
+    getSingleExecutiveUser: builder.query({
+      query: (userId: number) => ({
+        url: `/api/dashboards/admin/executives/${userId}/`,
+        method: "GET",
+      }),
+      providesTags: ["Users"],
+    }),
+    deleteExecutiveUser: builder.mutation({
+      query: (userId: number) => ({
+        url: `/api/dashboards/admin/executives/${userId}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -31,4 +91,10 @@ export const {
   useGetAllRecentUsersQuery,
   useGetSingleUserQuery,
   useDeleteUserMutation,
+  useGetAllOperationUsersQuery,
+  useGetSingleOperationUserQuery,
+  useDeleteOperationUserMutation,
+  useGetAllExecutiveUsersQuery,
+  useGetSingleExecutiveUserQuery,
+  useDeleteExecutiveUserMutation,
 } = userApi;

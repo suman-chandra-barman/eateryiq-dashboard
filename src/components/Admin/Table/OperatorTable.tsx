@@ -1,21 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
-import { SearchIcon } from "lucide-react";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: string;
-  address: string;
   plan: string;
   joinDate: string;
 }
@@ -24,6 +16,10 @@ interface UsersTableProps {
   users: User[];
   onViewDetails: (user: User) => void;
   onDelete: (user: User) => void;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -32,13 +28,12 @@ export default function OperatorTable({
   users,
   onViewDetails,
   onDelete,
+  currentPage,
+  totalPages,
+  totalItems,
+  onPageChange,
 }: UsersTableProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedUsers = users.slice(startIndex, endIndex);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -64,7 +59,7 @@ export default function OperatorTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {paginatedUsers.map((user, index) => (
+            {users.map((user, index) => (
               <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 text-sm text-gray-600">
                   #{startIndex + index + 1}
@@ -103,9 +98,9 @@ export default function OperatorTable({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        totalItems={users.length}
+        totalItems={totalItems}
         itemsPerPage={ITEMS_PER_PAGE}
-        onPageChange={setCurrentPage}
+        onPageChange={onPageChange}
       />
     </div>
   );
