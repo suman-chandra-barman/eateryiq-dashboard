@@ -1,18 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
-import UserDetailsModal from "@/components/Admin/Modal/UserDetailsModal";
+import MarketingManagerDetailsModal from "@/components/Admin/Modal/MarketingManagerDetailsModal";
 import OperatorTable from "@/components/Admin/Table/OperatorTable";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { SearchIcon } from "lucide-react";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import {
+  useGetAllMarketingManagersQuery,
+  useDeleteMarketingManagerMutation,
+} from "@/redux/features/users/userApi";
 interface User {
   id: string;
   name: string;
   email: string;
   role: string;
-  address: string;
   plan: string;
   joinDate: string;
 }
@@ -20,115 +27,98 @@ interface User {
 export default function MarketingManagerPage() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const limit = 10;
 
-  const users: User[] = [
-    {
-      id: "1",
-      name: "User",
-      email: "name@gmail.com",
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1); // Reset to first page on search
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const {
+    data: marketingManagersData,
+    isLoading,
+    error,
+  } = useGetAllMarketingManagersQuery({
+    page: currentPage,
+    limit,
+    search: debouncedSearch,
+  });
+
+  const [deleteMarketingManager] = useDeleteMarketingManagerMutation();
+
+  const users: User[] =
+    marketingManagersData?.data?.map((manager: any) => ({
+      id: manager.id.toString(),
+      name: manager.user_name,
+      email: manager.email,
       role: "Manager",
-      plan: "Professional",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "2",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      plan: "Professional",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "3",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      plan: "Starter",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "4",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      plan: "Starter",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "5",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      plan: "Professional",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "6",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      plan: "Starter",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "7",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      address: "UK",
-      plan: "Professional",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "8",
-      name: "User",
-      email: "name@gmail.com",
-      plan: "Starter",
-      role: "Manager",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-    {
-      id: "9",
-      name: "User",
-      email: "name@gmail.com",
-      role: "Manager",
-      plan: "Starter",
-      address: "UK",
-      joinDate: "1 Jan, 2025",
-    },
-  ];
+      plan: manager.plan,
+      joinDate: "N/A",
+    })) || [];
 
   const handleViewDetails = (user: User) => {
-    setSelectedUser(user);
+    setSelectedUserId(Number(user.id));
     setDetailsModalOpen(true);
   };
 
   const handleDeleteClick = (user: User) => {
-    setSelectedUser(user);
+    setSelectedUserId(Number(user.id));
     setDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    setDeleteModalOpen(false);
-    setSelectedUser(null);
+  const handleConfirmDelete = async () => {
+    if (selectedUserId) {
+      try {
+        await deleteMarketingManager(selectedUserId).unwrap();
+        setDeleteModalOpen(false);
+        setSelectedUserId(null);
+      } catch (error) {
+        console.error("Failed to delete marketing manager:", error);
+      }
+    }
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-gray-50 flex items-center justify-center min-h-[400px]">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-gray-50 flex items-center justify-center min-h-[400px]">
+        <div className="text-red-600">Error loading marketing managers</div>
+      </div>
+    );
+  }
+
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">
           Marketing Manager List
         </h2>
         <InputGroup className="max-w-sm">
-          <InputGroupInput placeholder="Search..." />
+          <InputGroupInput
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <InputGroupAddon>
             <SearchIcon />
           </InputGroupAddon>
@@ -140,16 +130,22 @@ export default function MarketingManagerPage() {
         onDelete={handleDeleteClick}
       />
 
-      {selectedUser && (
+      {selectedUserId && (
         <>
-          <UserDetailsModal
+          <MarketingManagerDetailsModal
             isOpen={detailsModalOpen}
-            onClose={() => setDetailsModalOpen(false)}
-            user={selectedUser}
+            onClose={() => {
+              setDetailsModalOpen(false);
+              setSelectedUserId(null);
+            }}
+            userId={selectedUserId}
           />
           <DeleteModal
             isOpen={deleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
+            onClose={() => {
+              setDeleteModalOpen(false);
+              setSelectedUserId(null);
+            }}
             onConfirm={handleConfirmDelete}
             title={"user"}
           />

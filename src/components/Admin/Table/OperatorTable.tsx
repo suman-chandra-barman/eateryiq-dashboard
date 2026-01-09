@@ -5,6 +5,7 @@ import Pagination from "../Pagination";
 
 interface User {
   id: string;
+  sl?: number;
   name: string;
   email: string;
   role: string;
@@ -62,7 +63,7 @@ export default function OperatorTable({
             {users.map((user, index) => (
               <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  #{startIndex + index + 1}
+                  {user.sl || startIndex + index + 1}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                   {user.name}

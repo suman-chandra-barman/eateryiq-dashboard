@@ -84,6 +84,36 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Users"],
     }),
+    getAllMarketingManagers: builder.query({
+      query: ({
+        page = 1,
+        limit = 10,
+        search = "",
+      }: {
+        page?: number;
+        limit?: number;
+        search?: string;
+      }) => ({
+        url: "/api/dashboards/admin/marketing-managers/",
+        method: "GET",
+        params: { page, limit, search },
+      }),
+      providesTags: ["Users"],
+    }),
+    getSingleMarketingManager: builder.query({
+      query: (userId: number) => ({
+        url: `/api/dashboards/admin/marketing-managers/${userId}/`,
+        method: "GET",
+      }),
+      providesTags: ["Users"],
+    }),
+    deleteMarketingManager: builder.mutation({
+      query: (userId: number) => ({
+        url: `/api/dashboards/admin/marketing-managers/${userId}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -97,4 +127,7 @@ export const {
   useGetAllExecutiveUsersQuery,
   useGetSingleExecutiveUserQuery,
   useDeleteExecutiveUserMutation,
+  useGetAllMarketingManagersQuery,
+  useGetSingleMarketingManagerQuery,
+  useDeleteMarketingManagerMutation,
 } = userApi;
