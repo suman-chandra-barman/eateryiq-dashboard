@@ -1,14 +1,16 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import security from "@/assets/auth/security.png";
-import { useEmailVerifyMutation } from "@/redux/features/auth/authApi";
+import {
+  useEmailVerifyMutation,
+  useResendEmailVerifyOtpMutation,
+} from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 
 export default function VerifyOTPPage() {
@@ -17,6 +19,8 @@ export default function VerifyOTPPage() {
   const [email, setEmail] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [verifyEmail, { isLoading }] = useEmailVerifyMutation();
+  const [resendOtp, { isLoading: isResending }] =
+    useResendEmailVerifyOtpMutation();
 
   useEffect(() => {
     // Get email from session storage
@@ -100,9 +104,24 @@ export default function VerifyOTPPage() {
     }
   };
 
-  const handleResend = () => {
-    toast.info("Resend OTP functionality will be implemented");
-    // TODO: Implement resend OTP API call
+  const handleResend = async () => {
+    if (!email) {
+      toast.error("Email not found. Please sign up again.");
+      router.push("/sign-up");
+      return;
+    }
+
+    try {
+      const response = await resendOtp({ email }).unwrap();
+      if (response.success) {
+        toast.success(response.message || "OTP resent successfully");
+      }
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } };
+      toast.error(
+        err?.data?.message || "Failed to resend OTP. Please try again."
+      );
+    }
   };
 
   return (
@@ -152,9 +171,14 @@ export default function VerifyOTPPage() {
               Don&#39;t receive the OTP{" "}
               <button
                 onClick={handleResend}
-                className="text-blue-600 font-medium hover:underline"
+                disabled={isResending}
+                className={`font-medium hover:underline ${
+                  isResending
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-blue-600"
+                }`}
               >
-                Resend
+                {isResending ? "Resending..." : "Resend"}
               </button>
             </p>
           </div>

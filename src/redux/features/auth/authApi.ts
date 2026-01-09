@@ -42,7 +42,10 @@ const authApi = baseApi.injectEndpoints({
     }),
 
     // RESEND Email Verify OTP
-    resendEmailVerifyOtp: builder.mutation({
+    resendEmailVerifyOtp: builder.mutation<
+      ResendEmailVerifyOtpResponse,
+      ResendEmailVerifyOtpRequest
+    >({
       query: (data) => ({
         url: "/auth/resend-email-verify-otp/",
         method: "POST",
