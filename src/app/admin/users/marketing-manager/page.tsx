@@ -128,6 +128,10 @@ export default function MarketingManagerPage() {
         users={users}
         onViewDetails={handleViewDetails}
         onDelete={handleDeleteClick}
+        currentPage={currentPage}
+        totalPages={marketingManagersData?.meta?.totalPages || 1}
+        totalItems={marketingManagersData?.meta?.total || 0}
+        onPageChange={handlePageChange}
       />
 
       {selectedUserId && (
