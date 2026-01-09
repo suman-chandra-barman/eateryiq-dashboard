@@ -2,28 +2,26 @@
 
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  address: string;
-  joinDate: string;
-}
+import { useGetSingleUserQuery } from "@/redux/features/users/userApi";
 
 interface UserDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  userId: number;
 }
 
 export default function UserDetailsModal({
   isOpen,
   onClose,
-  user,
+  userId,
 }: UserDetailsModalProps) {
+  const { data, isLoading, error } = useGetSingleUserQuery(userId, {
+    skip: !isOpen,
+  });
+
   if (!isOpen) return null;
+
+  const user = data?.data;
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
@@ -38,17 +36,30 @@ export default function UserDetailsModal({
           </button>
         </div>
 
-        <div className="space-y-6">
-          <DetailField label="User Name :" value={user.name} />
-          <DetailField label="Email :" value={user.email} />
-          <DetailField label="User Role :" value={user.role} />
-          <DetailField label="Address :" value={user.address} />
-          <DetailField label="Date :" value={user.joinDate} />
-        </div>
+        {isLoading ? (
+          <div className="space-y-4 animate-pulse">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-8 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-600 text-sm">Error loading user details</p>
+          </div>
+        ) : user ? (
+          <div className="space-y-6">
+            <DetailField label="User Name :" value={user.user_name || "N/A"} />
+            <DetailField label="Email :" value={user.email || "N/A"} />
+            <DetailField label="User Role :" value={user.user_role || "N/A"} />
+            <DetailField label="Address :" value={user.address || "N/A"} />
+            <DetailField label="Date :" value={user.date || "N/A"} />
+          </div>
+        ) : null}
 
         <Button
           onClick={onClose}
           className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
+          disabled={isLoading}
         >
           Okay
         </Button>

@@ -1,37 +1,52 @@
 "use client";
 
-import { useState } from "react";
 import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
 
 interface User {
-  id: string;
-  name: string;
+  id: number;
+  sl: number;
+  tr_id: string;
+  user_name: string;
+  user_role: string;
   email: string;
-  role: string;
-  address: string;
-  joinDate: string;
+  join_date: string;
 }
 
 interface UsersTableProps {
   users: User[];
-  onViewDetails: (user: User) => void;
-  onDelete: (user: User) => void;
+  onViewDetails: (userId: number) => void;
+  onDelete: (userId: number) => void;
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
-
-const ITEMS_PER_PAGE = 10;
 
 export default function UsersTable({
   users,
   onViewDetails,
   onDelete,
+  currentPage,
+  totalPages,
+  totalItems,
+  itemsPerPage,
+  onPageChange,
+  isLoading = false,
 }: UsersTableProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedUsers = users.slice(startIndex, endIndex);
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-200 p-8">
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-12 bg-gray-200 rounded"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200">
@@ -60,41 +75,54 @@ export default function UsersTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {paginatedUsers.map((user, index) => (
-              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  #{startIndex + index + 1}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                  {user.name}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{user.role}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {user.email}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {user.joinDate}
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => onViewDetails(user)}
-                      className="p-2 hover:bg-blue-50 rounded-lg transition-colors text-blue-600"
-                      aria-label="View details"
-                    >
-                      <Eye size={18} />
-                    </button>
-                    <button
-                      onClick={() => onDelete(user)}
-                      className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
-                      aria-label="Delete user"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                  No users found
                 </td>
               </tr>
-            ))}
+            ) : (
+              users.map((user) => (
+                <tr
+                  key={user.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.tr_id}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                    {user.user_name || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.user_role || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.email}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {user.join_date}
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => onViewDetails(user.id)}
+                        className="p-2 hover:bg-blue-50 rounded-lg transition-colors text-blue-600"
+                        aria-label="View details"
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={() => onDelete(user.id)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                        aria-label="Delete user"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -102,9 +130,9 @@ export default function UsersTable({
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        totalItems={users.length}
-        itemsPerPage={ITEMS_PER_PAGE}
-        onPageChange={setCurrentPage}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={onPageChange}
       />
     </div>
   );

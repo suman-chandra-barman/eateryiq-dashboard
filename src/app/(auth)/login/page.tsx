@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import login from "@/assets/auth/login.png";
-import {  useLoginMutation } from "@/redux/features/auth/authApi";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
 import { toast } from "sonner";
 import type { UserRole } from "@/types/auth";
@@ -35,7 +35,7 @@ const getRoleDashboardPath = (role: UserRole, isAdmin: boolean): string => {
     case "executive":
       return "/dashboard/executive";
     default:
-      return "/dashboard";
+      return "/admin";
   }
 };
 

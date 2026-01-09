@@ -9,6 +9,13 @@ const statsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["OperationStats"],
     }),
+    getAdminDashboardStats: builder.query({
+      query: () => ({
+        url: "/api/dashboards/admin/summary/",
+        method: "GET",
+      }),
+      providesTags: ["AdminDashboardStats"],
+    }),
   }),
 });
-export const { useGetOperationStatsQuery } = statsApi;
+export const { useGetOperationStatsQuery, useGetAdminDashboardStatsQuery } = statsApi;

@@ -8,6 +8,7 @@ interface DeleteUserModalProps {
   onClose: () => void;
   onConfirm: () => void;
   title: string;
+  isLoading?: boolean;
 }
 
 export default function DeleteModal({
@@ -15,6 +16,7 @@ export default function DeleteModal({
   onClose,
   onConfirm,
   title,
+  isLoading = false,
 }: DeleteUserModalProps) {
   if (!isOpen) return null;
 
@@ -40,14 +42,16 @@ export default function DeleteModal({
             onClick={onClose}
             variant="outline"
             className="flex-1 py-3 rounded-lg font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors bg-transparent"
+            disabled={isLoading}
           >
             Cancel
           </Button>
           <Button
             onClick={onConfirm}
             className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors"
+            disabled={isLoading}
           >
-            Delete
+            {isLoading ? "Deleting..." : "Delete"}
           </Button>
         </div>
       </div>

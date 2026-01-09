@@ -34,6 +34,7 @@ export const baseApi = createApi({
   baseQuery,
   tagTypes: [
     "User",
+    "Users",
     "OperationStats",
     "OperationReports",
     "Chats",
@@ -41,6 +42,7 @@ export const baseApi = createApi({
     "OperatorDocuments",
     "OnboardingProgress",
     "Calendar",
+    "AdminDashboardStats",
   ],
   endpoints: () => ({}),
 });
