@@ -7,7 +7,10 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import security from "@/assets/auth/security.png";
-import { useEmailVerifyMutation } from "@/redux/features/auth/authApi";
+import {
+  useVerfyForgotPasswordOTPMutation,
+  useResendForgetPasswordOtpMutation,
+} from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 
 export default function VerifyOTPPage() {
@@ -15,16 +18,21 @@ export default function VerifyOTPPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [email, setEmail] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [verifyEmail, { isLoading }] = useEmailVerifyMutation();
+  const [verifyForgotPasswordOTP, { isLoading }] =
+    useVerfyForgotPasswordOTPMutation();
+  const [resendForgetPasswordOtp, { isLoading: isResending }] =
+    useResendForgetPasswordOtpMutation();
 
   useEffect(() => {
     // Get email from session storage
-    const storedEmail = sessionStorage.getItem("verifyEmail");
+    const storedEmail = sessionStorage.getItem("forgotPasswordEmail");
     if (storedEmail) {
       setEmail(storedEmail);
     } else {
-      toast.error("Email not found. Please sign up again.");
-      router.push("/sign-up");
+      toast.error(
+        "Email not found. Please start the forgot password process again."
+      );
+      router.push("/forgot-password");
     }
   }, [router]);
 
@@ -79,17 +87,26 @@ export default function VerifyOTPPage() {
     }
 
     if (!email) {
-      toast.error("Email not found. Please sign up again.");
-      router.push("/sign-up");
+      toast.error(
+        "Email not found. Please start the forgot password process again."
+      );
+      router.push("/forgot-password");
       return;
     }
 
     try {
-      const response = await verifyEmail({ email, otp: otpValue }).unwrap();
+      const response = await verifyForgotPasswordOTP({
+        email,
+        otp: otpValue,
+      }).unwrap();
       if (response.success) {
-        toast.success(response.message);
-        sessionStorage.removeItem("verifyEmail");
-        router.push("/login");
+        toast.success(response.message || "OTP verified successfully");
+        // Store access token in sessionStorage for reset password API
+        if (response.accessToken) {
+          sessionStorage.setItem("resetPasswordToken", response.accessToken);
+        }
+        // Keep email in sessionStorage for reset password page
+        router.push("/reset-password");
       }
     } catch (error: unknown) {
       const err = error as { data?: { message?: string } };
@@ -99,9 +116,29 @@ export default function VerifyOTPPage() {
     }
   };
 
-  const handleResend = () => {
-    toast.info("Resend OTP functionality will be implemented");
-    // TODO: Implement resend OTP API call
+  const handleResend = async () => {
+    if (!email) {
+      toast.error(
+        "Email not found. Please start the forgot password process again."
+      );
+      router.push("/forgot-password");
+      return;
+    }
+
+    try {
+      const response = await resendForgetPasswordOtp({ email }).unwrap();
+      if (response.success) {
+        toast.success(response.message || "OTP resent successfully");
+        // Clear current OTP inputs
+        setOtp(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+      }
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } };
+      toast.error(
+        err?.data?.message || "Failed to resend OTP. Please try again."
+      );
+    }
   };
 
   return (
@@ -141,7 +178,7 @@ export default function VerifyOTPPage() {
             <Button
               onClick={handleVerify}
               className="w-full bg-blue-600 hover:bg-blue-700 h-12"
-              disabled={isLoading}
+              disabled={isLoading || isResending}
             >
               {isLoading ? "Verifying..." : "Verify"}
             </Button>
@@ -151,9 +188,10 @@ export default function VerifyOTPPage() {
               Don&#39;t receive the OTP{" "}
               <button
                 onClick={handleResend}
-                className="text-blue-600 font-medium hover:underline"
+                className="text-blue-600 font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isResending || isLoading}
               >
-                Resend
+                {isResending ? "Resending..." : "Resend"}
               </button>
             </p>
           </div>

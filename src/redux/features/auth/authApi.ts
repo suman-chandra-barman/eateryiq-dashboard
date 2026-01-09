@@ -41,6 +41,15 @@ const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
+    // RESEND Email Verify OTP
+    resendEmailVerifyOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/resend-email-verify-otp/",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
     // LOGIN
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (userInfo) => ({
@@ -62,15 +71,6 @@ const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["User"],
     }),
 
-    // RESEND OTP
-    resendOtp: builder.mutation({
-      query: (data) => ({
-        url: "/auth/resend-otp",
-        method: "POST",
-        body: data,
-      }),
-    }),
-
     // FORGOT PASSWORD
     forgotPassword: builder.mutation<
       ForgotPasswordResponse,
@@ -89,14 +89,14 @@ const authApi = baseApi.injectEndpoints({
       ResendEmailVerifyOtpRequest
     >({
       query: (data) => ({
-        url: "/auth/resend-email-verify-otp/",
+        url: "/auth/resend-forgot-password-otp/",
         method: "POST",
         body: data,
       }),
     }),
 
     // VERIFY RESET OTP (for forgot password flow)
-    verifyResetOtp: builder.mutation<
+    verfyForgotPasswordOTP: builder.mutation<
       VerifyResetOtpResponse,
       VerifyResetOtpRequest
     >({
@@ -105,17 +105,8 @@ const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          if (data?.accessToken) {
-            dispatch(setToken(data.accessToken));
-            dispatch(setUser(data.user));
-          }
-        } catch (error) {
-          console.error("Verify reset OTP failed:", error);
-        }
-      },
+      // Don't store token/user here to prevent dashboard redirect
+      // Token will be stored in sessionStorage and used for reset password
     }),
 
     // RESET PASSWORD
@@ -128,17 +119,7 @@ const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          if (data?.tokens?.access) {
-            dispatch(setToken(data.tokens.access));
-            dispatch(setUser(data.user));
-          }
-        } catch (error) {
-          console.error("Reset password failed:", error);
-        }
-      },
+      // Don't store token/user here - user should login with new password
     }),
 
     // CHANGE PASSWORD (for logged-in user)
@@ -149,6 +130,7 @@ const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
+
     //  GET CURRENT USER
     getMe: builder.query({
       query: () => ({
@@ -213,9 +195,10 @@ export const {
   useLoginMutation,
   useSignupMutation,
   useEmailVerifyMutation,
-  useResendOtpMutation,
   useForgotPasswordMutation,
-  useVerifyResetOtpMutation,
+  useResendEmailVerifyOtpMutation,
+  useResendForgetPasswordOtpMutation,
+  useVerfyForgotPasswordOTPMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
   useGetMeQuery,

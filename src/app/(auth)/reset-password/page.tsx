@@ -62,9 +62,10 @@ export default function ResetPasswordPage() {
       }).unwrap();
 
       if (response.success) {
-        toast.success(response.message);
+        toast.success(response.message || "Password reset successfully");
         // Clear session storage
         sessionStorage.removeItem("forgotPasswordEmail");
+        sessionStorage.removeItem("resetPasswordToken");
         // Navigate to login page
         router.push("/login");
       }

@@ -4,8 +4,21 @@ import { RootState } from "../store";
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   credentials: "include",
-  prepareHeaders: (headers, { getState }) => {
+  prepareHeaders: (headers, { getState, endpoint }) => {
     const token = (getState() as RootState).auth.token;
+
+    // For reset password, use token from sessionStorage if available
+    if (endpoint === "resetPassword") {
+      const resetToken = sessionStorage.getItem("resetPasswordToken");
+      if (resetToken) {
+        const headerValue = resetToken.startsWith("Bearer ")
+          ? resetToken
+          : `Bearer ${resetToken}`;
+        headers.set("authorization", headerValue);
+        return headers;
+      }
+    }
+
     if (token) {
       const headerValue = token.startsWith("Bearer ")
         ? token
