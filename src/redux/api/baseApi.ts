@@ -43,6 +43,7 @@ export const baseApi = createApi({
     "OnboardingProgress",
     "Calendar",
     "AdminDashboardStats",
+    "Earnings",
   ],
   endpoints: () => ({}),
 });
