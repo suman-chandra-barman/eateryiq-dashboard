@@ -94,7 +94,7 @@ export function AccountTab() {
         <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Email</label>
           <div className="flex-1">
-            <p className="p-2 bg-gray-100 rounded-sm">{user?.email || "N/A"}</p>
+            <p className="px-6 py-2 bg-gray-100 rounded-sm">{user?.email || "N/A"}</p>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export function AccountTab() {
         <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Phone Number</label>
           <div className="flex-1">
-            <p className="p-2 bg-gray-100 rounded-sm">
+            <p className="px-6 py-2 bg-gray-100 rounded-sm">
               {user?.phone_number || "N/A"}
             </p>
           </div>
