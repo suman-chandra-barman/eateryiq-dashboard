@@ -9,7 +9,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import login from "@/assets/auth/login.png";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
@@ -34,8 +33,6 @@ const getRoleDashboardPath = (role: UserRole, isAdmin: boolean): string => {
       return "/dashboard/marketing-manager";
     case "executive":
       return "/dashboard/executive";
-    default:
-      return "/admin";
   }
 };
 
@@ -193,16 +190,7 @@ export default function LoginPage() {
             </div>
 
             {/* Remember & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" {...register("remember")} />
-                <label
-                  htmlFor="remember"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Remember
-                </label>
-              </div>
+            <div className="flex justify-end">
               <Link
                 href="/forgot-password"
                 className="text-sm text-blue-600 font-medium hover:underline"
