@@ -15,6 +15,7 @@ import {
   useGetAllMarketingManagersQuery,
   useDeleteMarketingManagerMutation,
 } from "@/redux/features/users/userApi";
+import PageLoader from "@/components/Shared/PageLoader";
 interface User {
   id: string;
   name: string;
@@ -91,13 +92,7 @@ export default function MarketingManagerPage() {
     setCurrentPage(page);
   };
 
-  if (isLoading) {
-    return (
-      <div className="bg-gray-50 flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-600">Loading...</div>
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
 
   if (error) {
     return (

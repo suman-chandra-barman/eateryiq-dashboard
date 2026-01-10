@@ -21,6 +21,7 @@ import settingIcon from "@/assets/Settings.svg";
 import supportIcon from "@/assets/ix_support.svg";
 import { useGetMeQuery } from "@/redux/features/auth/authApi";
 import { LogoutDialog } from "../Dailog/LogoutDialog";
+import { useAppSelector } from "@/redux/hooks";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: dashbaordIcon },
@@ -65,7 +66,7 @@ export function AdminDashboardSidebar() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showSubItems, setShowSubItems] = useState<Record<string, boolean>>({});
 
-  const { data: currentUser, isLoading } = useGetMeQuery(undefined);
+  const { user: currentUser } = useAppSelector((state) => state.auth);
 
   const pathname = usePathname();
 
@@ -213,12 +214,12 @@ export function AdminDashboardSidebar() {
           >
             <Avatar className="w-10 h-10">
               <AvatarImage
-                src={currentUser?.data?.profile_image_url}
+                src={currentUser?.profile_image_url}
                 alt="Admin Profile Image"
               />
               <AvatarFallback>
-                {currentUser?.data?.full_name
-                  ? currentUser.data.full_name.charAt(0)
+                {currentUser?.full_name
+                  ? currentUser.full_name.charAt(0)
                   : ""}
               </AvatarFallback>
             </Avatar>
@@ -226,7 +227,7 @@ export function AdminDashboardSidebar() {
               <>
                 <div className="flex-1 text-left">
                   <div className="font-medium text-sm">
-                    {currentUser?.data?.full_name}
+                    {currentUser?.full_name}
                   </div>
                   <div className="text-xs text-gray-400 capitalize">Admin</div>
                 </div>
