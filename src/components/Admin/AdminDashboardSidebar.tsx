@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +33,10 @@ import fanchiseeIcon from "@/assets/Franchisee.svg";
 import subscriptionIcon from "@/assets/Subscribtion.svg";
 import settingIcon from "@/assets/Settings.svg";
 import supportIcon from "@/assets/ix_support.svg";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useGetMeQuery } from "@/redux/features/auth/authApi";
+import { LogoutDialog } from "../Dailog/LogoutDialog";
+import { set } from "react-hook-form";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: dashbaordIcon },
@@ -42,9 +46,21 @@ const navItems = [
     label: "Users Name",
     icon: usersIcon,
     subItems: [
-      { href: "/admin/users/operations", label: "Operations", icon: operatorIcon },
-      { href: "/admin/users/marketing-manager", label: "Marketing Manager", icon: managerIcon },
-      { href: "/admin/users/executive", label: "Executive", icon: fanchiseeIcon },
+      {
+        href: "/admin/users/operations",
+        label: "Operations",
+        icon: operatorIcon,
+      },
+      {
+        href: "/admin/users/marketing-manager",
+        label: "Marketing Manager",
+        icon: managerIcon,
+      },
+      {
+        href: "/admin/users/executive",
+        label: "Executive",
+        icon: fanchiseeIcon,
+      },
     ],
   },
   {
@@ -64,10 +80,13 @@ export function AdminDashboardSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showSubItems, setShowSubItems] = useState<Record<string, boolean>>({});
+
+  const { data: currentUser, isLoading: currentUserLoading } =
+    useGetMeQuery(undefined);
+
   const pathname = usePathname();
 
   const handleLogout = () => {
-    console.log("Logging out...");
     setShowLogoutDialog(false);
   };
 
@@ -215,12 +234,22 @@ export function AdminDashboardSidebar() {
             )}
           >
             <Avatar className="w-10 h-10">
-              <AvatarImage src={user.src} alt="User Avatar" />
+              <AvatarImage
+                src={currentUser?.data?.profile_image_url}
+                alt="Admin Profile Image"
+              />
+              <AvatarFallback>
+                {currentUser?.data?.full_name
+                  ? currentUser.data.full_name.charAt(0)
+                  : ""}
+              </AvatarFallback>
             </Avatar>
             {!isCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <div className="font-medium text-sm">Jhon Marcel</div>
+                  <div className="font-medium text-sm">
+                    {currentUser?.data?.full_name}
+                  </div>
                   <div className="text-xs text-gray-400 capitalize">Admin</div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-gray-400" />
@@ -229,30 +258,13 @@ export function AdminDashboardSidebar() {
           </button>
         </div>
       </div>
-
-      {/* ===== Logout Dialog ===== */}
-      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Logout</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to log out from your account?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowLogoutDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      
+      {/* ===== Logout Confirmation Dialog ===== */}
+      <LogoutDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        setShowLogoutDialog={setShowLogoutDialog}
+      />
     </>
   );
 }

@@ -67,7 +67,6 @@ const authApi = baseApi.injectEndpoints({
           const { data } = await queryFulfilled;
           if (data?.data?.accessToken) {
             dispatch(setToken(data.data.accessToken));
-            dispatch(setUser(data.data.user));
           }
         } catch (error) {
           console.error("Login failed:", error);
@@ -181,6 +180,36 @@ const authApi = baseApi.injectEndpoints({
         return {
           url: "/auth/profile/",
           method: "PATCH",
+          body: formData,
+        };
+      },
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.data) {
+            dispatch(setUser(data.data));
+          }
+        } catch (error) {
+          console.error("Update profile failed:", error);
+        }
+      },
+      invalidatesTags: ["User"],
+    }),
+
+    updateAdminProfile: builder.mutation({
+      query: (data) => {
+        const formData = new FormData();
+
+        if (data.profile_image) {
+          formData.append("profile_image", data.profile_image);
+        }
+        if (data.full_name) {
+          formData.append("full_name", data.full_name);
+        }
+
+        return {
+          url: "/auth/profile/",
+          method: "PUT",
           body: formData,
         };
       },

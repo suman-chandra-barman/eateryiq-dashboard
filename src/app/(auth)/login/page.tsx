@@ -49,15 +49,15 @@ export default function LoginPage() {
 
   const [loginMutation, { isLoading }] = useLoginMutation();
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-
   // Only fetch onboarding progress after successful login
   const { data: onboardingData, isLoading: isCheckingOnboarding } =
     useGetOnboardingProgressQuery(undefined, {
       skip: !shouldCheckOnboarding,
     });
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const {
     register,
@@ -114,7 +114,7 @@ export default function LoginPage() {
           // Store user role and trigger onboarding check
           setUserRole({
             role: response.data.user.role,
-            isAdmin: response.data.user.is_admin,
+            isAdmin: response.data.user.is_admin as boolean,
           });
           setShouldCheckOnboarding(true);
         }
