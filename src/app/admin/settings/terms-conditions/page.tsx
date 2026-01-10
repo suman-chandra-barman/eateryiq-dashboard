@@ -1,54 +1,116 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @format */
 "use client";
 
 import BackButton from "@/components/Shared/BackButton";
+import PageLoader from "@/components/Shared/PageLoader";
+import TipTapEditor from "@/components/Shared/TipTapEditor";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeftIcon, PenLine, Save, X } from "lucide-react";
-import Link from "next/link";
-import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  useGetTermsQuery,
+  useCreateTermsMutation,
+  useUpdateTermsMutation,
+} from "@/redux/features/terms/termsApi";
+import { PenLine, Save, X, Plus } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 const Page = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [desc, setDesc] = useState(
-    "Lorem ipsum dolor sit amet consectetur. Fringilla a cras vitae orci. Egestas duis id nisl sed ante congue scelerisque. Eleifend facilisis aliquet tempus morbi leo sagittis. Pellentesque odio amet turpis habitant. Imperdiet tincidunt nisl consectetur hendrerit accumsan vehicula imperdiet mattis. Neque a vitae diam pharetra duis habitasse convallis luctus pulvinar. Pharetra nunc morbi elementum nisl magnis convallis arcu enim tortor. Cursus a sed tortor enim mi imperdiet massa donec mauris. Sem morbi morbi posuere faucibus. Cras risus ultrices duis pharetra sit porttitor elementum sagittis elementum. Ut vitae blandit pulvinar fermentum in id sed. At pellentesque non semper eget egestas vulputate id volutpat quis. Dolor etiam sodales at elementum mattis nibh quam placerat ut. Suspendisse est adipiscing proin et. Leo nisl bibendum donec ac non eget euismod suscipit. At ultricies nullam ipsum tellus. Non dictum orci at tortor convallis tortor suspendisse. Ac duis senectus arcu nullam in suspendisse vitae. Tellus interdum enim lorem vel morbi lectus.\n\nLorem ipsum dolor sit amet consectetur. Fringilla a cras vitae orci. Egestas duis id nisl sed ante congue scelerisque. Eleifend facilisis aliquet tempus morbi leo sagittis. Pellentesque odio amet turpis habitant. Imperdiet tincidunt nisl consectetur hendrerit accumsan vehicula imperdiet mattis. Neque a vitae diam pharetra duis habitasse convallis luctus pulvinar. Pharetra nunc morbi elementum nisl magnis convallis arcu enim tortor. Cursus a sed tortor enim mi imperdiet massa donec mauris. Sem morbi morbi posuere faucibus. Cras risus ultrices duis pharetra sit porttitor elementum sagittis elementum. Ut vitae blandit pulvinar fermentum in id sed. At pellentesque non semper eget egestas vulputate id volutpat quis. Dolor etiam sodales at elementum mattis nibh quam placerat ut. Suspendisse est adipiscing proin et. Leo nisl bibendum donec ac non eget euismod suscipit. At ultricies nullam ipsum tellus. Non dictum orci at tortor convallis tortor suspendisse. Ac duis senectus arcu nullam in suspendisse vitae. Tellus interdum enim lorem vel morbi lectus."
-  );
-  const [tempDesc, setTempDesc] = useState(desc);
+  const [isCreating, setIsCreating] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [currentTermsId, setCurrentTermsId] = useState<number | null>(null);
+
+  const { data: termsData, isLoading } = useGetTermsQuery();
+  const [createTerms, { isLoading: isCreatingTerms }] =
+    useCreateTermsMutation();
+  const [updateTerms, { isLoading: isUpdating }] = useUpdateTermsMutation();
+
+  useEffect(() => {
+    if (termsData?.data && termsData.data.length > 0) {
+      const latestTerms = termsData.data[0];
+      setTitle(latestTerms.title);
+      setContent(latestTerms.content);
+      setCurrentTermsId(latestTerms.id);
+    }
+  }, [termsData]);
 
   const handleEdit = () => {
-    setTempDesc(desc);
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    setDesc(tempDesc);
-    setIsEditing(false);
+  const handleCreateNew = () => {
+    setTitle("");
+    setContent("");
+    setCurrentTermsId(null);
+    setIsCreating(true);
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    if (!title.trim() || !content.trim()) {
+      toast.error("Please fill in both title and content");
+      return;
+    }
+
+    try {
+      if (isCreating || currentTermsId === null) {
+        await createTerms({ title, content }).unwrap();
+        toast.success("Terms created successfully");
+        setIsCreating(false);
+      } else {
+        await updateTerms({
+          id: currentTermsId,
+          body: { title, content },
+        }).unwrap();
+        toast.success("Terms updated successfully");
+      }
+      setIsEditing(false);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to save terms");
+    }
   };
 
   const handleCancel = () => {
-    setTempDesc(desc);
+    if (termsData?.data && termsData.data.length > 0) {
+      const latestTerms = termsData.data[0];
+      setTitle(latestTerms.title);
+      setContent(latestTerms.content);
+      setCurrentTermsId(latestTerms.id);
+    }
     setIsEditing(false);
+    setIsCreating(false);
   };
 
+  if (isLoading) return <PageLoader className="h-[50vh]"/>;
+
   return (
-    <div className="min-h-screen bg-transparent pt-2 md:pt-6">
+    <div className="bg-transparent pt-2 md:pt-6">
       <div className="max-w-full mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <BackButton name="Terms & Conditions" />
           {!isEditing ? (
-            <Button
-              onClick={handleEdit}
-              className="w-20 flex bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <PenLine /> Edit
-            </Button>
+            <div className="flex gap-2">
+              {termsData?.data && termsData.data.length > 0 && (
+                <Button
+                  onClick={handleEdit}
+                  className="w-20 flex bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  <PenLine /> Edit
+                </Button>
+              )}
+            </div>
           ) : (
             <div className="flex gap-2">
               <Button
                 onClick={handleSave}
+                disabled={isCreatingTerms || isUpdating}
                 className="flex bg-blue-500 hover:bg-blue-600 text-white"
               >
-                <Save className="w-4 h-4 mr-1" /> Save
+                <Save className="w-4 h-4 mr-1" />
+                {isCreatingTerms || isUpdating ? "Saving..." : "Save"}
               </Button>
               <Button
                 onClick={handleCancel}
@@ -63,21 +125,59 @@ const Page = () => {
 
         {/* Content Area */}
         <div className="bg-white rounded-xl p-6 border border-blue-300 shadow-sm">
-          <h3 className="text-2xl font-semibold text-gray-900 mb-6">
-            Terms & Conditions
-          </h3>
-
-          {!isEditing ? (
-            <div className="text-gray-600 leading-relaxed text-base whitespace-pre-wrap">
-              {desc}
+          {isEditing ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Title
+                </label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter terms title..."
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Content
+                </label>
+                <TipTapEditor
+                  content={content}
+                  onChange={setContent}
+                  editable={true}
+                />
+              </div>
             </div>
           ) : (
-            <Textarea
-              value={tempDesc}
-              onChange={(e) => setTempDesc(e.target.value)}
-              className="min-h-96 text-base leading-relaxed resize-none border-2 border-gray-200 focus:border-blue-500 focus:ring-0"
-              placeholder="Enter terms and conditions content..."
-            />
+            <>
+              {termsData?.data && termsData.data.length > 0 ? (
+                <>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+                    {title}
+                  </h3>
+                  <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none">
+                    <TipTapEditor
+                      content={content}
+                      onChange={() => {}}
+                      editable={false}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 mb-4">
+                    No terms and conditions available
+                  </p>
+                  <Button
+                    onClick={handleCreateNew}
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-1" /> Create First Terms
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
