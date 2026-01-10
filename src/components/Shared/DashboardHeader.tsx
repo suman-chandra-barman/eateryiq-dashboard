@@ -28,7 +28,7 @@ export default function DashboardHeader({ title }: DashboardHeaderProps) {
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10">
               <AvatarImage
-                src="/placeholder.svg?height=40&width=40"
+                src={user?.profile_image_url}
                 alt={user?.full_name}
               />
               <AvatarFallback className="font-bold uppercase">{user?.full_name?.slice(0, 1)}</AvatarFallback>

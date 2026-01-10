@@ -11,7 +11,6 @@ import { ChevronsRight, ChevronsLeft, ChevronRight } from "lucide-react";
 import { LogoutDialog } from "@/components/Dailog/LogoutDialog";
 import logo from "@/assets/logo.png";
 import logoWithoutText from "@/assets/logo_without_text.png";
-import user from "@/assets/user.jpg";
 import { sidebarItems } from "@/config/sidebarItems";
 import { LucideIcon } from "lucide-react";
 import { useAppSelector } from "@/redux/hooks";
@@ -84,11 +83,17 @@ export function DashboardSidebar() {
         <div className="bg-white p-4 text-[#3B3B3B] space-y-4 border-t">
           <div className="w-full flex items-center bg-[#F2F7FF] transition-colors rounded-2xl cursor-pointer gap-3 p-4">
             <Avatar className="w-10 h-10">
-              <AvatarImage src={user.src} alt="User Avatar" />
+              <AvatarImage
+                src={currentUser?.profile_image_url}
+                alt="User Profile Image"
+              />
+              <AvatarFallback className="font-bold uppercase">
+                {currentUser?.full_name ? currentUser.full_name.charAt(0) : ""}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 text-left">
               <div className="font-medium text-sm">
-                {currentUser?.full_name || "Jhon Marcel"}
+                {currentUser?.full_name}
               </div>
               <div className="text-xs text-gray-400 capitalize">
                 {currentUser?.role?.replace("_", " ") || currentUser?.role}
@@ -193,7 +198,7 @@ export function DashboardSidebar() {
           >
             <Avatar className="w-10 h-10">
               <AvatarImage
-                src="/placeholder.svg?height=40&width=40"
+                src={currentUser?.profile_image_url}
                 alt={currentUser?.full_name}
               />
               <AvatarFallback className="font-bold uppercase">

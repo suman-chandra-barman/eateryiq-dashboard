@@ -19,7 +19,6 @@ import fanchiseeIcon from "@/assets/Franchisee.svg";
 import subscriptionIcon from "@/assets/Subscribtion.svg";
 import settingIcon from "@/assets/Settings.svg";
 import supportIcon from "@/assets/ix_support.svg";
-import { useGetMeQuery } from "@/redux/features/auth/authApi";
 import { LogoutDialog } from "../Dailog/LogoutDialog";
 import { useAppSelector } from "@/redux/hooks";
 
