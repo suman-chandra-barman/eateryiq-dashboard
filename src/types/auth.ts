@@ -110,3 +110,14 @@ export type ResetPasswordResponse = {
     refresh: string;
   };
 };
+
+export type ChangePasswordRequest = {
+  old_password: string;
+  new_password: string;
+  confirm_password: string;
+};
+
+export type ChangePasswordResponse = {
+  success: boolean;
+  message: string;
+};

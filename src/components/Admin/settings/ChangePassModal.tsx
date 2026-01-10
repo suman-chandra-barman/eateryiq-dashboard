@@ -14,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, ArrowLeft, Lock } from "lucide-react";
+import { useChangePasswordMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
 interface ChangePassModalProps {
   open: boolean;
@@ -21,6 +23,8 @@ interface ChangePassModalProps {
 }
 
 export function ChangePassModal({ open, onOpenChange }: ChangePassModalProps) {
+  const [changePassword, { isLoading }] = useChangePasswordMutation();
+
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
@@ -44,22 +48,31 @@ export function ChangePassModal({ open, onOpenChange }: ChangePassModalProps) {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.newPassword !== formData.confirmPassword) {
-      alert("New passwords do not match!");
+      toast.error("New passwords do not match!");
       return;
     }
 
-    console.log("Change password submitted:", {
-      oldPassword: formData.oldPassword,
-      newPassword: formData.newPassword,
-    });
+    try {
+      const response = await changePassword({
+        old_password: formData.oldPassword,
+        new_password: formData.newPassword,
+        confirm_password: formData.confirmPassword,
+      }).unwrap();
 
-    // Reset form and close modal
-    setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    onOpenChange(false);
+      toast.success(response.message || "Password changed successfully.");
+
+      // Reset form and close modal
+      setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
+      onOpenChange(false);
+    } catch (error: any) {
+      const errorMessage =
+        error?.data?.message || "Failed to change password. Please try again.";
+      toast.error(errorMessage);
+    }
   };
 
   const handleBack = () => {
@@ -158,9 +171,10 @@ export function ChangePassModal({ open, onOpenChange }: ChangePassModalProps) {
             <div className="pt-4">
               <Button
                 type="submit"
-                className="w-full h-12 text-white font-medium text-base rounded-xl hover:opacity-90 transition-opacity bg-blue-600 hover:bg-blue-700"
+                disabled={isLoading}
+                className="w-full h-12 text-white font-medium text-base rounded-xl hover:opacity-90 transition-opacity bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Changes
+                {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>

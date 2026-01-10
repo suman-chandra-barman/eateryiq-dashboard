@@ -17,6 +17,8 @@ import type {
   VerifyResetOtpResponse,
   ResetPasswordRequest,
   ResetPasswordResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from "@/types/auth";
 
 const authApi = baseApi.injectEndpoints({
@@ -125,11 +127,14 @@ const authApi = baseApi.injectEndpoints({
       // Don't store token/user here - user should login with new password
     }),
 
-    // CHANGE PASSWORD (for logged-in user)
-    changePassword: builder.mutation({
+    // CHANGE PASSWORD (for only admin)
+    changePassword: builder.mutation<
+      ChangePasswordResponse,
+      ChangePasswordRequest
+    >({
       query: (data) => ({
-        url: "/auth/change-password",
-        method: "PATCH",
+        url: "/auth/admin/change-password/",
+        method: "POST",
         body: data,
       }),
     }),
