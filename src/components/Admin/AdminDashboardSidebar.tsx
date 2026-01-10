@@ -7,23 +7,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  ChevronsRight,
-  ChevronsLeft,
-  ChevronRight,
-  LogOut,
-} from "lucide-react";
+import { ChevronsRight, ChevronsLeft, ChevronRight } from "lucide-react";
 import logo from "@/assets/logo.png";
 import logoWithoutText from "@/assets/logo_without_text.png";
-import user from "@/assets/user.jpg";
 import dashbaordIcon from "@/assets/Dashboard.svg";
 import earningsIcon from "@/assets/Earning.svg";
 import usersIcon from "@/assets/user.svg";
@@ -33,10 +19,8 @@ import fanchiseeIcon from "@/assets/Franchisee.svg";
 import subscriptionIcon from "@/assets/Subscribtion.svg";
 import settingIcon from "@/assets/Settings.svg";
 import supportIcon from "@/assets/ix_support.svg";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useGetMeQuery } from "@/redux/features/auth/authApi";
 import { LogoutDialog } from "../Dailog/LogoutDialog";
-import { set } from "react-hook-form";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: dashbaordIcon },
@@ -81,14 +65,9 @@ export function AdminDashboardSidebar() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [showSubItems, setShowSubItems] = useState<Record<string, boolean>>({});
 
-  const { data: currentUser, isLoading: currentUserLoading } =
-    useGetMeQuery(undefined);
+  const { data: currentUser, isLoading } = useGetMeQuery(undefined);
 
   const pathname = usePathname();
-
-  const handleLogout = () => {
-    setShowLogoutDialog(false);
-  };
 
   const toggleSubItems = (href: string) => {
     setShowSubItems((prev) => ({ ...prev, [href]: !prev[href] }));
@@ -151,7 +130,6 @@ export function AdminDashboardSidebar() {
           )}
         >
           {navItems.map((item) => {
-            const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
               <div key={item.href}>
@@ -258,7 +236,7 @@ export function AdminDashboardSidebar() {
           </button>
         </div>
       </div>
-      
+
       {/* ===== Logout Confirmation Dialog ===== */}
       <LogoutDialog
         open={showLogoutDialog}
