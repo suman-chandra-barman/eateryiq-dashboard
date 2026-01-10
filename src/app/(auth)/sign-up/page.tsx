@@ -242,17 +242,19 @@ export default function SignUpPage() {
             </p>
 
             {/* Divider */}
-            <div className="relative">
+
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500">Or</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Google Sign In */}
-            <Button
+
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleGoogleSignIn}
@@ -277,7 +279,7 @@ export default function SignUpPage() {
                 />
               </svg>
               Sign in with Google
-            </Button>
+            </Button> */}
           </form>
         </div>
       </div>
