@@ -4,7 +4,8 @@ import { DailyOperationsChart } from "@/components/Reports/DailyOperationsChart"
 import { OperationsTable } from "@/components/Reports/OperationsTable";
 import { StatsCard } from "@/components/Reports/StatsCard";
 import { WeeklySalesChart } from "@/components/Reports/WeeklySalesCart";
-import PageLoader from "@/components/Shared/PageLoader";
+import AIThinkingIndicatorSkeleton from "@/components/Skeletons/AIThinkingIndicatorSkeleton";
+import PageLoader from "@/components/Skeletons/PageLoader";
 import { useGetOperationReportsQuery } from "@/redux/features/reports/reportsApi";
 import {
   TrendingUp,
@@ -66,9 +67,8 @@ export default function ReportsPage() {
     })) || [];
 
   // Show loader while data is loading
-  if (isOperationReportsLoading) {
-    return <PageLoader level="Loading reports..." />;
-  }
+  if (isOperationReportsLoading) return <AIThinkingIndicatorSkeleton title="AI is generating..." />;
+
 
   return (
     <div className="flex flex-col h-full">

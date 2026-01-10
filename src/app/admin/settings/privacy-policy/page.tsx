@@ -3,7 +3,7 @@
 "use client";
 
 import BackButton from "@/components/Shared/BackButton";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 import TipTapEditor from "@/components/Shared/TipTapEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

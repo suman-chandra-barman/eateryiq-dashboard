@@ -6,9 +6,13 @@ import AdminDashboardHeader from "@/components/Admin/AdminDashboardHeader";
 import { AdminDashboardSidebar } from "@/components/Admin/AdminDashboardSidebar";
 import { useGetMeQuery } from "@/redux/features/auth/authApi";
 import { useAppSelector } from "@/redux/hooks";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode; }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const token = useAppSelector((state) => state.auth.token);
   const router = useRouter();
 

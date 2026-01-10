@@ -7,17 +7,17 @@ import { AccountEditForm } from "./AccountEditForm";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Edit } from "lucide-react";
 import Link from "next/link";
-import PageLoader from "../Shared/PageLoader";
+import PageLoader from "../Skeletons/PageLoader";
 import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
 import { useAppSelector } from "@/redux/hooks";
 
 export function AccountTab() {
   const [isEditing, setIsEditing] = useState(false);
 
-  const {user} = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
 
-  const {data: onboardingData, isLoading: isOnboardingLoading} = useGetOnboardingProgressQuery();
-
+  const { data: onboardingData, isLoading: isOnboardingLoading } =
+    useGetOnboardingProgressQuery();
 
   if (isEditing) {
     return (
@@ -41,7 +41,10 @@ export function AccountTab() {
             <RadialProgress value={15} size={42} stroke={8} />
             <div className="flex-1">
               <div className="text-sm font-medium">
-                Onboarding progress: <span className="font-bold">{onboardingData?.data?.progress || 0}%</span>
+                Onboarding progress:{" "}
+                <span className="font-bold">
+                  {onboardingData?.data?.progress || 0}%
+                </span>
               </div>
             </div>
             <Button variant="outline">
@@ -83,7 +86,9 @@ export function AccountTab() {
         <div className="flex items-center justify-between gap-4">
           <label className="text-lg font-medium  w-44">Email</label>
           <div className="flex-1">
-            <p className="px-6 py-2 bg-gray-100 rounded-sm">{user?.email || "N/A"}</p>
+            <p className="px-6 py-2 bg-gray-100 rounded-sm">
+              {user?.email || "N/A"}
+            </p>
           </div>
         </div>
 

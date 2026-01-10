@@ -12,7 +12,7 @@ import {
   useDeleteFAQMutation,
 } from "@/redux/features/faqs/faqsApi";
 import { toast } from "sonner";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
 const FAQPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

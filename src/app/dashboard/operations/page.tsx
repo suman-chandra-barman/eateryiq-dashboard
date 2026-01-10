@@ -2,10 +2,10 @@
 "use client";
 
 import { DeliveryChart } from "@/components/Charts/DeliveryChart";
-import PageLoader from "@/components/Shared/PageLoader";
 import StatsCard from "@/components/Shared/StatasCard";
 import { useGetOperationStatsQuery } from "@/redux/features/stats/statsApi";
 import { TrendingUp, Users, DollarSign } from "lucide-react";
+import AIThinkingIndicatorSkeleton from "@/components/Skeletons/AIThinkingIndicatorSkeleton";
 
 const iconMap: Record<string, any> = {
   today_sales: DollarSign,
@@ -18,9 +18,8 @@ export default function OperatorDashboardPage() {
     useGetOperationStatsQuery({});
 
   // Show loader while data is loading
-  if (isOperationStatsLoading) {
-    return <PageLoader level="Loading dashboard..." />;
-  }
+  if (isOperationStatsLoading) return <AIThinkingIndicatorSkeleton title="AI is generating..." />;
+
 
   const kpiCards = operationStatsData?.data?.ui?.kpi_cards || [];
   const chartData = operationStatsData?.data?.ui?.charts?.delivery_performance;

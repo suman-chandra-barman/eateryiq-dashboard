@@ -8,7 +8,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { useUpdateAdminProfileMutation } from "@/redux/features/auth/authApi";
 import { PenLine } from "lucide-react";
 import React, { useState } from "react";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,7 +17,7 @@ const Page = () => {
 
   const { user: currentUser } = useAppSelector((state) => state.auth);
 
-  if(!currentUser) return <PageLoader />;
+  if (!currentUser) return <PageLoader />;
 
   return (
     <div className="bg-transparent pt-2">

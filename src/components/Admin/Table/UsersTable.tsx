@@ -2,7 +2,7 @@
 
 import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
 interface User {
   id: string;
@@ -37,9 +37,8 @@ export default function UsersTable({
   onPageChange,
   isLoading,
 }: UsersTableProps) {
+  if (isLoading) return <PageLoader />;
 
-  if (isLoading) return <PageLoader/>;
-  
   return (
     <div className="bg-white rounded-2xl border border-gray-200">
       <div className="overflow-x-auto">

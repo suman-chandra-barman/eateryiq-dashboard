@@ -3,7 +3,7 @@
 import { useState } from "react";
 import SupportQueryCard from "@/components/Admin/Card/SupportQueryCard";
 import { useGetAllContactsQuery } from "@/redux/features/support/supportApi";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
 export default function SupportPage() {
   const [currentPage, setCurrentPage] = useState(1);

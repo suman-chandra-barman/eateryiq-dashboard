@@ -4,7 +4,7 @@
 import DeleteModal from "@/components/Admin/Modal/DeleteModal";
 import ExecutiveUserDetailsModal from "@/components/Admin/Modal/ExecutiveUserDetailsModal";
 import OperatorTable from "@/components/Admin/Table/OperatorTable";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 import {
   InputGroup,
   InputGroupAddon,

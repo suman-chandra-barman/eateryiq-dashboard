@@ -14,7 +14,7 @@ import {
 } from "@/redux/features/documents/documentsApi";
 import { toast } from "sonner";
 import { DocumentsTable } from "@/components/Tables/DocumentsTable";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
 export type Document = {
   id: string;

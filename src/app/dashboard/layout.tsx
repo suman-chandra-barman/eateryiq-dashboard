@@ -1,6 +1,5 @@
 "use client";
 
-import DashboardSkeleton from "@/components/Shared/DashbaordSkeleton";
 import DashboardHeader from "@/components/Shared/DashboardHeader";
 import { DashboardSidebar } from "@/components/Shared/DashboardSidebar";
 import { useGetMeQuery } from "@/redux/features/auth/authApi";
@@ -8,6 +7,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect } from "react";
+import DashboardSkeleton from "@/components/Skeletons/DashbaordSkeleton";
 
 export default function DashboardLayout({
   children,
@@ -30,9 +30,8 @@ export default function DashboardLayout({
     }
   }, [token, router]);
 
-  if (token && isLoading || !currentUserData) {
-    return <DashboardSkeleton />;
-  }
+  if (token && isLoading || !currentUserData) return <DashboardSkeleton />;
+  
 
   return (
     <div className="flex h-screen bg-[#F2F7FF] text-[#535F72] p-4 gap-4">

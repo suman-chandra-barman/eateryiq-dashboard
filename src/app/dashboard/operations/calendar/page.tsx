@@ -12,7 +12,7 @@ import {
   useDeleteCalendarEventMutation,
 } from "@/redux/features/calendar/calendarApi";
 import { toast } from "sonner";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 
 interface Event {
   id: string;
@@ -93,9 +93,7 @@ export default function CalendarPage() {
 
   return (
     <div className="flex flex-col">
-      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">
-        Calendar
-      </h1>
+      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Calendar</h1>
       <div className="flex-1 bg-white">
         <Card className="p-6 bg-card border border-gray-200">
           <div className="flex items-center justify-between mb-6">
@@ -136,7 +134,7 @@ export default function CalendarPage() {
           </div>
 
           {isLoading ? (
-            <PageLoader className="h-[65vh]"/>
+            <PageLoader className="h-[65vh]" />
           ) : (
             <CalendarGrid
               currentDate={currentDate}

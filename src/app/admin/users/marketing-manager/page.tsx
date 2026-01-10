@@ -15,7 +15,7 @@ import {
   useGetAllMarketingManagersQuery,
   useDeleteMarketingManagerMutation,
 } from "@/redux/features/users/userApi";
-import PageLoader from "@/components/Shared/PageLoader";
+import PageLoader from "@/components/Skeletons/PageLoader";
 interface User {
   id: string;
   name: string;
