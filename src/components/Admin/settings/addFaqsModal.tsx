@@ -12,43 +12,43 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useCreateFAQMutation } from "@/redux/features/faqs/faqsApi";
+import { toast } from "sonner";
 
 interface AddFaqsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (question: string, answer: string) => void;
-  editData?: {
-    id: string;
-    question: string;
-    answer: string;
-  } | null;
 }
 
-const AddFaqsModal: React.FC<AddFaqsModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  editData,
-}) => {
-  const [question, setQuestion] = useState(editData?.question || "");
-  const [answer, setAnswer] = useState(editData?.answer || "");
+const AddFaqsModal: React.FC<AddFaqsModalProps> = ({ isOpen, onClose }) => {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [createFAQ, { isLoading }] = useCreateFAQMutation();
 
   React.useEffect(() => {
-    if (editData) {
-      setQuestion(editData.question);
-      setAnswer(editData.answer);
-    } else {
+    if (!isOpen) {
       setQuestion("");
       setAnswer("");
     }
-  }, [editData, isOpen]);
+  }, [isOpen]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (question.trim() && answer.trim()) {
-      onSave(question.trim(), answer.trim());
-      setQuestion("");
-      setAnswer("");
-      onClose();
+      try {
+        await createFAQ({
+          question: question.trim(),
+          answer: answer.trim(),
+          is_active: true,
+        }).unwrap();
+
+        toast.success("FAQ created successfully");
+        setQuestion("");
+        setAnswer("");
+        onClose();
+      } catch (error) {
+        const err = error as { data?: { message?: string } };
+        toast.error(err?.data?.message || "Failed to create FAQ");
+      }
     }
   };
 
@@ -63,7 +63,7 @@ const AddFaqsModal: React.FC<AddFaqsModalProps> = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-900 text-center">
-            {editData ? "Edit FAQ" : "Add FAQ"}
+            Add FAQ
           </DialogTitle>
         </DialogHeader>
 
@@ -114,10 +114,10 @@ const AddFaqsModal: React.FC<AddFaqsModalProps> = ({
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={!question.trim() || !answer.trim()}
+              disabled={!question.trim() || !answer.trim() || isLoading}
               className="px-8 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit
+              {isLoading ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </div>

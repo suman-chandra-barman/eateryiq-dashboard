@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 interface FaqsCardProps {
-  id: string;
+  id: number;
   question: string;
   answer: string;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 const FaqsCard: React.FC<FaqsCardProps> = ({

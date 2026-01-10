@@ -5,99 +5,56 @@ import AddFaqsModal from "@/components/Admin/settings/addFaqsModal";
 import FaqsCard from "@/components/Admin/settings/faqsCard";
 import BackButton from "@/components/Shared/BackButton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeftIcon, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 import React, { useState } from "react";
-interface FAQ {
-  id: string;
-  question: string;
-  answer: string;
-}
+import {
+  useGetFAQsQuery,
+  useDeleteFAQMutation,
+} from "@/redux/features/faqs/faqsApi";
+import { toast } from "sonner";
+import PageLoader from "@/components/Shared/PageLoader";
 
 const FAQPage = () => {
-  const rounter = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
-  const [faqs, setFaqs] = useState<FAQ[]>([
-    {
-      id: "1",
-      question: "How do I place an order?",
-      answer:
-        "Simply browse the products, select the variant (size, color, etc.), tap 'Add to Cart', and proceed to checkout. You'll be guided step-by-step to complete your purchase.",
-    },
-    {
-      id: "2",
-      question: "How do I place an order?",
-      answer:
-        "Simply browse the products, select the variant (size, color, etc.), tap 'Add to Cart', and proceed to checkout. You'll be guided step-by-step to complete your purchase.",
-    },
-    {
-      id: "3",
-      question: "How do I place an order?",
-      answer:
-        "Simply browse the products, select the variant (size, color, etc.), tap 'Add to Cart', and proceed to checkout. You'll be guided step-by-step to complete your purchase.",
-    },
-    {
-      id: "4",
-      question: "How do I place an order?",
-      answer:
-        "Simply browse the products, select the variant (size, color, etc.), tap 'Add to Cart', and proceed to checkout. You'll be guided step-by-step to complete your purchase.",
-    },
-    {
-      id: "5",
-      question: "How do I place an order?",
-      answer:
-        "Simply browse the products, select the variant (size, color, etc.), tap 'Add to Cart', and proceed to checkout. You'll be guided step-by-step to complete your purchase.",
-    },
-    {
-      id: "6",
-      question: "How do I place an order?",
-      answer:
-        "Simply browse the products, select the variant (size, color, etc.), tap 'Add to Cart', and proceed to checkout. You'll be guided step-by-step to complete your purchase.",
-    },
-  ]);
+  const { data: faqsData, isLoading, error } = useGetFAQsQuery();
+  const [deleteFAQ] = useDeleteFAQMutation();
 
-  const handleEditFaq = (id: string) => {
-    const faqToEdit = faqs.find((faq) => faq.id === id);
-    if (faqToEdit) {
-      setEditingFaq(faqToEdit);
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleDeleteFaq = (id: string) => {
-    setFaqs((prev) => prev.filter((faq) => faq.id !== id));
-  };
-
-  const handleSaveFaq = (question: string, answer: string) => {
-    if (editingFaq) {
-      // Edit existing FAQ
-      setFaqs((prev) =>
-        prev.map((faq) =>
-          faq.id === editingFaq.id ? { ...faq, question, answer } : faq
-        )
-      );
-      setEditingFaq(null);
-    } else {
-      // Add new FAQ
-      const newFaq: FAQ = {
-        id: Date.now().toString(),
-        question,
-        answer,
-      };
-      setFaqs((prev) => [...prev, newFaq]);
+  const handleDeleteFaq = async (id: number) => {
+    try {
+      await deleteFAQ(id).unwrap();
+      toast.success("FAQ deleted successfully");
+    } catch (error) {
+      const err = error as { data?: { message?: string } };
+      toast.error(err?.data?.message || "Failed to delete FAQ");
     }
   };
 
   const handleAddNew = () => {
-    setEditingFaq(null);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingFaq(null);
   };
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-transparent pt-2 md:pt-6">
+        <div className="max-w-full mx-auto">
+          <BackButton name="FAQ's" />
+          <div className="mt-6 text-center text-red-500">
+            Failed to load FAQs. Please try again later.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const faqs = faqsData?.data || [];
 
   return (
     <div className="min-h-screen bg-transparent pt-2 md:pt-6">
@@ -114,34 +71,26 @@ const FAQPage = () => {
         </div>
 
         {/* FAQs Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {faqs.map((faq) => (
-            <FaqsCard
-              key={faq.id}
-              id={faq.id}
-              question={faq.question}
-              answer={faq.answer}
-              onEdit={handleEditFaq}
-              onDelete={handleDeleteFaq}
-            />
-          ))}
-        </div>
+        {faqs.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            No FAQs found. Click &quot;Add New FAQ&quot; to create one.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {faqs.map((faq) => (
+              <FaqsCard
+                key={faq.id}
+                id={faq.id}
+                question={faq.question}
+                answer={faq.answer}
+                onDelete={handleDeleteFaq}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* Add/Edit FAQ Modal */}
-        <AddFaqsModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSave={handleSaveFaq}
-          editData={
-            editingFaq
-              ? {
-                  id: editingFaq.id,
-                  question: editingFaq.question,
-                  answer: editingFaq.answer,
-                }
-              : null
-          }
-        />
+        {/* Add FAQ Modal */}
+        <AddFaqsModal isOpen={isModalOpen} onClose={handleCloseModal} />
       </div>
     </div>
   );
