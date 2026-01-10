@@ -2,6 +2,7 @@
 
 import { Eye, Trash2 } from "lucide-react";
 import Pagination from "../Pagination";
+import PageLoader from "@/components/Shared/PageLoader";
 
 interface User {
   id: string;
@@ -36,6 +37,9 @@ export default function UsersTable({
   onPageChange,
   isLoading,
 }: UsersTableProps) {
+
+  if (isLoading) return <PageLoader/>;
+  
   return (
     <div className="bg-white rounded-2xl border border-gray-200">
       <div className="overflow-x-auto">
@@ -63,15 +67,7 @@ export default function UsersTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {isLoading ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-20 text-center">
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  </div>
-                </td>
-              </tr>
-            ) : users.length === 0 ? (
+            {users.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-20 text-center">
                   <p className="text-gray-500">No users found</p>
