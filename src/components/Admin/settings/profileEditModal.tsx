@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** @format */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,13 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Edit } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface ProfileEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentName: string;
   currentImage: string;
-  onSave: (name: string, image: string) => void;
+  updateProfile: any;
+  isUpdating: boolean;
 }
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
@@ -27,34 +30,66 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   onClose,
   currentName,
   currentImage,
-  onSave,
+  updateProfile,
+  isUpdating,
 }) => {
   const [fullName, setFullName] = useState(currentName);
-  const [profileImage, setProfileImage] = useState(currentImage);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState(currentImage);
+
+  // Update state when props change
+  useEffect(() => {
+    setFullName(currentName);
+    setPreviewImage(currentImage);
+  }, [currentName, currentImage]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setProfileImageFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setPreviewImage(result);
-        setProfileImage(result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    onSave(fullName, profileImage);
-    onClose();
+  const handleSave = async () => {
+    try {
+      // Prepare data for API
+      const updateData: { full_name?: string; profile_image?: File } = {};
+
+      if (fullName !== currentName) {
+        updateData.full_name = fullName;
+      }
+
+      if (profileImageFile) {
+        updateData.profile_image = profileImageFile;
+      }
+
+      // Only make API call if there are changes
+      if (Object.keys(updateData).length === 0) {
+        toast.info("No changes to save");
+        onClose();
+        return;
+      }
+
+      const result = await updateProfile(updateData).unwrap();
+
+      toast.success(result?.message || "Profile updated successfully");
+      onClose();
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      toast.error(error?.data?.message || "Failed to update profile");
+    }
   };
 
   const handleClose = () => {
     // Reset to original values
     setFullName(currentName);
-    setProfileImage(currentImage);
+    setProfileImageFile(null);
     setPreviewImage(currentImage);
     onClose();
   };
@@ -116,9 +151,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
           {/* Save Button */}
           <Button
             onClick={handleSave}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-medium rounded-lg transition-colors"
+            disabled={isUpdating}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-base font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Changes
+            {isUpdating ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </DialogContent>

@@ -240,4 +240,5 @@ export const {
   useChangePasswordMutation,
   useGetMeQuery,
   useUpdateProfileMutation,
+  useUpdateAdminProfileMutation,
 } = authApi;
