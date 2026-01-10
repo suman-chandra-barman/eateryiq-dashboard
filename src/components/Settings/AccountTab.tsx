@@ -7,30 +7,29 @@ import { AccountEditForm } from "./AccountEditForm";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Edit } from "lucide-react";
 import Link from "next/link";
-import { useGetMeQuery } from "@/redux/features/auth/authApi";
 import PageLoader from "../Shared/PageLoader";
 import { useGetOnboardingProgressQuery } from "@/redux/features/onboarding/onboardingApi";
+import { useAppSelector } from "@/redux/hooks";
 
 export function AccountTab() {
   const [isEditing, setIsEditing] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
 
+  const {user} = useAppSelector((state) => state.auth);
 
-  const { data: userData, isLoading } = useGetMeQuery({});
   const {data: onboardingData, isLoading: isOnboardingLoading} = useGetOnboardingProgressQuery();
-  const user = userData?.data;
+
 
   if (isEditing) {
     return (
       <AccountEditForm
         onCancel={() => setIsEditing(false)}
         onSave={() => setIsEditing(false)}
-        userData={user}
+        userData={user || undefined}
       />
     );
   }
 
-  if (isLoading) {
+  if (!user || isOnboardingLoading) {
     return <PageLoader className="h-[60vh]" />;
   }
 
@@ -44,16 +43,6 @@ export function AccountTab() {
               <div className="text-sm font-medium">
                 Onboarding progress: <span className="font-bold">{onboardingData?.data?.progress || 0}%</span>
               </div>
-              {!isComplete ? (
-                <div className="text-xs text-gray-600">
-                  Finish onboarding to maximize insights, benchmarking, and
-                  automations.
-                </div>
-              ) : (
-                <div className="text-xs text-blue-600">
-                  All set! You’re fully onboarded.
-                </div>
-              )}
             </div>
             <Button variant="outline">
               <Link href="/onboarding">Complete & Change</Link>
