@@ -189,6 +189,7 @@ export function AccountEditForm({
                 type="email"
                 className="border-gray-200 text-foreground"
                 placeholder="Enter email"
+                readOnly
               />
             </div>
           </div>

@@ -20,11 +20,13 @@ import { toast } from "sonner";
 interface CreateEventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  createCalendarEventMutation?: ReturnType<typeof useCreateCalendarEventMutation>;
 }
 
 export function CreateEventDialog({
   open,
   onOpenChange,
+  createCalendarEventMutation
 }: CreateEventDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -32,7 +34,7 @@ export function CreateEventDialog({
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const today = new Date();
 
-  const [createEvent, { isLoading }] = useCreateCalendarEventMutation();
+  const [createEvent, { isLoading }] = createCalendarEventMutation || [null, { isLoading: false }];
 
   const daysInMonth = useMemo(() => {
     const year = calendarMonth.getFullYear();
@@ -86,7 +88,7 @@ export function CreateEventDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (title && selectedDates.length > 0) {
+    if (title && selectedDates.length > 0 && createEvent) {
       const sortedDates = [...selectedDates].sort(
         (a, b) => a.getTime() - b.getTime()
       );

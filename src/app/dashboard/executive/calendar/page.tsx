@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -8,8 +9,9 @@ import { CalendarGrid } from "@/components/Calender/CalenderGrid";
 import { CreateEventDialog } from "@/components/Calender/CreateEventDialog";
 import { EventDetailsDialog } from "@/components/Calender/EventDetailsDialog";
 import {
-  useGetCalendarEventsQuery,
-  useDeleteCalendarEventMutation,
+  useGetExecutiveCalendarEventsQuery,
+  useDeleteExecutiveCalendarEventMutation,
+  useCreateExecutiveCalendarEventMutation,
 } from "@/redux/features/calendar/calendarApi";
 import { toast } from "sonner";
 import PageLoader from "@/components/Skeletons/PageLoader";
@@ -30,14 +32,14 @@ export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
-  const { data: eventsData, isLoading, error } = useGetCalendarEventsQuery();
+  const { data: eventsData, isLoading, error } = useGetExecutiveCalendarEventsQuery({});
   const [deleteEvent, { isLoading: isDeleting }] =
-    useDeleteCalendarEventMutation();
+    useDeleteExecutiveCalendarEventMutation();
 
   const events = useMemo(() => {
     if (!eventsData?.data) return [];
 
-    return eventsData.data.map((event) => ({
+    return eventsData.data.map((event:any) => ({
       id: event.id.toString(),
       title: event.title,
       startDate: new Date(event.start_date),
@@ -148,6 +150,7 @@ export default function CalendarPage() {
       <CreateEventDialog
         open={showEventDialog}
         onOpenChange={setShowEventDialog}
+        createCalendarEventMutation={useCreateExecutiveCalendarEventMutation()}
       />
 
       <EventDetailsDialog

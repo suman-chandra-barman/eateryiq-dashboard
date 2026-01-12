@@ -10,6 +10,7 @@ import { EventDetailsDialog } from "@/components/Calender/EventDetailsDialog";
 import {
   useGetCalendarEventsQuery,
   useDeleteCalendarEventMutation,
+  useCreateCalendarEventMutation,
 } from "@/redux/features/calendar/calendarApi";
 import { toast } from "sonner";
 import PageLoader from "@/components/Skeletons/PageLoader";
@@ -148,6 +149,7 @@ export default function CalendarPage() {
       <CreateEventDialog
         open={showEventDialog}
         onOpenChange={setShowEventDialog}
+        createCalendarEventMutation={useCreateCalendarEventMutation()}
       />
 
       <EventDetailsDialog

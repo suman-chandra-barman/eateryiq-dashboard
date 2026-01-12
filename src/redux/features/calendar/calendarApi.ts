@@ -41,6 +41,7 @@ export interface CalendarEventResponse {
 
 export const calendarApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // --------- Operations Calendar API ---------
     getCalendarEvents: builder.query<CalendarEventsResponse, void>({
       query: () => ({
         url: "/api/dashboards/operations/calendar/",
@@ -66,6 +67,58 @@ export const calendarApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Calendar"],
     }),
+
+    //----------End Operations Calendar API ---------
+
+    // --------- Executive Calendar API ---------
+        getExecutiveCalendarEvents: builder.query({
+      query: () => ({
+        url: "/api/dashboards/executive/calendar/",
+        method: "GET",
+      }),
+      providesTags: ["ExecutiveCalendar"],
+    }),
+    createExecutiveCalendarEvent: builder.mutation({
+      query: (body) => ({
+        url: "/api/dashboards/executive/calendar/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["ExecutiveCalendar"],
+    }),
+    deleteExecutiveCalendarEvent: builder.mutation({
+      query: (id) => ({
+        url: `/api/dashboards/executive/calendar/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ExecutiveCalendar"],
+    }),
+    //----------End Executive Calendar API ---------
+
+    // --------- Marketing Manager Calendar API ---------
+        getMarketingManagerCalendarEvents: builder.query({
+      query: () => ({
+        url: "/api/dashboards/marketing/calendar/",
+        method: "GET",
+      }),
+      providesTags: ["MarketingCalendar"],
+    }),
+    createMarketingManagerCalendarEvent: builder.mutation({
+      query: (body) => ({
+        url: "/api/dashboards/marketing/calendar/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["MarketingCalendar"],
+    }),
+    deleteMarketingManagerCalendarEvent: builder.mutation({
+      query: (id) => ({
+        url: `/api/dashboards/marketing/calendar/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["MarketingCalendar"],
+    }),
+    //----------End Marketing Manager Calendar API ---------
   }),
 });
 
@@ -73,4 +126,12 @@ export const {
   useGetCalendarEventsQuery,
   useCreateCalendarEventMutation,
   useDeleteCalendarEventMutation,
+
+  useGetExecutiveCalendarEventsQuery,
+  useCreateExecutiveCalendarEventMutation,
+  useDeleteExecutiveCalendarEventMutation,
+  
+  useGetMarketingManagerCalendarEventsQuery,
+  useCreateMarketingManagerCalendarEventMutation,
+  useDeleteMarketingManagerCalendarEventMutation,
 } = calendarApi;

@@ -52,7 +52,11 @@ export const baseApi = createApi({
     "ExecutiveDocuments",
     
     "OnboardingProgress",
+    
     "Calendar",
+    "ExecutiveCalendar",
+    "MarketingCalendar",
+
     "AdminDashboardStats",
     "Earnings",
     "Support",
