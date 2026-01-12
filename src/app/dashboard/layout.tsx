@@ -32,12 +32,13 @@ export default function DashboardLayout({
 
   if (token && isLoading || !currentUserData) return <DashboardSkeleton />;
   
+  const title = currentUserData?.data?.role === 'executive' ? 'Executive Dashboard' : currentUserData?.data?.role === 'marketing_manager' ? 'Marketing Manager Dashboard' : 'Operations Dashboard';
 
   return (
     <div className="flex h-screen bg-[#F2F7FF] text-[#535F72] p-4 gap-4">
       <DashboardSidebar currentUser={currentUserData?.data} />
       <main className="flex-1 overflow-auto">
-        <DashboardHeader title="Operations Dashboard" />
+        <DashboardHeader title={title} />
         {children}
       </main>
     </div>
