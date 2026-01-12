@@ -36,6 +36,8 @@ export const baseApi = createApi({
     "User",
     "Users",
     "OperationStats",
+    "ExecutiveStats",
+    "MarketingStats",
     "OperationReports",
     "Chats",
     "ChatMessages",

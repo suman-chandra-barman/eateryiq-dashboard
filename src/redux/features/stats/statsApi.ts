@@ -2,6 +2,7 @@ import { baseApi } from "@/redux/api/baseApi";
 
 const statsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // Operator Stats
     getOperationStats: builder.query({
       query: () => ({
         url: "/api/dashboards/operations/metrics/",
@@ -9,6 +10,26 @@ const statsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["OperationStats"],
     }),
+
+    // Executive Stats
+    getExecutiveStats: builder.query({
+      query: () => ({
+        url: "/api/dashboards/executive/metrics/",
+        method: "GET",
+      }),
+      providesTags: ["ExecutiveStats"],
+    }),
+
+    // Marketing Stats
+    getMarketingStats: builder.query({
+      query: () => ({
+        url: "/api/dashboards/marketing/metrics/",
+        method: "GET",
+      }),
+      providesTags: ["MarketingStats"],
+    }),
+
+    // Admin Dashboard Stats
     getAdminDashboardStats: builder.query({
       query: () => ({
         url: "/api/dashboards/admin/summary/",
@@ -18,4 +39,5 @@ const statsApi = baseApi.injectEndpoints({
     }),
   }),
 });
-export const { useGetOperationStatsQuery, useGetAdminDashboardStatsQuery } = statsApi;
+export const { useGetOperationStatsQuery, useGetExecutiveStatsQuery, useGetMarketingStatsQuery, useGetAdminDashboardStatsQuery } =
+  statsApi;

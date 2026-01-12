@@ -1,28 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { DeliveryChart } from "@/components/Charts/DeliveryChart";
+import { SalesVsTargetChart } from "@/components/Charts/SalesVsTargetChart";
 import StatsCard from "@/components/Shared/StatasCard";
-import { useGetOperationStatsQuery } from "@/redux/features/stats/statsApi";
-import { TrendingUp, Users, DollarSign } from "lucide-react";
+import { useGetMarketingStatsQuery } from "@/redux/features/stats/statsApi";
+import {
+  TrendingUp,
+  Users,
+  DollarSign,
+  Smile,
+  TrendingDown,
+} from "lucide-react";
 import AIThinkingIndicatorSkeleton from "@/components/Skeletons/AIThinkingIndicatorSkeleton";
 
 const iconMap: Record<string, any> = {
   today_sales: DollarSign,
   staff_attendance: Users,
   labor_cost_vs_budget: DollarSign,
+  weekly_sales: DollarSign,
+  customer_satisfaction: Smile,
+  cost_efficiency: TrendingDown,
 };
 
-export default function OperatorDashboardPage() {
-  const { data: operationStatsData, isLoading: isOperationStatsLoading } =
-    useGetOperationStatsQuery({});
+export default function MarketingManagerDashboardPage() {
+  const { data: marketingStatsData, isLoading: isMarketingStatsLoading } =
+    useGetMarketingStatsQuery({});
 
   // Show loader while data is loading
-  if (isOperationStatsLoading) return <AIThinkingIndicatorSkeleton title="AI is generating..." />;
+  if (isMarketingStatsLoading)
+    return <AIThinkingIndicatorSkeleton title="AI is generating..." />;
 
+  const kpiCards = marketingStatsData?.data?.ui?.kpi_cards || [];
+  const charts = marketingStatsData?.data?.ui?.charts || {};
 
-  const kpiCards = operationStatsData?.data?.ui?.kpi_cards || [];
-  const chartData = operationStatsData?.data?.ui?.charts?.delivery_performance;
 
   return (
     <div>
@@ -41,7 +51,7 @@ export default function OperatorDashboardPage() {
           ))}
         </div>
 
-        {chartData && <DeliveryChart chartData={chartData} />}
+        <SalesVsTargetChart key="sales_vs_target" chartData={charts.sales_vs_target} />;
       </div>
     </div>
   );
