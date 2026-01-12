@@ -5,8 +5,7 @@ import { OperationsTable } from "@/components/Reports/OperationsTable";
 import { StatsCard } from "@/components/Reports/StatsCard";
 import { WeeklySalesChart } from "@/components/Reports/WeeklySalesCart";
 import AIThinkingIndicatorSkeleton from "@/components/Skeletons/AIThinkingIndicatorSkeleton";
-import PageLoader from "@/components/Skeletons/PageLoader";
-import { useGetOperationReportsQuery } from "@/redux/features/reports/reportsApi";
+import { useGetMarketingReportsQuery } from "@/redux/features/reports/reportsApi";
 import {
   TrendingUp,
   CheckCircle,
@@ -46,8 +45,8 @@ interface StatsData {
 }
 
 export default function ReportsPage() {
-  const { data: operationReportsData, isLoading: isOperationReportsLoading } =
-    useGetOperationReportsQuery({});
+  const { data: marketingReportsData, isLoading: isMarketingReportsLoading } =
+    useGetMarketingReportsQuery({});
 
   // Map icon keys to actual icon components
   const iconMap: Record<string, LucideIcon> = {
@@ -59,7 +58,7 @@ export default function ReportsPage() {
 
   // Get stats data from API or use defaults
   const statsData: StatsData[] =
-    operationReportsData?.data?.ui?.cards?.map((card: CardData) => ({
+    marketingReportsData?.data?.ui?.cards?.map((card: CardData) => ({
       title: card.title,
       value: card.value,
       compare: card.compare,
@@ -67,7 +66,7 @@ export default function ReportsPage() {
     })) || [];
 
   // Show loader while data is loading
-  if (isOperationReportsLoading) return <AIThinkingIndicatorSkeleton title="AI is generating..." />;
+  if (isMarketingReportsLoading) return <AIThinkingIndicatorSkeleton title="AI is generating..." />;
 
 
   return (
@@ -88,7 +87,7 @@ export default function ReportsPage() {
             {/* Daily Operations Breakdown Chart */}
             <div className="lg:col-span-1">
               <DailyOperationsChart
-                data={operationReportsData?.data?.ui?.breakdown}
+                data={marketingReportsData?.data?.ui?.breakdown}
               />
             </div>
           </div>
@@ -96,11 +95,11 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Weekly Sales */}
             <WeeklySalesChart
-              data={operationReportsData?.data?.ui?.weekly_sales}
+              data={marketingReportsData?.data?.ui?.weekly_sales}
             />
 
             {/* Operations Table */}
-            <OperationsTable data={operationReportsData?.data?.ui?.table} />
+            <OperationsTable data={marketingReportsData?.data?.ui?.table} />
           </div>
         </>
       </div>
