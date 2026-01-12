@@ -35,13 +35,19 @@ export const baseApi = createApi({
   tagTypes: [
     "User",
     "Users",
+
     "OperationStats",
     "ExecutiveStats",
     "MarketingStats",
+
     "OperationReports",
     "Chats",
     "ChatMessages",
+
     "OperatorDocuments",
+    "MarketingManagerDocuments",
+    "ExecutiveDocuments",
+    
     "OnboardingProgress",
     "Calendar",
     "AdminDashboardStats",

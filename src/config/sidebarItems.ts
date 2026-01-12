@@ -5,8 +5,6 @@ import {
   FileText,
   BarChart3,
   Settings,
-  Users,
-  HelpCircle,
 } from "lucide-react";
 
 export const sidebarItems = {
@@ -20,16 +18,18 @@ export const sidebarItems = {
   ],
   executive: [
     { href: "/dashboard/executive", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/executive/chat", label: "EateryGPT Chat", icon: Bot },
+    { href: "/dashboard/executive/calendar", label: "Calendar", icon: Calendar },
     { href: "/dashboard/executive/reports", label: "Reports", icon: BarChart3 },
     { href: "/dashboard/executive/documents", label: "Documents", icon: FileText },
-    { href: "/dashboard/executive/support", label: "Support", icon: HelpCircle },
     { href: "/dashboard/executive/settings", label: "Settings", icon: Settings },
   ],
   marketing_manager: [
-    { href: "/dashboard/marketing-manager", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/marketing-manager/reports", label: "Reports", icon: BarChart3 },
-    { href: "/dashboard/marketing-manager/calendar", label: "Calendar", icon: Calendar },
-    { href: "/dashboard/marketing-manager/staff", label: "Staff", icon: Users },
-    { href: "/dashboard/marketing-manager/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard/marketing_manager", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/marketing_manager/chat", label: "EateryGPT Chat", icon: Bot },
+    { href: "/dashboard/marketing_manager/calendar", label: "Calendar", icon: Calendar },
+    { href: "/dashboard/marketing_manager/documents", label: "Documents", icon: FileText },
+    { href: "/dashboard/marketing_manager/reports", label: "Reports", icon: BarChart3 },
+    { href: "/dashboard/marketing_manager/settings", label: "Settings", icon: Settings },
   ],
 };

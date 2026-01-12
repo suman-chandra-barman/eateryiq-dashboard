@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,12 +25,14 @@ interface AddDocumentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (document: Omit<Document, "id">) => void;
+  uploadMutation: ReturnType<typeof useAddOperatorDocumentMutation>;
 }
 
 export function AddDocumentDialog({
   open,
   onOpenChange,
   onAdd,
+  uploadMutation,
 }: AddDocumentDialogProps) {
   const [fileName, setFileName] = useState("");
   const [documentType, setDocumentType] = useState("");
@@ -40,7 +41,7 @@ export function AddDocumentDialog({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [addDocument] = useAddOperatorDocumentMutation();
+  const [addDocument] = uploadMutation;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

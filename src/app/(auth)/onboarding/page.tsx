@@ -20,6 +20,7 @@ import {
   useSubmitMarketingPoliciesMutation,
   useSkipMarketingPoliciesMutation,
 } from "@/redux/features/onboarding/onboardingApi";
+import { toast } from "sonner";
 
 const steps = [
   { key: "account_setup", label: "Account Setup", required: false },
@@ -363,7 +364,7 @@ function LocationStep({ onNext }: { onNext: () => void }) {
       !formData.timezone ||
       !formData.service_model
     ) {
-      alert("All fields are required for Business Location");
+      toast.warning("All fields are required for Business Location");
       return;
     }
     try {
@@ -777,7 +778,7 @@ function DocumentsStep({ onNext }: { onNext: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      alert("Please select a file");
+      toast.warning("Please select a file");
       return;
     }
     try {

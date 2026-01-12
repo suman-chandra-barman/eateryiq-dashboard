@@ -11,6 +11,7 @@ import {
   useDeleteOperatorDocumentMutation,
   useBulkDeleteOperatorDocumentsMutation,
   type OperatorDocument,
+  useAddOperatorDocumentMutation,
 } from "@/redux/features/documents/documentsApi";
 import { toast } from "sonner";
 import { DocumentsTable } from "@/components/Tables/DocumentsTable";
@@ -200,6 +201,7 @@ export default function DocumentsPage() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onAdd={handleAddDocument}
+        uploadMutation={useAddOperatorDocumentMutation()}
       />
       <FilterDocumentsDialog
         open={showFilterDialog}

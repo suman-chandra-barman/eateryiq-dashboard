@@ -55,6 +55,7 @@ export interface DeleteOperatorDocumentResponse {
 
 const documentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // ----------------- Operations Documents APIs -----------------
     getOperatorDocuments: builder.query<
       GetOperatorDocumentsResponse,
       GetOperatorDocumentsParams
@@ -111,6 +112,102 @@ const documentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["OperatorDocuments"],
     }),
+
+    // ----------------- End of Operations Documents APIs -----------------
+
+    // --------------- Executive Documents APIs -----------------
+    getExecutiveDocuments: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.file_format)
+          queryParams.append("file_format", params.file_format);
+        if (params.limit) queryParams.append("limit", params.limit.toString());
+        if (params.page) queryParams.append("page", params.page.toString());
+        if (params.search) queryParams.append("search", params.search);
+
+        return {
+          url: `/api/dashboards/executive/documents/${
+            queryParams.toString() ? `?${queryParams.toString()}` : ""
+          }`,
+          method: "GET",
+        };
+      },
+      providesTags: ["ExecutiveDocuments"],
+    }),
+
+    addExecutiveDocument: builder.mutation({
+      query: (formData) => ({
+        url: "/api/dashboards/executive/documents/",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["ExecutiveDocuments"],
+    }),
+
+    deleteExecutiveDocument: builder.mutation({
+      query: (id) => ({
+        url: `/api/dashboards/executive/documents/${id}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ExecutiveDocuments"],
+    }),
+
+    bulkDeleteExecutiveDocuments: builder.mutation({
+      query: (body) => ({
+        url: "/api/dashboards/executive/documents/bulk-delete/",
+        method: "DELETE",
+        body,
+      }),
+      invalidatesTags: ["ExecutiveDocuments"],
+    }),
+    // --------------- End of Executive Documents APIs -----------------
+
+    // --------------- Marketing Manager Documents APIs -----------------
+    getMarketingManagerDocuments: builder.query({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.file_format)
+          queryParams.append("file_format", params.file_format);
+        if (params.limit) queryParams.append("limit", params.limit.toString());
+        if (params.page) queryParams.append("page", params.page.toString());
+        if (params.search) queryParams.append("search", params.search);
+
+        return {
+          url: `/api/dashboards/marketing/documents/${
+            queryParams.toString() ? `?${queryParams.toString()}` : ""
+          }`,
+          method: "GET",
+        };
+      },
+      providesTags: ["OperatorDocuments"],
+    }),
+
+    addMarketingManagerDocument: builder.mutation({
+      query: (formData) => ({
+        url: "/api/dashboards/marketing/documents/",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["MarketingManagerDocuments"],
+    }),
+
+    deleteMarketingManagerDocument: builder.mutation({
+      query: (id) => ({
+        url: `/api/dashboards/marketing/documents/${id}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["MarketingManagerDocuments"],
+    }),
+
+    bulkDeleteMarketingManagerDocuments: builder.mutation({
+      query: (body) => ({
+        url: "/api/dashboards/marketing/documents/bulk-delete/",
+        method: "DELETE",
+        body,
+      }),
+      invalidatesTags: ["MarketingManagerDocuments"],
+    }),
+    // --------------- End of Marketing Manager Documents APIs -----------------
   }),
 });
 
@@ -119,4 +216,14 @@ export const {
   useAddOperatorDocumentMutation,
   useDeleteOperatorDocumentMutation,
   useBulkDeleteOperatorDocumentsMutation,
+
+  useGetExecutiveDocumentsQuery,
+  useAddExecutiveDocumentMutation,
+  useDeleteExecutiveDocumentMutation,
+  useBulkDeleteExecutiveDocumentsMutation,
+
+  useGetMarketingManagerDocumentsQuery,
+  useAddMarketingManagerDocumentMutation,
+  useDeleteMarketingManagerDocumentMutation,
+  useBulkDeleteMarketingManagerDocumentsMutation,
 } = documentApi;

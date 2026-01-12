@@ -7,10 +7,11 @@ import { Search, Plus } from "lucide-react";
 import { AddDocumentDialog } from "@/components/Dailog/AddDocumentDailog";
 import { FilterDocumentsDialog } from "@/components/Dailog/FilterDocumentDailog";
 import {
-  useGetOperatorDocumentsQuery,
-  useDeleteOperatorDocumentMutation,
-  useBulkDeleteOperatorDocumentsMutation,
   type OperatorDocument,
+  useAddMarketingManagerDocumentMutation,
+  useGetMarketingManagerDocumentsQuery,
+  useDeleteMarketingManagerDocumentMutation,
+  useBulkDeleteMarketingManagerDocumentsMutation,
 } from "@/redux/features/documents/documentsApi";
 import { toast } from "sonner";
 import { DocumentsTable } from "@/components/Tables/DocumentsTable";
@@ -32,21 +33,22 @@ export default function DocumentsPage() {
   const [showFilterDialog, setShowFilterDialog] = useState(false);
   const [filters, setFilters] = useState({ type: "All", format: "All" });
   const [currentPage, setCurrentPage] = useState(1);
+
   const limit = 10;
 
   const {
     data: documentsData,
     isLoading: isDocumentsLoading,
     refetch,
-  } = useGetOperatorDocumentsQuery({
+  } = useGetMarketingManagerDocumentsQuery({
     page: currentPage,
     limit: limit,
     search: searchQuery,
     file_format: filters.format !== "All" ? filters.format : undefined,
   });
 
-  const [deleteDocument] = useDeleteOperatorDocumentMutation();
-  const [bulkDeleteDocuments] = useBulkDeleteOperatorDocumentsMutation();
+  const [deleteDocument] = useDeleteMarketingManagerDocumentMutation();
+  const [bulkDeleteDocuments] = useBulkDeleteMarketingManagerDocumentsMutation();
 
   // Transform API data to local format
   const transformedDocuments: Document[] =
@@ -200,6 +202,7 @@ export default function DocumentsPage() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onAdd={handleAddDocument}
+        uploadMutation={useAddMarketingManagerDocumentMutation()}
       />
       <FilterDocumentsDialog
         open={showFilterDialog}

@@ -51,7 +51,7 @@ export default function MarketingManagerDashboardPage() {
           ))}
         </div>
 
-        <SalesVsTargetChart key="sales_vs_target" chartData={charts.sales_vs_target} />;
+        <SalesVsTargetChart key="sales_vs_target" chartData={charts.sales_vs_target} />
       </div>
     </div>
   );

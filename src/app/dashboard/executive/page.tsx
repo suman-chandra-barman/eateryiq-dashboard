@@ -52,7 +52,7 @@ export default function ExecutiveDashboardPage() {
           ))}
         </div>
 
-        <SalesVsExpensesChart key="yearly_sales_vs_expenses" chartData={charts.yearly_sales_vs_expenses} />;
+        <SalesVsExpensesChart key="yearly_sales_vs_expenses" chartData={charts.yearly_sales_vs_expenses} />
       </div>
     </div>
   );

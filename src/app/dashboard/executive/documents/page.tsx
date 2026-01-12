@@ -7,10 +7,11 @@ import { Search, Plus } from "lucide-react";
 import { AddDocumentDialog } from "@/components/Dailog/AddDocumentDailog";
 import { FilterDocumentsDialog } from "@/components/Dailog/FilterDocumentDailog";
 import {
-  useGetOperatorDocumentsQuery,
-  useDeleteOperatorDocumentMutation,
-  useBulkDeleteOperatorDocumentsMutation,
   type OperatorDocument,
+  useGetExecutiveDocumentsQuery,
+  useDeleteExecutiveDocumentMutation,
+  useBulkDeleteExecutiveDocumentsMutation,
+  useAddExecutiveDocumentMutation,
 } from "@/redux/features/documents/documentsApi";
 import { toast } from "sonner";
 import { DocumentsTable } from "@/components/Tables/DocumentsTable";
@@ -32,21 +33,22 @@ export default function DocumentsPage() {
   const [showFilterDialog, setShowFilterDialog] = useState(false);
   const [filters, setFilters] = useState({ type: "All", format: "All" });
   const [currentPage, setCurrentPage] = useState(1);
+  
   const limit = 10;
 
   const {
     data: documentsData,
     isLoading: isDocumentsLoading,
     refetch,
-  } = useGetOperatorDocumentsQuery({
+  } = useGetExecutiveDocumentsQuery({
     page: currentPage,
     limit: limit,
     search: searchQuery,
     file_format: filters.format !== "All" ? filters.format : undefined,
   });
 
-  const [deleteDocument] = useDeleteOperatorDocumentMutation();
-  const [bulkDeleteDocuments] = useBulkDeleteOperatorDocumentsMutation();
+  const [deleteDocument] = useDeleteExecutiveDocumentMutation();
+  const [bulkDeleteDocuments] = useBulkDeleteExecutiveDocumentsMutation();
 
   // Transform API data to local format
   const transformedDocuments: Document[] =
@@ -73,7 +75,7 @@ export default function DocumentsPage() {
     // This will be handled by the dialog itself now
     setShowAddDialog(false);
     refetch();
-  };
+  }; 
 
   const handleDeleteDocuments = async (ids: string[]) => {
     try {
@@ -200,6 +202,7 @@ export default function DocumentsPage() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onAdd={handleAddDocument}
+        uploadMutation={useAddExecutiveDocumentMutation()}
       />
       <FilterDocumentsDialog
         open={showFilterDialog}
