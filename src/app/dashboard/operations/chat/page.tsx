@@ -43,12 +43,14 @@ export default function ChatPage() {
           <ChatInterface
             chatId={currentChatId}
             onChatCreated={handleChatCreated}
+            role="operations"
           />
         </div>
         <ChatHistory
           onChatSelect={handleChatSelect}
           onNewChat={handleNewChat}
           selectedChatId={currentChatId}
+          role="operations"
         />
       </div>
     </div>
