@@ -62,7 +62,9 @@ export interface DeleteChatResponse {
 // Extended baseApi with chat endpoints
 export const chatApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Get all chat sessions (chat history)
+    // ------------ Operations Chat API ------------
+
+    // Get list of chat sessions
     getChats: builder.query<GetChatsResponse, { search?: string }>({
       query: ({ search }) => {
         const params = new URLSearchParams();
@@ -133,6 +135,152 @@ export const chatApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Chats"],
     }),
+
+    // ------------ Executive Chat API ------------
+
+    // Get list of chat sessions
+    getExecutiveChats: builder.query<GetChatsResponse, { search?: string }>({
+      query: ({ search }) => {
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        const queryString = params.toString();
+        return `/api/dashboards/executive/chat/sessions/${
+          queryString ? `?${queryString}` : ""
+        }`;
+      },
+      providesTags: ["ExecutiveChats"],
+    }),
+
+    // Get single chat session with messages
+    getExecutiveChatSession: builder.query<GetSingleChatResponse, number>({
+      query: (sessionId) =>
+        `/api/dashboards/executive/chat/sessions/${sessionId}/`,
+      providesTags: (result, error, sessionId) => [
+        { type: "ExecutiveChatMessages", id: sessionId },
+      ],
+    }),
+
+    // Start a new conversation or send message to existing chat
+    startExecutiveConversation: builder.mutation<
+      SendMessageResponse,
+      { message: string; file?: File | null; sessionId?: number }
+    >({
+      query: ({ message, file, sessionId }) => {
+        const formData = new FormData();
+        formData.append("message", message);
+        if (file) {
+          formData.append("file", file);
+        }
+        if (sessionId) {
+          formData.append("session_id", sessionId.toString());
+        }
+        return {
+          url: "/api/dashboards/executive/chat/send/",
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: (result, error, { sessionId }) => [
+        "ExecutiveChats",
+        ...(sessionId
+          ? [{ type: "ExecutiveChatMessages" as const, id: sessionId }]
+          : []),
+      ],
+    }),
+
+    // Delete a single chat session
+    deleteExecutiveChat: builder.mutation<DeleteChatResponse, number>({
+      query: (sessionId) => ({
+        url: `/api/dashboards/executive/chat/sessions/${sessionId}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ExecutiveChats"],
+    }),
+
+    // Bulk delete chat sessions
+    deleteExecutiveChats: builder.mutation<
+      { success: boolean; deletedCount: number },
+      number[]
+    >({
+      query: (sessionIds) => ({
+        url: "/api/dashboards/executive/chat/bulk-delete/",
+        method: "DELETE",
+        body: { ids: sessionIds },
+      }),
+      invalidatesTags: ["ExecutiveChats"],
+    }),
+    // ------------ Marketing Manager Chat API ------------
+    // Get list of chat sessions
+    getMarketingChats: builder.query<GetChatsResponse, { search?: string }>({
+      query: ({ search }) => {
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        const queryString = params.toString();
+        return `/api/dashboards/marketing/chat/sessions/${
+          queryString ? `?${queryString}` : ""
+        }`;
+      },
+      providesTags: ["MarketingChats"],
+    }),
+
+    // Get single chat session with messages
+    getMarketingChatSession: builder.query<GetSingleChatResponse, number>({
+      query: (sessionId) =>
+        `/api/dashboards/marketing/chat/sessions/${sessionId}/`,
+      providesTags: (result, error, sessionId) => [
+        { type: "MarketingChatMessages", id: sessionId },
+      ],
+    }),
+
+    // Start a new conversation or send message to existing chat
+    startMarketingConversation: builder.mutation<
+      SendMessageResponse,
+      { message: string; file?: File | null; sessionId?: number }
+    >({
+      query: ({ message, file, sessionId }) => {
+        const formData = new FormData();
+        formData.append("message", message);
+        if (file) {
+          formData.append("file", file);
+        }
+        if (sessionId) {
+          formData.append("session_id", sessionId.toString());
+        }
+        return {
+          url: "/api/dashboards/marketing/chat/send/",
+          method: "POST",
+          body: formData,
+        };
+      },
+      invalidatesTags: (result, error, { sessionId }) => [
+        "MarketingChats",
+        ...(sessionId
+          ? [{ type: "MarketingChatMessages" as const, id: sessionId }]
+          : []),
+      ],
+    }),
+
+    // Delete a single chat session
+    deleteMarketingChat: builder.mutation<DeleteChatResponse, number>({
+      query: (sessionId) => ({
+        url: `/api/dashboards/marketing/chat/sessions/${sessionId}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["MarketingChats"],
+    }),
+
+    // Bulk delete chat sessions
+    deleteMarketingChats: builder.mutation<
+      { success: boolean; deletedCount: number },
+      number[]
+    >({
+      query: (sessionIds) => ({
+        url: "/api/dashboards/marketing/chat/bulk-delete/",
+        method: "DELETE",
+        body: { ids: sessionIds },
+      }),
+      invalidatesTags: ["MarketingChats"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -146,4 +294,20 @@ export const {
   useDeleteChatsMutation,
   useLazyGetChatsQuery,
   useLazyGetChatSessionQuery,
+
+  useGetExecutiveChatSessionQuery,
+  useGetExecutiveChatsQuery,
+  useStartExecutiveConversationMutation,
+  useDeleteExecutiveChatMutation,
+  useDeleteExecutiveChatsMutation,
+  useLazyGetExecutiveChatsQuery,
+  useLazyGetExecutiveChatSessionQuery,
+
+  useGetMarketingChatSessionQuery,
+  useGetMarketingChatsQuery,
+  useStartMarketingConversationMutation,
+  useDeleteMarketingChatMutation,
+  useDeleteMarketingChatsMutation,
+  useLazyGetMarketingChatsQuery,
+  useLazyGetMarketingChatSessionQuery,
 } = chatApi;

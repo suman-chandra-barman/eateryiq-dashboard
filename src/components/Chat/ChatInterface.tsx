@@ -20,7 +20,13 @@ import Image from "next/image";
 import {
   useStartConversationMutation,
   useGetChatSessionQuery,
+  useStartExecutiveConversationMutation,
+  useGetExecutiveChatSessionQuery,
+  useStartMarketingConversationMutation,
+  useGetMarketingChatSessionQuery,
   type Message as ApiMessage,
+  type SendMessageResponse,
+  type GetSingleChatResponse,
 } from "@/redux/features/chats/chatApi";
 import Markdown from "react-markdown";
 import AIThinkingIndicatorSkeleton from "../Skeletons/AIThinkingIndicatorSkeleton";
@@ -69,30 +75,75 @@ const quickActions = [
   "Need more staff for tonight's shift?",
 ];
 
+type DashboardRole = "operations" | "executive" | "marketing";
+
 interface ChatInterfaceProps {
   chatId?: number | null;
   onChatCreated?: (chatId: number) => void;
+  role?: DashboardRole;
 }
 
 export function ChatInterface({
   chatId,
   onChatCreated,
+  role = "operations",
 }: ChatInterfaceProps = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // API hooks
-  const [startConversation, { isLoading: isStartingConversation }] =
+  // API hooks - Operations
+  const [startOperationsConversation, { isLoading: isOperationsLoading }] =
     useStartConversationMutation();
+  const { data: operationsChatSession } = useGetChatSessionQuery(
+    chatId as number,
+    {
+      skip: !chatId || role !== "operations",
+    }
+  );
 
-  // Fetch messages if chatId exists
-  const { data: chatSession } = useGetChatSessionQuery(chatId as number, {
-    skip: !chatId,
-  });
+  // API hooks - Executive
+  const [startExecutiveConversation, { isLoading: isExecutiveLoading }] =
+    useStartExecutiveConversationMutation();
+  const { data: executiveChatSession } = useGetExecutiveChatSessionQuery(
+    chatId as number,
+    {
+      skip: !chatId || role !== "executive",
+    }
+  );
 
-  const isLoading = isStartingConversation;
+  // API hooks - Marketing
+  const [startMarketingConversation, { isLoading: isMarketingLoading }] =
+    useStartMarketingConversationMutation();
+  const { data: marketingChatSession } = useGetMarketingChatSessionQuery(
+    chatId as number,
+    {
+      skip: !chatId || role !== "marketing",
+    }
+  );
+
+  // Select the appropriate hooks based on role
+  const startConversation =
+    role === "executive"
+      ? startExecutiveConversation
+      : role === "marketing"
+      ? startMarketingConversation
+      : startOperationsConversation;
+
+  const chatSession =
+    role === "executive"
+      ? executiveChatSession
+      : role === "marketing"
+      ? marketingChatSession
+      : operationsChatSession;
+
+  const isLoading =
+    role === "executive"
+      ? isExecutiveLoading
+      : role === "marketing"
+      ? isMarketingLoading
+      : isOperationsLoading;
 
   // Load messages from API when available
   useEffect(() => {

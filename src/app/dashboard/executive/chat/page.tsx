@@ -6,9 +6,10 @@ import { ChatHistory } from "@/components/Chat/ChatHistory";
 import { ChatInterface } from "@/components/Chat/ChatInterface";
 
 export default function ChatPage() {
+  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [currentChatId, setCurrentChatId] = useState<number | null>(null);
 
   // Load chat ID from URL on mount
   useEffect(() => {
@@ -43,12 +44,14 @@ export default function ChatPage() {
           <ChatInterface
             chatId={currentChatId}
             onChatCreated={handleChatCreated}
+            role="executive"
           />
         </div>
         <ChatHistory
           onChatSelect={handleChatSelect}
           onNewChat={handleNewChat}
           selectedChatId={currentChatId}
+          role="executive"
         />
       </div>
     </div>

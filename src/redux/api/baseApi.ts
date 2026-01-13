@@ -47,12 +47,18 @@ export const baseApi = createApi({
     "Chats",
     "ChatMessages",
 
+    "ExecutiveChats",
+    "ExecutiveChatMessages",
+    
+    "MarketingChats",
+    "MarketingChatMessages",
+
     "OperatorDocuments",
     "MarketingManagerDocuments",
     "ExecutiveDocuments",
     
     "OnboardingProgress",
-    
+
     "Calendar",
     "ExecutiveCalendar",
     "MarketingCalendar",

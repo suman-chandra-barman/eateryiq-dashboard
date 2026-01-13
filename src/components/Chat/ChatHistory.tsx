@@ -10,32 +10,114 @@ import { DeleteChatDialog } from "@/components/Dailog/DeleteChatDialog";
 import {
   useGetChatsQuery,
   useDeleteChatsMutation,
+  useGetExecutiveChatsQuery,
+  useDeleteExecutiveChatsMutation,
+  useGetMarketingChatsQuery,
+  useDeleteMarketingChatsMutation,
 } from "@/redux/features/chats/chatApi";
+
+type DashboardRole = "operations" | "executive" | "marketing";
 
 interface ChatHistoryProps {
   onChatSelect?: (chatId: number) => void;
   onNewChat?: () => void;
   selectedChatId?: number | null;
+  role?: DashboardRole;
 }
 
 export function ChatHistory({
   onChatSelect,
   onNewChat,
   selectedChatId,
+  role = "operations",
 }: ChatHistoryProps = {}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChats, setSelectedChats] = useState<number[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // API hooks
+  // API hooks - Operations
   const {
-    data: chatsData,
-    isLoading,
-    error,
-  } = useGetChatsQuery({
-    search: searchQuery || undefined,
-  });
-  const [deleteChats, { isLoading: isDeleting }] = useDeleteChatsMutation();
+    data: operationsChatsData,
+    isLoading: isOperationsLoading,
+    error: operationsError,
+  } = useGetChatsQuery(
+    {
+      search: searchQuery || undefined,
+    },
+    {
+      skip: role !== "operations",
+    }
+  );
+  const [deleteOperationsChats, { isLoading: isDeletingOperations }] =
+    useDeleteChatsMutation();
+
+  // API hooks - Executive
+  const {
+    data: executiveChatsData,
+    isLoading: isExecutiveLoading,
+    error: executiveError,
+  } = useGetExecutiveChatsQuery(
+    {
+      search: searchQuery || undefined,
+    },
+    {
+      skip: role !== "executive",
+    }
+  );
+  const [deleteExecutiveChats, { isLoading: isDeletingExecutive }] =
+    useDeleteExecutiveChatsMutation();
+
+  // API hooks - Marketing
+  const {
+    data: marketingChatsData,
+    isLoading: isMarketingLoading,
+    error: marketingError,
+  } = useGetMarketingChatsQuery(
+    {
+      search: searchQuery || undefined,
+    },
+    {
+      skip: role !== "marketing",
+    }
+  );
+  const [deleteMarketingChats, { isLoading: isDeletingMarketing }] =
+    useDeleteMarketingChatsMutation();
+
+  // Select the appropriate hooks based on role
+  const chatsData =
+    role === "executive"
+      ? executiveChatsData
+      : role === "marketing"
+      ? marketingChatsData
+      : operationsChatsData;
+
+  const isLoading =
+    role === "executive"
+      ? isExecutiveLoading
+      : role === "marketing"
+      ? isMarketingLoading
+      : isOperationsLoading;
+
+  const error =
+    role === "executive"
+      ? executiveError
+      : role === "marketing"
+      ? marketingError
+      : operationsError;
+
+  const deleteChats =
+    role === "executive"
+      ? deleteExecutiveChats
+      : role === "marketing"
+      ? deleteMarketingChats
+      : deleteOperationsChats;
+
+  const isDeleting =
+    role === "executive"
+      ? isDeletingExecutive
+      : role === "marketing"
+      ? isDeletingMarketing
+      : isDeletingOperations;
 
   const history = chatsData?.data || [];
 
