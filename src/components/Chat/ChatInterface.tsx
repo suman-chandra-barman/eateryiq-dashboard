@@ -25,8 +25,6 @@ import {
   useStartMarketingConversationMutation,
   useGetMarketingChatSessionQuery,
   type Message as ApiMessage,
-  type SendMessageResponse,
-  type GetSingleChatResponse,
 } from "@/redux/features/chats/chatApi";
 import Markdown from "react-markdown";
 import AIThinkingIndicatorSkeleton from "../Skeletons/AIThinkingIndicatorSkeleton";

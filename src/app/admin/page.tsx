@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex max-h-screen">
       <div className="flex-1 flex flex-col">
         <AdminStatsCards />
         <div className="mb-4">
