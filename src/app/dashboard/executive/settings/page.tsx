@@ -5,16 +5,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, CreditCard } from "lucide-react";
 import { AccountTab } from "@/components/Settings/AccountTab";
 import { BillingTab } from "@/components/Settings/BillingTab";
+import { Button } from "@/components/ui/button";
+import { ShareThoughtModal } from "@/components/Dailog/ShareThoughtModal";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="flex flex-col">
-      <h1 className="text-3xl font-medium text-[#3B3B3B] mb-4">Setting</h1>
+      <h2 className="text-3xl font-medium text-[#3B3B3B] mb-4">Setting</h2>
       <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 gap-4 bg-white">
+          <TabsList className="grid grid-cols-3 gap-4 bg-white mb-4">
             {[
               { value: "account", label: "Account", Icon: User },
               { value: "billing", label: "Billing", Icon: CreditCard },
@@ -40,8 +43,14 @@ export default function SettingsPage() {
                 </TabsTrigger>
               );
             })}
+            <Button
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md max-w-56"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Share Your Thought
+            </Button>
           </TabsList>
-
           <TabsContent value="account" className="space-y-6">
             <AccountTab />
           </TabsContent>
@@ -51,6 +60,7 @@ export default function SettingsPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <ShareThoughtModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
   );
 }

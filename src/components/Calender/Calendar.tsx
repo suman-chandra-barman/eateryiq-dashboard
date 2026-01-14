@@ -1,15 +1,15 @@
 // components/Calendar.tsx
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer, Event as RBCEvent } from 'react-big-calendar';
-import format from 'date-fns/format';
-import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
-import enUS from 'date-fns/locale/en-US';
+import { format } from 'date-fns/format';
+import { parse } from 'date-fns/parse';
+import { startOfWeek } from 'date-fns/startOfWeek';
+import { getDay } from 'date-fns/getDay';
+import { enUS } from 'date-fns/locale/en-US';
 import { Button } from '@/components/ui/button';
-import CreateEventModal from './CreateEventModal';
+import { CreateEventDialog } from './CreateEventDialog';
 import { useEventStore, Event } from '@/store/useEventStore';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -83,7 +83,7 @@ export default function Calendar() {
         </div>
       </div>
 
-      <CreateEventModal open={modalOpen} onOpenChange={setModalOpen} />
+      <CreateEventDialog open={modalOpen} onOpenChange={setModalOpen} />
     </div>
   );
 }
