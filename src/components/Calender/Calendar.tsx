@@ -1,20 +1,30 @@
 // components/Calendar.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Calendar as BigCalendar, dateFnsLocalizer, Event as RBCEvent } from 'react-big-calendar';
-import { format } from 'date-fns/format';
-import { parse } from 'date-fns/parse';
-import { startOfWeek } from 'date-fns/startOfWeek';
-import { getDay } from 'date-fns/getDay';
-import { enUS } from 'date-fns/locale/en-US';
-import { Button } from '@/components/ui/button';
-import { CreateEventDialog } from './CreateEventDialog';
-import { useEventStore, Event } from '@/store/useEventStore';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { useState } from "react";
+import {
+  Calendar as BigCalendar,
+  dateFnsLocalizer,
+  Event as RBCEvent,
+} from "react-big-calendar";
+import { format } from "date-fns/format";
+import { parse } from "date-fns/parse";
+import { startOfWeek } from "date-fns/startOfWeek";
+import { getDay } from "date-fns/getDay";
+import { enUS } from "date-fns/locale/en-US";
+import { Button } from "@/components/ui/button";
+import { CreateEventDialog } from "./CreateEventDialog";
+import { useEventStore, Event } from "@/store/useEventStore";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
-const locales = { 'en-US': enUS };
-const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
+const locales = { "en-US": enUS };
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 
 export default function Calendar() {
   const { events, deleteEvent } = useEventStore();
@@ -36,13 +46,13 @@ export default function Calendar() {
 
   const eventStyleGetter = () => ({
     style: {
-      backgroundColor: '#2563eb',
-      borderRadius: '4px',
-      color: 'white',
-      border: '0px',
-      display: 'block',
-      padding: '2px 4px',
-      fontSize: '0.75rem',
+      backgroundColor: "#2563eb",
+      borderRadius: "4px",
+      color: "white",
+      border: "0px",
+      display: "block",
+      padding: "2px 4px",
+      fontSize: "0.75rem",
     },
   });
 
@@ -57,14 +67,14 @@ export default function Calendar() {
           </div>
         </div>
 
-        <div className="p-4" style={{ height: '700px' }}>
+        <div className="p-4" style={{ height: "700px" }}>
           <BigCalendar
             localizer={localizer}
             events={rbcEvents}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: '100%' }}
-            views={['month']}
+            style={{ height: "100%" }}
+            views={["month"]}
             defaultView="month"
             defaultDate={new Date(2025, 1, 1)}
             onSelectEvent={handleSelectEvent}
@@ -72,11 +82,11 @@ export default function Calendar() {
             dayPropGetter={(date) => {
               const hasEvent = events.some(
                 (e) =>
-                  format(e.start, 'yyyy-MM-dd') <= format(date, 'yyyy-MM-dd') &&
-                  format(e.end, 'yyyy-MM-dd') >= format(date, 'yyyy-MM-dd')
+                  format(e.start, "yyyy-MM-dd") <= format(date, "yyyy-MM-dd") &&
+                  format(e.end, "yyyy-MM-dd") >= format(date, "yyyy-MM-dd")
               );
               return {
-                className: hasEvent ? 'bg-blue-50' : '',
+                className: hasEvent ? "bg-blue-50" : "",
               };
             }}
           />
