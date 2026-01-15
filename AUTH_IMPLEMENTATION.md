@@ -133,7 +133,7 @@ src/
 Create a `.env.local` file:
 
 ```env
-NEXT_PUBLIC_BASE_URL=https://your-api-url.com/api
+NEXT_PUBLIC_BACKEND_URL=https://your-api-url.com/api
 ```
 
 ### 2. Dependencies

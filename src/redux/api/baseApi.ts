@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+  baseUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
   credentials: "include",
   prepareHeaders: (headers, { getState, endpoint }) => {
     const token = (getState() as RootState).auth.token;
@@ -49,14 +49,14 @@ export const baseApi = createApi({
 
     "ExecutiveChats",
     "ExecutiveChatMessages",
-    
+
     "MarketingChats",
     "MarketingChatMessages",
 
     "OperatorDocuments",
     "MarketingManagerDocuments",
     "ExecutiveDocuments",
-    
+
     "OnboardingProgress",
 
     "Calendar",

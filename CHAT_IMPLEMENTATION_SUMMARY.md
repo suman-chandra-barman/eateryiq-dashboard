@@ -137,7 +137,7 @@ You need to implement the backend API endpoints as documented in `CHAT_API_DOCUM
 Ensure your `.env.local` has:
 
 ```env
-NEXT_PUBLIC_BASE_URL=your_api_base_url
+NEXT_PUBLIC_BACKEND_URL=your_api_base_url
 ```
 
 ## Testing

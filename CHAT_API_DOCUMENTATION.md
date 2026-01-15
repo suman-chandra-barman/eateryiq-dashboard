@@ -4,7 +4,7 @@ This document describes the API endpoints required for the EateryGPT Chat featur
 
 ## Base URL
 
-All endpoints should be prefixed with your API base URL (configured in `NEXT_PUBLIC_BASE_URL`).
+All endpoints should be prefixed with your API base URL (configured in `NEXT_PUBLIC_BACKEND_URL`).
 
 ## Authentication
 

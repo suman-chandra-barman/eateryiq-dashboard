@@ -53,7 +53,7 @@ export function DocumentsTable({
 
     try {
       // Get base URL from environment or use default
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
       const fullUrl = doc.fileUrl.startsWith("http")
         ? doc.fileUrl
         : `${baseUrl}${doc.fileUrl}`;
