@@ -27,6 +27,12 @@ export function middleware(request: NextRequest) {
   // Get token from cookie
   const token = request.cookies.get("token")?.value;
 
+  // Root path "/" - let the page component handle redirection
+  // This allows client-side Redux state access for role-based routing
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
+
   // Check if the current route is public
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route)
@@ -35,9 +41,10 @@ export function middleware(request: NextRequest) {
   // Check if the current route is an auth route
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  // If user is logged in and trying to access auth pages, redirect to dashboard
+  // If user is logged in and trying to access auth pages, redirect to root
+  // Root page will handle role-based routing
   if (token && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   // If user is not logged in and trying to access protected route, redirect to login
