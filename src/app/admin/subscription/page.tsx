@@ -12,7 +12,7 @@ import rocket from "@/assets/rocket.svg";
 import Image from "next/image";
 import arrow from "@/assets/arrow.svg";
 import { AddSubscriptionModal } from "@/components/Admin/Modal/AddSubscription";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 
 interface Feature {
@@ -43,8 +43,6 @@ export default function SubscriptionPage() {
   }) => {
     setIsSubmitting(true);
     try {
-      console.log("data", data);
-
       //   toast.success("Subscription created successfully");
       setIsAddModalOpen(false);
     } catch (error) {

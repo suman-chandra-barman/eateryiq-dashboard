@@ -22,7 +22,6 @@ export function ShareThoughtModal({
   const [thought, setThought] = useState("");
 
   const handleShare = () => {
-    console.log("Sharing thought:", thought);
     setThought("");
     onOpenChange(false);
   };
