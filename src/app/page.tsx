@@ -25,5 +25,5 @@ export default function RootPage() {
   }, [token, user, router]);
 
   // Show loading state while redirecting
-  return <PageLoader />;
+  return <PageLoader className="h-screen"/>;
 }

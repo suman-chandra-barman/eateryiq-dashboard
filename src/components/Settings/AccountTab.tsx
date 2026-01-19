@@ -38,7 +38,7 @@ export function AccountTab() {
       <div className="space-y-4">
         <div className="sticky top-0 z-30 bg-white/90 backdrop-blur">
           <div className="py-3 flex items-center gap-4">
-            <RadialProgress value={15} size={42} stroke={8} />
+            <RadialProgress value={onboardingData?.data?.progress || 0} size={42} stroke={8} />
             <div className="flex-1">
               <div className="text-sm font-medium">
                 Onboarding progress:{" "}
